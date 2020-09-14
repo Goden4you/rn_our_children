@@ -1,4 +1,4 @@
-import {LOAD_ALBUMS} from '../types';
+import {LOAD_ALBUMS, TOGGLE_ALBUM} from '../types';
 
 export const loadAlbums = (
   albumsPhotos,
@@ -15,5 +15,32 @@ export const loadAlbums = (
   return {
     type: LOAD_ALBUMS,
     payload: albums,
+  };
+};
+
+export const toggleAlbum = (
+  image,
+  titles,
+  authors,
+  duration,
+  ids,
+  durationMillis,
+  firstTrackId,
+  lastTrackId,
+) => {
+  const albumTracks = {
+    image,
+    titles,
+    authors,
+    duration,
+    ids,
+    durationMillis,
+    firstTrackId,
+    lastTrackId,
+  };
+
+  return {
+    type: TOGGLE_ALBUM,
+    payload: albumTracks,
   };
 };

@@ -2,6 +2,7 @@ import {LOAD_ALBUMS, TOGGLE_ALBUM} from '../types';
 
 const initialState = {
   allAlbums: [],
+  currentAlbum: [],
 };
 
 export const albumsReducer = (state = initialState, action) => {
@@ -9,7 +10,7 @@ export const albumsReducer = (state = initialState, action) => {
     case LOAD_ALBUMS:
       return {...state, allAlbums: action.payload};
     case TOGGLE_ALBUM:
-      return state.allAlbums[action.payload];
+      return {...state, currentAlbum: action.payload};
     default:
       return state;
   }
