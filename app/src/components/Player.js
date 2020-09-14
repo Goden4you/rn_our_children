@@ -22,15 +22,10 @@ const API_PATH = 'https://childrensproject.ocs.ru/api/';
 
 export class Player extends React.Component {
   state = {
-    albumImage: null,
-    isPlaying: false,
-    trackPlayerInit: false,
-    trackId: 0,
     currentIndex: 0,
     volume: 1.0,
     isBuffering: true,
     currentTime: 0,
-    minimazed: true,
     needUpdate: true,
     needUpdate3: true,
     audioLoaded: false,

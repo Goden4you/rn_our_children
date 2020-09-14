@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/rules-of-hooks */
 import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
@@ -8,9 +9,10 @@ import {
   StyleSheet,
   ImageBackground,
   Dimensions,
-  Platform,
 } from 'react-native';
+import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
+import {toggleAlbum} from '../store/actions/albums';
 
 var phoneHeight = Dimensions.get('window').height;
 var tracksTitles = [];
@@ -84,36 +86,23 @@ async function putPressedTrackIdInStore(trackId) {
   await AsyncStorage.setItem('track_id', JSON.stringify(trackId));
 }
 
-async function putPropsInStore() {
-  try {
-    if (albumImage)
-      await AsyncStorage.setItem('album_image', JSON.stringify(albumImage));
-
-    await AsyncStorage.setItem('tracks_titles', JSON.stringify(tracksTitles));
-
-    await AsyncStorage.setItem('tracks_authors', JSON.stringify(tracksAuthors));
-
-    await AsyncStorage.setItem(
-      'tracks_duration',
-      JSON.stringify(tracksDuration),
-    );
-
-    await AsyncStorage.setItem(
-      'tracks_duration_millis',
-      JSON.stringify(tracksDurationMillis),
-    );
-
-    await AsyncStorage.setItem('first_track_id', JSON.stringify(firstTrackId));
-
-    await AsyncStorage.setItem('last_track_id', JSON.stringify(lastTrackId));
-
-    console.log('ALBUM INFO STORED');
-  } catch (e) {
-    console.log(e);
-  }
-}
-
 var intervalToMove = 0;
+
+const putPropsInStore = () => {
+  const dispatch = useDispatch();
+  dispatch(
+    toggleAlbum(
+      albumImage,
+      tracksTitles,
+      tracksAuthors,
+      tracksDuration,
+      tracksIds,
+      tracksDurationMillis,
+      firstTrackId,
+      lastTrackId,
+    ),
+  );
+};
 
 async function onTrackPressed(trackId, albumIdProps) {
   if (albumIdProps !== albumId) {
@@ -177,7 +166,6 @@ export const AlbumScreen = ({navigation, route}) => {
   } = route.params;
   const [isReady, setIsReady] = useState(false);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (albumImageProps !== albumImage) {
       fetchSongs(albumDescProps, albumIdProps);
@@ -196,12 +184,8 @@ export const AlbumScreen = ({navigation, route}) => {
     } else {
       setIsReady(true);
     }
-  });
-
-  useCallback(() => {
-    putPropsInStore();
-    console.log('useCallback called');
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isReady]);
 
   if (isReady) {
     return (
@@ -251,9 +235,6 @@ export const AlbumScreen = ({navigation, route}) => {
                     key={value}
                     onPress={() => {
                       onTrackPressed(value, albumIdProps);
-                      // putPressedTrackIdInStore(tracksIds[index]);
-                      // pressed = true;
-                      // putPropsInStore();
                     }}>
                     <View style={{width: '80%'}}>
                       <Text style={styles.songTitle}>
