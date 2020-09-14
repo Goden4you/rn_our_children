@@ -7,15 +7,18 @@ import {
   Text,
   Modal,
   Alert,
-  Platform,
   AppState,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
 import SplashScreen from 'react-native-splash-screen';
-import {Slider} from 'react-native-elements';
 import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'rn-fetch-blob';
-// import * as FileSystem from 'expo-file-system';
+import {MinimazedPlayer} from './minimazedPlayer/MinimazedPlayer';
+import {FileInfo} from './musicInfo/FileInfo';
+import {TrackSlider} from './slider/TrackSlider';
+import {ControlsButtons} from './controlPanel/ControlsButtons';
+
+const API_PATH = 'https://childrensproject.ocs.ru/api/';
 
 export class Player extends React.Component {
   state = {
@@ -49,7 +52,6 @@ export class Player extends React.Component {
       console.log('componentDidMount called...');
       TrackPlayer.setupPlayer().then(() => {
         console.log('Player created');
-        // TrackPlayer.getState().then(this.onStateChange); //Initialize
         TrackPlayer.updateOptions({
           capabilities: [
             TrackPlayer.CAPABILITY_PLAY,
@@ -62,9 +64,6 @@ export class Player extends React.Component {
             TrackPlayer.CAPABILITY_PAUSE,
           ],
         });
-        // this.listeners.state = TrackPlayer.addEventListener('playback-state', this.onStateChange);
-        // this.listeners.trackChange = TrackPlayer.addEventListener('playback-track-changed', this.onTrackChanged);
-        // this.listeners.queueEnded = TrackPlayer.addEventListener('playback-queue-ended', this.onQueueEnded);
       });
       await AsyncStorage.setItem('move_to_next_album', JSON.stringify(false)); // dropping back moving to next album
       await AsyncStorage.getItem('album_image', (err, res) => {
@@ -170,16 +169,6 @@ export class Player extends React.Component {
   // function to put data from async storage to player state
   async getStoreToState() {
     try {
-      // await AsyncStorage.getItem('album_image', (err, res) => {
-      //   if (err) {
-      //     console.log(err);
-      //   }
-      //   this.setState({
-      //     albumImage: JSON.parse(res),
-      //   });
-      //   console.log('ALBUM IMAGE now in state.');
-      // });
-
       await AsyncStorage.getItem('tracks_titles', (err, res) => {
         if (err) {
           console.log(err);
@@ -673,37 +662,6 @@ export class Player extends React.Component {
     }
   };
 
-  renderFileInfo() {
-    const {
-      trackPlayerInit,
-      minimazed,
-      tracksTitles,
-      tracksAuthors,
-      trackId,
-      firstTrackId,
-    } = this.state;
-    return trackPlayerInit ? (
-      <View style={minimazed ? styles.trackInfoMinimazed : styles.trackInfo}>
-        <Text
-          style={
-            minimazed
-              ? [styles.largeTextMinimazed, styles.trackInfoTextMinimazed]
-              : [styles.largeText, styles.trackInfoText]
-          }>
-          {tracksTitles[trackId - firstTrackId]}
-        </Text>
-        <Text
-          style={
-            minimazed
-              ? [styles.smallTextMinimazed, styles.trackInfoTextMinimazed]
-              : [styles.smallText, styles.trackInfoText]
-          }>
-          {tracksAuthors[trackId - firstTrackId]}
-        </Text>
-      </View>
-    ) : null;
-  }
-
   async trackPosition() {
     const {audioLoaded, currentTime} = this.state;
 
@@ -736,9 +694,7 @@ export class Player extends React.Component {
       await RNFetchBlob.fs.exists(path).then(async (exist) => {
         console.log('Track exists? -', exist);
         if (!exist) {
-          await fetch(
-            'https://childrensproject.ocs.ru/api/v1/files/' + trackId,
-          ).then(async (data) => {
+          await fetch(API_PATH + 'v1/files/' + trackId).then(async (data) => {
             console.log('file size - ', data.headers.get('Content-Length'));
             let fileSize = data.headers.get('Content-Length');
             let totalSize = parseInt(fileSize, 10) + this.state.loadedMusicSize;
@@ -754,7 +710,7 @@ export class Player extends React.Component {
           });
           await RNFetchBlob.fs.writeFile(
             path,
-            'https://childrensproject.ocs.ru/api/v1/files/' + trackId,
+            API_PATH + 'v1/files/' + trackId,
           );
           console.log('New Track Now In Cache');
         }
@@ -762,64 +718,6 @@ export class Player extends React.Component {
     } catch (e) {
       console.log(e);
     }
-  }
-
-  minimazedPlayer() {
-    const {isPlaying, albumImage, trackPlayerInit} = this.state;
-    return (
-      <View style={styles.containerMinimazed}>
-        <TouchableOpacity
-          style={styles.imageAndInfo}
-          onPress={
-            () => (trackPlayerInit ? this.setState({minimazed: false}) : null) // open modal, if track was loaded
-          }>
-          <Image
-            style={styles.albumCoverMinimazed}
-            source={
-              trackPlayerInit
-                ? {
-                    uri: albumImage,
-                  }
-                : require('../../../images/osya/none/ndCopy.png')
-            }
-          />
-          {this.renderFileInfo()}
-        </TouchableOpacity>
-        <View style={styles.controls}>
-          <TouchableOpacity
-            style={styles.controlMinimazed}
-            onPress={trackPlayerInit ? this.handlePreviousTrack : null}>
-            <Image
-              source={require('../../../images/icons/playerControl/prevHit/prevHitCopy.png')}
-              style={styles.controlImage}
-            />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.controlMinimazed}
-            onPress={trackPlayerInit ? this.handlePlayPause : null}>
-            {isPlaying ? (
-              <Image
-                source={require('../../../images/icons/playerControl/pauseHit/pauseHitCopy.png')}
-                style={styles.controlImage}
-              />
-            ) : (
-              <Image
-                source={require('../../../images/icons/playerControl/playHit/playHitCopy.png')}
-                style={styles.controlImage}
-              />
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.controlMinimazed}
-            onPress={trackPlayerInit ? this.handleNextTrack : null}>
-            <Image
-              source={require('../../../images/icons/playerControl/nextHit/nextHitCopy.png')}
-              style={styles.controlImage}
-            />
-          </TouchableOpacity>
-        </View>
-      </View>
-    );
   }
 
   // called when user ended sliding track position
@@ -837,10 +735,11 @@ export class Player extends React.Component {
     }
   };
 
+  // TODO Данные в минимизированный плеер, инфу о файле, слайдер пойдут через редакс
   render() {
     return (
       <View style={styles.container}>
-        {this.minimazedPlayer()}
+        <MinimazedPlayer />
         <Modal
           animationType="slide"
           transparent={true}
@@ -863,66 +762,10 @@ export class Player extends React.Component {
                   : require('../../../images/splash_phone/drawable-mdpi/vector_smart_object.png')
               }
             />
-            <View style={styles.sliderWrap}>
-              <Slider
-                minimumValue={0}
-                maximumValue={
-                  this.state.trackPlayerInit
-                    ? this.state.formattedDurMillis[
-                        this.state.trackId - this.state.firstTrackId
-                      ]
-                    : 0
-                }
-                minimumTrackTintColor={'rgb(244,121,40)'}
-                onSlidingComplete={(value) => {
-                  this.handleTrackPosition(value);
-                }}
-                thumbTintColor="rgb(244,121,40)"
-                step={1}
-                value={this.state.currentTime}
-              />
-              <View style={styles.sliderDuration}>
-                <Text>{this.state.formattedCurrentTime}</Text>
-                <Text>
-                  {this.state.trackPlayerInit
-                    ? this.state.tracksDuration[
-                        this.state.trackId - this.state.firstTrackId
-                      ]
-                    : '00:00'}
-                </Text>
-              </View>
-            </View>
-            {this.renderFileInfo()}
-            <View style={styles.controls}>
-              <TouchableOpacity
-                style={styles.control}
-                onPress={this.handlePreviousTrack}>
-                <Image
-                  source={require('../../../images/icons/playerControl/prevHit/prevHitCopy.png')}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.control}
-                onPress={this.handlePlayPause}>
-                {this.state.isPlaying ? (
-                  <Image
-                    source={require('../../../images/icons/playerControl/pauseHit/pauseHitCopy.png')}
-                  />
-                ) : (
-                  <Image
-                    source={require('../../../images/icons/playerControl/playHit/playHitCopy.png')}
-                  />
-                )}
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.control}
-                onPress={this.handleNextTrack}>
-                <Image
-                  source={require('../../../images/icons/playerControl/nextHit/nextHitCopy.png')}
-                />
-              </TouchableOpacity>
-            </View>
+            <TrackSlider />
+            <FileInfo />
           </View>
+          <ControlsButtons />
         </Modal>
       </View>
     );
@@ -938,19 +781,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  containerMinimazed: {
-    height: 80,
-    width: '100%',
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 10,
-    // position: "absolute",
-    bottom: 0,
-    borderTopColor: 'rgb(244,121,40)',
-    borderTopWidth: 1,
-  },
   imageAndInfo: {
     flexDirection: 'row',
     width: 240,
@@ -960,75 +790,5 @@ const styles = StyleSheet.create({
   albumCover: {
     width: 350,
     height: 350,
-  },
-  albumCoverMinimazed: {
-    height: 60,
-    width: 60,
-    resizeMode: 'contain',
-  },
-  trackInfo: {
-    padding: 20,
-    width: '100%',
-  },
-  trackInfoMinimazed: {
-    width: '70%',
-    paddingLeft: 10,
-    textAlign: 'left',
-  },
-  trackInfoText: {
-    textAlign: 'center',
-    flexWrap: 'wrap',
-    fontFamily: 'HouschkaPro-Medium',
-  },
-  trackInfoTextMinimazed: {
-    textAlign: 'left',
-    flexWrap: 'wrap',
-    fontFamily: 'HouschkaPro-Medium',
-  },
-  largeText: {
-    fontSize: 22,
-  },
-  largeTextMinimazed: {
-    fontSize: 18,
-  },
-  smallText: {
-    fontSize: 16,
-    color: 'rgb(147, 149, 152)',
-  },
-  smallTextMinimazed: {
-    fontSize: 14,
-    color: 'rgb(147, 149, 152)',
-  },
-  control: {
-    margin: 20,
-    // width: '10%',
-  },
-  controlMinimazed: {
-    margin: 5,
-    width: 25,
-  },
-  controls: {
-    flexDirection: 'row',
-  },
-  sliderDuration: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  sliderDurationMinimazed: {
-    display: 'none',
-  },
-  sliderWrap: {
-    width: '90%',
-  },
-  sliderWrapMinimazed: {
-    display: 'none',
-  },
-  thumb: {
-    display: 'none',
-  },
-  controlImage: {
-    width: 25,
-    height: 25,
-    resizeMode: 'contain',
   },
 });
