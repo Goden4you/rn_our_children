@@ -1,5 +1,4 @@
-/* eslint-disable react-native/no-inline-styles */
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   ScrollView,
   View,
@@ -9,8 +8,9 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
 import RNFetchBlob from 'rn-fetch-blob';
+import {useDispatch, useSelector} from 'react-redux';
+import {loadAlbums} from '../store/actions/albums';
 
 // initializing arrays, where data will be put
 var albumsTitles = [];
@@ -34,45 +34,42 @@ var osyaSrc = [
 
 // fetching albums data to put them in variables
 async function fetchAlbums() {
-  const response = await fetch(
-    'https://childrensproject.ocs.ru/api/v1/albums',
-    {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
+  await fetch('https://childrensproject.ocs.ru/api/v1/albums', {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+      'Content-Type': 'application/json',
     },
-  );
+  }).then(async (response) => {
+    const data = await response.json();
+    const parsedData = JSON.parse(JSON.stringify(data));
+    // console.log("Data downloading completed...", parsedData);
 
-  const data = await response.json();
-  const parsedData = JSON.parse(JSON.stringify(data));
-  // console.log("Data downloading completed...", parsedData);
-
-  // put albums TITLES
-  for (let i = 0; i < 7; i++) {
-    albumsTitles[i] = parsedData[i].title;
-  }
-
-  // put albums SONGS COUNT with using cases
-  for (let i = 0; i < 7; i++) {
-    if (parsedData[i].songsCount % 10 === 2) {
-      albumsDesc[i] = parsedData[i].songsCount + ' песни';
-    } else if (parsedData[i].songsCount % 10 === 4) {
-      albumsDesc[i] = parsedData[i].songsCount + ' песни';
-    } else {
-      albumsDesc[i] = parsedData[i].songsCount + ' песен';
+    // put albums TITLES
+    for (let i = 0; i < 7; i++) {
+      albumsTitles[i] = parsedData[i].title;
     }
-  }
 
-  // put albums IDs
-  for (let i = 0; i < 7; i++) {
-    albumsIds[i] = parsedData[i].id;
-  }
+    // put albums SONGS COUNT with using cases
+    for (let i = 0; i < 7; i++) {
+      if (parsedData[i].songsCount % 10 === 2) {
+        albumsDesc[i] = parsedData[i].songsCount + ' песни';
+      } else if (parsedData[i].songsCount % 10 === 4) {
+        albumsDesc[i] = parsedData[i].songsCount + ' песни';
+      } else {
+        albumsDesc[i] = parsedData[i].songsCount + ' песен';
+      }
+    }
 
-  isAlbumsFetched = true;
+    // put albums IDs
+    for (let i = 0; i < 7; i++) {
+      albumsIds[i] = parsedData[i].id;
+    }
 
-  console.log('Albums data fetched.');
+    isAlbumsFetched = true;
+
+    console.log('Albums data fetched.');
+  });
 }
 
 // fetching albums photos
@@ -130,13 +127,6 @@ async function fetchAlbumsPhotos() {
   console.log('Albums photos fetched.');
 }
 
-// prop for question - can player render or not
-async function setPropToPlayer() {
-  await AsyncStorage.setItem('can_player_render', JSON.stringify(true), () =>
-    console.log('can player render set to TRUE'),
-  );
-}
-
 async function makeDirectory() {
   let fs = RNFetchBlob.fs;
   await fs.exists(fs.dirs.CacheDir + '/albums_photos/').then(async (res) => {
@@ -150,6 +140,8 @@ async function makeDirectory() {
 export const Albums = ({navigation}) => {
   const [isReady, setIsReady] = useState(false); // state to display screen data
 
+  const dispatch = useDispatch();
+
   useEffect(() => {
     if (albumsIds[2] === undefined) {
       albumsIds[2] = 0;
@@ -158,22 +150,23 @@ export const Albums = ({navigation}) => {
       setIsReady(false); // screen can`t be displaying
       fetchAlbums(); // fetch albums info
       fetchAlbumsPhotos(); // fetch albums photos
-      setPropToPlayer(); // player now can render
       interval = setInterval(() => {
         if (isAlbumsFetched && isPhotosFetched) {
           setIsReady(true);
           clearInterval(interval);
           console.log('Albums now visible');
         }
-      }, 500);
+      }, 250);
     }
 
-    // i don`t now for what i did it
+    dispatch(loadAlbums(albumsPhotos, albumsTitles, albumsDesc, albumsIds));
+
     if (!isReady && albumsIds[2]) {
-      setPropToPlayer();
       setIsReady(true);
     }
-  }, [isReady]);
+  }, [isReady, dispatch]);
+
+  const allAlbums = useSelector((state) => state.albums.allAlbums);
 
   if (isReady) {
     return (
@@ -204,24 +197,28 @@ export const Albums = ({navigation}) => {
                   style={styles.albumImage}
                   onPress={() => {
                     navigation.navigate('AlbumScreen', {
-                      albumTitleProps: albumsTitles[index],
-                      albumDescProps: albumsDesc[index],
-                      albumImageProps: albumsPhotos[index],
-                      albumIdProps: albumsIds[index],
-                      albumsPhotosProps: albumsPhotos,
+                      albumTitleProps: allAlbums.titles[index],
+                      albumDescProps: allAlbums.desc[index],
+                      albumImageProps: allAlbums.photos[index],
+                      albumIdProps: allAlbums.ids[index],
+                      albumsPhotosProps: allAlbums.photos,
                     });
                   }}>
                   <Image
                     source={{
-                      uri: albumsPhotos[index],
+                      uri: allAlbums.photos[index],
                     }}
                     style={{width: '100%', height: '100%'}}
                   />
                 </TouchableOpacity>
                 <View style={styles.albumInfo}>
                   <View>
-                    <Text style={styles.albumTitle}>{albumsTitles[index]}</Text>
-                    <Text style={styles.albumDesc}>{albumsDesc[index]}</Text>
+                    <Text style={styles.albumTitle}>
+                      {allAlbums.titles[index]}
+                    </Text>
+                    <Text style={styles.albumDesc}>
+                      {allAlbums.desc[index]}
+                    </Text>
                   </View>
                   <View>
                     <Image source={osyaSrc[index]} />
@@ -245,7 +242,7 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
     marginLeft: 25,
     marginRight: 30,
-    height: phoneHeight - 120,
+    height: phoneHeight - 160,
   },
   albumImage: {
     width: 200,
@@ -260,12 +257,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   albumTitle: {
-    // fontFamily: 'HouschkaPro-DemiBold',
+    // fontFamily:
+    //   Platform.OS === 'ios'
+    //     ? 'HouschkaPro-DemiBold'
+    //     : 'HouschkaPro-DemiBold.ttf',
     color: 'rgb(244,121,40)',
     fontSize: 33,
   },
   albumDesc: {
     fontSize: 24,
-    // fontFamily: 'HouschkaPro-Light',
+    // fontFamily:
+    //   Platform.OS === 'ios' ? 'HouschkaPro-Light' : 'HouschkaPro-Light.ttf',
   },
 });

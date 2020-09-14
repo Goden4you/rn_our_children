@@ -25,7 +25,7 @@ export const AppNavigation = () => {
             height: 80,
           },
           headerTitleStyle: {
-            fontFamily: 'HouschkaPro-Bold',
+            // fontFamily: 'HouschkaPro-Bold',
             color: '#fff',
           },
           headerTitleAlign: 'center',

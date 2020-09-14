@@ -3,15 +3,19 @@ import React from 'react';
 import {AppNavigation} from './app/src/navigation/AppNavigation';
 import {View, StyleSheet} from 'react-native';
 import {Player} from './app/src/components/Player';
+import {Provider} from 'react-redux';
+import store from './app/src/store';
 
 function App() {
   return (
-    <View style={styles.container}>
-      <AppNavigation />
-      <View style={styles.player}>
-        <Player />
+    <Provider store={store}>
+      <View style={styles.container}>
+        <AppNavigation />
+        <View style={styles.player}>
+          <Player />
+        </View>
       </View>
-    </View>
+    </Provider>
   );
 }
 
