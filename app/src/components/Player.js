@@ -17,230 +17,275 @@ import {MinimazedPlayer} from './minimazedPlayer/MinimazedPlayer';
 import {FileInfo} from './musicInfo/FileInfo';
 import {TrackSlider} from './slider/TrackSlider';
 import {ControlsButtons} from './controlPanel/ControlsButtons';
+import {useSelector} from 'react-redux';
 
 const API_PATH = 'https://childrensproject.ocs.ru/api/';
 
-export class Player extends React.Component {
-  state = {
-    currentIndex: 0,
-    volume: 1.0,
-    isBuffering: true,
-    currentTime: 0,
-    needUpdate: true,
-    needUpdate3: true,
-    audioLoaded: false,
-    pressed: false,
-    formattedCurrentTime: '00:00',
-    interval: 0,
-    canPlayerRender: true,
-    formattedDurMillis: [],
-    loadedMusicSize: 0,
-    isQueueEnded: false,
-    needUpdate2: true,
-  };
+var state = {
+  currentIndex: 0,
+  volume: 1.0,
+  isBuffering: true,
+  currentTime: 0,
+  needUpdate: true,
+  needUpdate3: true,
+  audioLoaded: false,
+  pressed: false,
+  formattedCurrentTime: '00:00',
+  interval: 0,
+  canPlayerRender: true,
+  formattedDurMillis: [],
+  loadedMusicSize: 0,
+  isQueueEnded: false,
+  needUpdate2: true,
+};
 
-  interval;
-  intervalForPosition;
+interval;
+intervalForPosition;
 
-  async componentDidMount() {
-    try {
-      console.log('componentDidMount called...');
-      TrackPlayer.setupPlayer().then(() => {
-        console.log('Player created');
-        TrackPlayer.updateOptions({
-          capabilities: [
-            TrackPlayer.CAPABILITY_PLAY,
-            TrackPlayer.CAPABILITY_PAUSE,
-            TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
-            TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
-          ],
-          compactCapabilities: [
-            TrackPlayer.CAPABILITY_PLAY,
-            TrackPlayer.CAPABILITY_PAUSE,
-          ],
+function setupPlayer() {
+  TrackPlayer.setupPlayer().then(() => {
+    console.log('Player created');
+    TrackPlayer.updateOptions({
+      capabilities: [
+        TrackPlayer.CAPABILITY_PLAY,
+        TrackPlayer.CAPABILITY_PAUSE,
+        TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+        TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+      ],
+      compactCapabilities: [
+        TrackPlayer.CAPABILITY_PLAY,
+        TrackPlayer.CAPABILITY_PAUSE,
+      ],
+    });
+  });
+
+  TrackPlayer.addEventListener('remote-pause', () => {
+    handlePlayPause();
+  });
+
+  TrackPlayer.addEventListener('remote-play', () => {
+    handlePlayPause();
+  });
+
+  TrackPlayer.addEventListener('remote-next', () => {
+    handleNextTrack();
+  });
+
+  TrackPlayer.addEventListener('remote-previous', () => {
+    handlePreviousTrack();
+  });
+
+  TrackPlayer.addEventListener('playback-queue-ended', async () => {
+    if (this.state.isPlaying && this.state.needUpdate2) {
+      this.setState({
+        trackId: this.state.lastTrackId,
+        isQueueEnded: true,
+      });
+      await TrackPlayer.reset();
+      this.handleNextTrack();
+      console.log('queue ended');
+    }
+  });
+
+  TrackPlayer.addEventListener('playback-track-changed', async () => {
+    if (
+      this.state.isPlaying && // TODO redux
+      !this.state.isQueueEnded && // TODO redux
+      !this.state.pressed // TODO redux
+    ) {
+      await TrackPlayer.getCurrentTrack().then((res) => {
+        this.setState({
+          trackId: parseInt(res, 10),
         });
-      });
-      await AsyncStorage.setItem('move_to_next_album', JSON.stringify(false)); // dropping back moving to next album
-      await AsyncStorage.getItem('album_image', (err, res) => {
-        if (err) {
-          console.log('Can`t get album image', err);
-        }
-        if (res !== null) {
-          this.setState({
-            albumImage: JSON.parse(res),
-          });
-          this.getStoreToState();
-        }
-      });
-
-      AppState.addEventListener('change', async (res) => {
-        console.log(res);
-        if (AppState.currentState === 'active') {
-          console.log('Screen now active');
-          if (this.state.trackPlayerInit) {
-            await TrackPlayer.getCurrentTrack().then((info) => {
-              this.setState({
-                trackId: info,
-              });
-            });
+        let interval = setInterval(async () => {
+          if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
+            console.log('ready to play');
+            clearInterval(interval);
+            setTimeout(async () => {
+              await TrackPlayer.play();
+            }, 1000);
           }
-        }
+        }, 250);
       });
+    }
+  });
 
-      TrackPlayer.addEventListener('remote-pause', () => {
-        this.handlePlayPause();
+  
+  SplashScreen.hide();
+}
+
+function checkForDir() {
+  let fs = RNFetchBlob.fs;
+  await fs
+    .exists(fs.dirs.CacheDir + '/loaded_tracks/')
+    .then(async (res) => {
+      if (!res) {
+        await fs.mkdir(fs.dirs.CacheDir + '/loaded_tracks/');
+      }
+      console.log('Is dir for loaded tracks exist? -', res);
+    });
+}
+
+async function loadedTracksSize() {
+  await AsyncStorage.getItem('loaded_tracks_size').then((res) => {
+    if (res) {
+      this.setState({
+        loadedMusicSize: JSON.parse(res), // TODO redux
       });
+    }
+  });
+  this.interval = setInterval(() => this.setState({}), 1000); // TODO исправить на другое обновление1
+}
 
-      TrackPlayer.addEventListener('remote-play', () => {
-        this.handlePlayPause();
-      });
+async function getStoreToState() {
+  try {
+    const {
+      albumImage,
+      tracksTitles,
+      tracksAauthors,
+      tracksDuration,
+      tracksIds,
+      tracksDurationMillis,
+      firstTrackId,
+      lastTrackId,
+    } = useSelector((state) => state.albums.currentAlbum);
+    
+    
+    tracksTitles
+    tracksAauthors
+    tracksDuration
+    tracksIds
+    tracksDurationMillis
+    firstTrackId
+    lastTrackId
+    albumImage
+    
 
-      TrackPlayer.addEventListener('remote-next', () => {
-        this.handleNextTrack();
-      });
+    trackId = useSelector(state => state.player.currentTrack)
 
-      TrackPlayer.addEventListener('remote-previous', () => {
-        this.handlePreviousTrack();
-      });
+    loadAudio(true);
+  } catch (e) {
+    console.log('Error in function `getStoreToState()`', e);
+  }
+}
 
-      TrackPlayer.addEventListener('playback-queue-ended', async () => {
-        if (this.state.isPlaying && this.state.needUpdate2) {
-          this.setState({
-            trackId: this.state.lastTrackId,
-            isQueueEnded: true,
-          });
-          await TrackPlayer.reset();
-          this.handleNextTrack();
-          console.log('queue ended');
-        }
-      });
+async function loadAudio(currentTrack) {
+  const {
+    isPlaying,
+    trackId,
+    pressed,
+    trackPlayerInit,
+    trackPositionInterval,
+    trackList,
+  } = state;
 
-      TrackPlayer.addEventListener('playback-track-changed', async () => {
-        if (
-          this.state.isPlaying &&
-          !this.state.isQueueEnded &&
-          !this.state.pressed
-        ) {
-          await TrackPlayer.getCurrentTrack().then((res) => {
-            this.setState({
-              trackId: parseInt(res, 10),
-            });
-            let interval = setInterval(async () => {
-              if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
-                console.log('ready to play');
-                clearInterval(interval);
-                setTimeout(async () => {
-                  await TrackPlayer.play();
-                }, 1000);
-              }
-            }, 250);
-          });
-        }
-      });
+  try {
+    let j = 0; // for array of objects
+    var track = [];
+    for (let i = firstTrackId; i <= lastTrackId; i++) {
+      var path =
+        RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/' + i + '.mp3';
 
-      let fs = RNFetchBlob.fs;
-      await fs
-        .exists(fs.dirs.CacheDir + '/loaded_tracks/')
-        .then(async (res) => {
-          if (!res) {
-            await fs.mkdir(fs.dirs.CacheDir + '/loaded_tracks/');
-          }
-          console.log('Is dir for loaded tracks exist? -', res);
-        });
-      await AsyncStorage.getItem('loaded_tracks_size').then((res) => {
+      await RNFetchBlob.fs.exists(path).then(async (res) => {
         if (res) {
-          this.setState({
-            loadedMusicSize: JSON.parse(res),
+          await RNFetchBlob.fs.readFile(path).then((uri) => {
+            console.log(uri);
+            track[j] = {
+              id: i.toString(),
+              url: uri,
+              artist: trackList.authors[i - firstTrackId].toString(),
+              title: trackList.titles[i - firstTrackId].toString(),
+            };
+          });
+        } else {
+          track[j] = {
+            id: i.toString(),
+            url: 'https://childrensproject.ocs.ru/api/v1/files/' + i,
+            artist: trackList.authors[i - firstTrackId].toString(),
+            title: trackList.titles[i - firstTrackId].toString(),
+          };
+        }
+        j++;
+      });
+    }
+    await TrackPlayer.add(track);
+
+    // TODO данные перенесены в редакс, осталось их оттуда вызвать
+
+    state = {...state, 
+      audioLoaded: true,
+      isPlaying: pressed ? true : isPlaying,
+      trackPositionInterval: false,
+      isQueueEnded: false,
+      needUpdate2: true,}
+
+    if (currentTrack) {
+      await TrackPlayer.skip(trackId.toString());
+    }
+
+    // TODO
+    if (!trackPlayerInit) {
+      this.setState({
+        trackPlayerInit: true,
+      });
+    }
+
+    this.checkForLoad();
+
+    var intervalForPosition = setInterval(() => {
+      if (trackPositionInterval) {
+        clearInterval(intervalForPosition, console.log('Interval cleared2'));
+      } else {
+        this.trackPosition();
+      }
+    }, 1000);
+  } catch (e) {
+    console.log('failed to load audio', e);
+    console.log('track id in faile', trackId);
+    Alert.alert(
+      'Ошибка',
+      'Не удалось загрузить музыку, попробуйте позже',
+      [
+        {
+          text: 'Ок',
+          onPress: () => console.log('Ok button pressed'),
+        },
+      ],
+      {cancelable: false},
+    );
+    this.setState({
+      isPlaying: false,
+      trackPlayerInit: false,
+    });
+  }
+}
+
+
+export const Player = () => {
+
+  useEffect(() => {
+    setupPlayer();
+    await AsyncStorage.setItem('move_to_next_album', JSON.stringify(false)); // dropping back moving to next album
+    const {albumImage} = useSelector(state => state.albums.currentAlbum)
+    if (albumImage !== null) {
+      
+      this.getStoreToState();
+    }
+
+    AppState.addEventListener('change', async (res) => {
+      console.log(res);
+      if (AppState.currentState === 'active') {
+        console.log('Screen now active');
+        if (this.state.trackPlayerInit) {
+          await TrackPlayer.getCurrentTrack().then((info) => {
+            this.setState({
+              trackId: info,
+            });
           });
         }
-      });
-      this.interval = setInterval(() => this.setState({}), 1000); // auto updating player for catching new data
-      SplashScreen.hide();
-    } catch (e) {
-      console.log('Error in mounting player component', e);
-    }
-  }
-
-  // function to put data from async storage to player state
-  async getStoreToState() {
-    try {
-      await AsyncStorage.getItem('tracks_titles', (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        this.setState({
-          tracksTitles: JSON.parse(res),
-        });
-        console.log('Array of TRACKS TITLES now in state.');
-      });
-
-      await AsyncStorage.getItem('tracks_authors', (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        this.setState({
-          tracksAuthors: JSON.parse(res),
-        });
-        console.log('Array of TRACKS AUTHORS now in state.');
-      });
-
-      await AsyncStorage.getItem('track_id', async (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        this.setState({
-          trackId: JSON.parse(res),
-        });
-        console.log('Current TRACK ID now in state.');
-      });
-
-      await AsyncStorage.getItem('tracks_duration', (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        this.setState({
-          tracksDuration: JSON.parse(res),
-        });
-        console.log('Array of TRACKS DURATIONS now in state.');
-      });
-
-      await AsyncStorage.getItem('tracks_duration_millis', (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        let dur = JSON.parse(res).map((value) => (value /= 1000));
-        this.setState({
-          tracksDurationMillis: JSON.parse(res),
-          formattedDurMillis: dur,
-        });
-        console.log('Array of TRACKS DURATIONS in MILLIS now in state.');
-      });
-
-      await AsyncStorage.getItem('first_track_id', (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        this.setState({
-          firstTrackId: JSON.parse(res),
-        });
-        console.log('FIRST TRACK ID now in state.');
-      });
-
-      await AsyncStorage.getItem('last_track_id', (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        this.setState({
-          lastTrackId: JSON.parse(res),
-        });
-        console.log('LAST TRACK ID now in state.');
-        console.log('STATE: audioLoaded - true');
-        this.loadAudio(true);
-      });
-    } catch (e) {
-      console.log('Error in function `getStoreToState()`', e);
-    }
-  }
+      }
+    });
+  })
 
   // called every second and checking if track in AlbumScreen was pressed
   async isPressed(error, result) {
@@ -396,103 +441,6 @@ export class Player extends React.Component {
       });
     } catch (e) {
       console.log(e);
-    }
-  }
-
-  async loadAudio(currentTrack) {
-    const {
-      isPlaying,
-      trackId,
-      pressed,
-      trackPlayerInit,
-      trackPositionInterval,
-      firstTrackId,
-      lastTrackId,
-      tracksAuthors,
-      tracksTitles,
-    } = this.state;
-    console.log('Track Id from player', trackId);
-
-    try {
-      let j = 0; // for array of objects
-      var track = [];
-      for (let i = firstTrackId; i <= lastTrackId; i++) {
-        var path =
-          RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/' + i + '.mp3';
-
-        await RNFetchBlob.fs.exists(path).then(async (res) => {
-          if (res) {
-            console.log('Read track from cache');
-            // console.log('adsd', await RNFetchBlob.fs.(path));
-            await RNFetchBlob.fs.readFile(path).then((uri) => {
-              console.log(uri);
-              track[j] = {
-                id: i.toString(),
-                url: uri,
-                artist: tracksAuthors[i - firstTrackId].toString(),
-                title: tracksTitles[i - firstTrackId].toString(),
-              };
-            });
-          } else {
-            console.log('Read track from network');
-            track[j] = {
-              id: i.toString(),
-              url: 'https://childrensproject.ocs.ru/api/v1/files/' + i,
-              artist: tracksAuthors[i - firstTrackId].toString(),
-              title: tracksTitles[i - firstTrackId].toString(),
-            };
-          }
-          j++;
-        });
-      }
-      await TrackPlayer.add(track);
-
-      this.setState({
-        audioLoaded: true,
-        isPlaying: pressed ? true : isPlaying,
-        trackPositionInterval: false,
-        isQueueEnded: false,
-        needUpdate2: true,
-      });
-
-      if (currentTrack) {
-        console.log(await TrackPlayer.getQueue());
-        await TrackPlayer.skip(trackId.toString());
-      }
-
-      if (!trackPlayerInit) {
-        this.setState({
-          trackPlayerInit: true,
-        });
-      }
-
-      this.checkForLoad();
-
-      var intervalForPosition = setInterval(() => {
-        if (trackPositionInterval) {
-          clearInterval(intervalForPosition, console.log('Interval cleared2'));
-        } else {
-          this.trackPosition();
-        }
-      }, 1000);
-    } catch (e) {
-      console.log('failed to load audio', e);
-      console.log('track id in faile', trackId);
-      Alert.alert(
-        'Ошибка',
-        'Не удалось загрузить музыку, попробуйте позже',
-        [
-          {
-            text: 'Ок',
-            onPress: () => console.log('Ok button pressed'),
-          },
-        ],
-        {cancelable: false},
-      );
-      this.setState({
-        isPlaying: false,
-        trackPlayerInit: false,
-      });
     }
   }
 
@@ -738,7 +686,7 @@ export class Player extends React.Component {
         <Modal
           animationType="slide"
           transparent={true}
-          visible={!this.state.minimazed}
+          visible={!state.minimazed}
           gestureEnabled={true}
           gestureDirection="vertical">
           <View style={styles.container}>
@@ -750,9 +698,9 @@ export class Player extends React.Component {
             <Image
               style={styles.albumCover}
               source={
-                this.state.trackPlayerInit
+                state.trackPlayerInit
                   ? {
-                      uri: this.state.albumImage,
+                      uri: state.albumImage,
                     }
                   : require('../../../images/splash_phone/drawable-mdpi/vector_smart_object.png')
               }
