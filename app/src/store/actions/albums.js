@@ -19,22 +19,22 @@ export const loadAlbums = (
 };
 
 export const toggleAlbum = (
-  image,
-  titles,
-  authors,
-  duration,
-  ids,
-  durationMillis,
+  albumImage,
+  tracksTitles,
+  tracksAauthors,
+  tracksDuration,
+  albumsIds,
+  tracksDurationMillis,
   firstTrackId,
   lastTrackId,
 ) => {
   const albumTracks = {
-    image,
-    titles,
-    authors,
-    duration,
-    ids,
-    durationMillis,
+    albumImage,
+    tracksTitles,
+    tracksAauthors,
+    tracksDuration,
+    albumsIds,
+    tracksDurationMillis,
     firstTrackId,
     lastTrackId,
   };

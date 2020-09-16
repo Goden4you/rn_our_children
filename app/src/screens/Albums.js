@@ -81,7 +81,7 @@ async function fetchAlbumsPhotos() {
     console.log('exists? -', res);
     if (res) {
       console.log('Read albums photos from cache');
-      for (let i = 30184; i < 30191; i++) {
+      for (let i = albumsIds[0]; i < albumsIds[7]; i++) {
         await fs.readFile(path + i).then((data) => {
           albumsPhotos[j] = data;
           j++;
@@ -89,7 +89,7 @@ async function fetchAlbumsPhotos() {
       }
     } else {
       console.log('Read album photos from network');
-      for (let i = 30184; i < 30191; i++) {
+      for (let i = albumsIds[0]; i < albumsIds[7]; i++) {
         const response = await fetch(
           'https://childrensproject.ocs.ru/api/v1/albums/' + i,
           {
@@ -144,7 +144,6 @@ export const Albums = ({navigation}) => {
 
   useEffect(() => {
     if (albumsIds[2] === undefined) {
-      albumsIds[2] = 0;
       console.log('Albums Screen was unmounted, data loading started.');
       makeDirectory();
       setIsReady(false); // screen can`t be displaying

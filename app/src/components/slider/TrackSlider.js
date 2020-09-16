@@ -1,17 +1,25 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {Slider} from 'react-native-elements';
+import {useSelector} from 'react-redux';
 
 export const TrackSlider = ({}) => {
+  const {
+    trackPlayerInit,
+    formattedDurMillis,
+    trackId,
+    firstTrackId,
+    formattedCurrentTime,
+    tracksDuration,
+    currentTime,
+  } = useSelector((state) => state.player.trackLoaded);
   return (
     <View style={styles.sliderWrap}>
       <Slider
         minimumValue={0}
         maximumValue={
-          this.state.trackPlayerInit // TODO redux
-            ? this.state.formattedDurMillis[ // TODO redux
-                this.state.trackId - this.state.firstTrackId // TODO redux
-              ]
+          trackPlayerInit
+            ? formattedDurMillis[trackId - firstTrackId] // TODO redux
             : 0
         }
         minimumTrackTintColor={'rgb(244,121,40)'}
@@ -20,18 +28,18 @@ export const TrackSlider = ({}) => {
         }}
         thumbTintColor="rgb(244,121,40)"
         step={1}
-        value={this.state.currentTime} // TODO redux
+        value={currentTime} // TODO redux
       />
       <View style={styles.sliderDuration}>
         <Text>
           {
-            this.state.formattedCurrentTime // TODO redux
+            formattedCurrentTime // TODO redux
           }
         </Text>
         <Text>
-          {this.state.trackPlayerInit // TODO redux
-            ? this.state.tracksDuration[ // TODO redux
-                this.state.trackId - this.state.firstTrackId // TODO redux
+          {trackPlayerInit // TODO redux
+            ? tracksDuration[ // TODO redux
+                trackId - firstTrackId // TODO redux
               ]
             : '00:00'}
         </Text>

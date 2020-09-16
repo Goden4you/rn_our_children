@@ -1,5 +1,6 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
+import {useSelector} from 'react-redux';
 
 // TODO данные взять из редакса
 
@@ -11,7 +12,7 @@ export const FileInfo = ({}) => {
     tracksAuthors,
     trackId,
     firstTrackId,
-  } = this.state;
+  } = useSelector((state) => state.player.trackLoaded);
   return trackPlayerInit ? (
     <View style={minimazed ? styles.trackInfoMinimazed : styles.trackInfo}>
       <Text

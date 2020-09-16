@@ -7,6 +7,9 @@ import {FileInfo} from '../musicInfo/FileInfo';
 // Данные в инфу о файле через редакс
 
 export const MinimazedPlayer = ({isPlaying, albumImage, trackPlayerInit}) => {
+  const {trackPlayerInit, albumImage} = useSelector(
+    (state) => state.player.trackLoaded,
+  );
   return (
     <View style={styles.containerMinimazed}>
       <TouchableOpacity
@@ -21,7 +24,7 @@ export const MinimazedPlayer = ({isPlaying, albumImage, trackPlayerInit}) => {
               ? {
                   uri: albumImage,
                 }
-              : require('../../../../images/osya/none/ndCopy.png')
+              : require('../../../../images/osya/none/ndCopy.png') // избавиться от ../
           }
         />
         <FileInfo />
