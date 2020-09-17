@@ -13,6 +13,7 @@ import {
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import {toggleAlbum} from '../store/actions/albums';
+import {updateTrackId} from '../store/actions/player';
 
 var phoneHeight = Dimensions.get('window').height;
 var tracksTitles = [];
@@ -28,6 +29,8 @@ var lastTrackId = 0;
 var needUpdate = false;
 var albumsPhotos = [];
 var canRender = false;
+
+const dispatch = useDispatch();
 
 async function fetchSongs(desc, id) {
   let songsCount = desc.toString().substring(0, 2);
@@ -83,13 +86,12 @@ async function fetchSongs(desc, id) {
 
 async function putPressedTrackIdInStore(trackId) {
   await AsyncStorage.setItem('pressedd', JSON.stringify(true));
-  await AsyncStorage.setItem('track_id', JSON.stringify(trackId));
+  dispatch(updateTrackId(trackId));
 }
 
 var intervalToMove = 0;
 
 const putPropsInStore = () => {
-  const dispatch = useDispatch();
   dispatch(
     toggleAlbum(
       albumImage,

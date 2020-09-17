@@ -2,20 +2,19 @@ import React from 'react';
 import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {ControlsButtons} from '../controlPanel/ControlsButtons';
 import {FileInfo} from '../musicInfo/FileInfo';
+import {useSelector, useDispatch} from 'react-redux';
+import {updateStorage} from '../../store/actions/player';
 
-// Взять параметры через редакс
-// Данные в инфу о файле через редакс
-
-export const MinimazedPlayer = ({isPlaying, albumImage, trackPlayerInit}) => {
-  const {trackPlayerInit, albumImage} = useSelector(
-    (state) => state.player.trackLoaded,
-  );
+export const MinimazedPlayer = ({albumImage, trackPlayerInit}) => {
+  const {trackPlayerInit, albumImage} = useSelector((state) => state.player);
+  const dispatch = useDispatch();
   return (
     <View style={styles.containerMinimazed}>
       <TouchableOpacity
         style={styles.imageAndInfo}
         onPress={
-          () => (trackPlayerInit ? this.setState({minimazed: false}) : null) // open modal, if track was loaded
+          () =>
+            trackPlayerInit ? dispatch(updateStorage({minimazed: false})) : null // open modal, if track was loaded
         }>
         <Image
           style={styles.albumCoverMinimazed}
@@ -24,7 +23,7 @@ export const MinimazedPlayer = ({isPlaying, albumImage, trackPlayerInit}) => {
               ? {
                   uri: albumImage,
                 }
-              : require('../../../../images/osya/none/ndCopy.png') // избавиться от ../
+              : require('../../../../images/osya/none/ndCopy.png') // TODO избавиться от ../
           }
         />
         <FileInfo />
