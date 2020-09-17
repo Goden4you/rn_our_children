@@ -2,9 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 
-// TODO данные взять из редакса
-
-export const FileInfo = ({}) => {
+export const FileInfo = () => {
   const {
     trackPlayerInit,
     minimazed,
@@ -12,7 +10,7 @@ export const FileInfo = ({}) => {
     tracksAuthors,
     trackId,
     firstTrackId,
-  } = useSelector((state) => state.player.trackLoaded);
+  } = useSelector((state) => state.player);
   return trackPlayerInit ? (
     <View style={minimazed ? styles.trackInfoMinimazed : styles.trackInfo}>
       <Text
