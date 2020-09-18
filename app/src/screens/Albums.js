@@ -17,7 +17,6 @@ var albumsTitles = [];
 var albumsDesc = [];
 var albumsIds = [];
 var albumsPhotos = [];
-var interval;
 var isAlbumsFetched = false;
 var isPhotosFetched = false;
 
@@ -80,7 +79,6 @@ async function fetchAlbums() {
 async function fetchAlbumsPhotos() {
   var j = 0;
   let fs = RNFetchBlob.fs;
-  console.log('2 - ', albumsIds[0]);
   const path = fs.dirs.CacheDir + '/albums_photos/';
   await fs.exists(path + 1).then(async (res) => {
     console.log('exists? -', res);
@@ -94,36 +92,38 @@ async function fetchAlbumsPhotos() {
       }
     } else {
       console.log('Read album photos from network');
-      for (let i = albumsIds[0]; i < albumsIds[7]; i++) {
-        const response = await fetch(
-          'https://childrensproject.ocs.ru/api/v1/albums/' + i,
-          {
-            method: 'GET',
-            headers: {
-              Accept: 'application/json',
-              'Content-Type': 'application/json',
+      try {
+        for (let i = 30184; i < 30191; i++) {
+          const response = await fetch(
+            'https://childrensproject.ocs.ru/api/v1/albums/' + i,
+            {
+              method: 'GET',
+              headers: {
+                Accept: 'application/json',
+                'Content-Type': 'application/json',
+              },
             },
-          },
-        );
+          );
 
-        const data = await response.json();
-        const parsedData = JSON.parse(JSON.stringify(data));
+          const data = await response.json();
+          const parsedData = JSON.parse(JSON.stringify(data));
 
-        // put albums PHOTOS in variable
-        albumsPhotos[j] =
-          'https://childrensproject.ocs.ru/api/v1/files/' +
-          parsedData[0].artworkFileId;
-        console.log('фото', albumsPhotos[j]);
-        await fs
-          .writeFile(
-            fs.dirs.CacheDir + '/albums_photos/' + i,
+          // put albums PHOTOS in variable
+          albumsPhotos[j] =
             'https://childrensproject.ocs.ru/api/v1/files/' +
-              parsedData[0].artworkFileId,
-          )
-          .then(() => console.log('Album Photo now in cache'));
+            parsedData[0].artworkFileId;
 
-        j++;
-      }
+          await fs
+            .writeFile(
+              fs.dirs.CacheDir + '/albums_photos/' + i,
+              'https://childrensproject.ocs.ru/api/v1/files/' +
+                parsedData[0].artworkFileId,
+            )
+            .then(() => console.log('Album Photo now in cache'));
+
+          j++;
+        }
+      } catch (e) {}
     }
   });
   // loop to fetch all album`s data
@@ -154,7 +154,7 @@ export const Albums = ({navigation}) => {
       makeDirectory();
       setIsReady(false); // screen can`t be displaying
       fetchAlbums(); // fetch albums info
-      interval = setInterval(() => {
+      let interval = setInterval(() => {
         if (isAlbumsFetched && isPhotosFetched) {
           setIsReady(true);
           clearInterval(interval);

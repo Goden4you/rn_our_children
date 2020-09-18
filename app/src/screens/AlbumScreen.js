@@ -76,16 +76,19 @@ async function fetchSongs(desc, id) {
 
     intervalToMove = setInterval(async () => {
       await AsyncStorage.getItem('move_to_next_album', (err, res) => {
-        if (err) console.log(err);
+        if (err) {
+          console.log(err);
+        }
         JSON.parse(res) ? moveToNextAlbum(albumId) : null;
       });
     }, 1000);
   });
 }
 
-async function putPressedTrackIdInStore(trackId) {
+async function putPressedTrackIdInStore(value) {
   await AsyncStorage.setItem('pressedd', JSON.stringify(true));
-  dispatch(updateTrackId(trackId));
+  await AsyncStorage.setItem('track_id', JSON.stringify(value));
+  dispatch(updateTrackId(value));
 }
 
 var intervalToMove = 0;

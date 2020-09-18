@@ -27,7 +27,6 @@ import {
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
 var dispatch;
-var selector;
 var state = {
   currentIndex: 0,
   volume: 1.0,
@@ -108,36 +107,6 @@ async function checkForDir() {
     console.log('Is dir for loaded tracks exist? -', res);
   });
 }
-
-const getStoreToState = () => {
-  const {
-    albumImage,
-    tracksTitles,
-    tracksAauthors,
-    tracksDuration,
-    tracksIds,
-    tracksDurationMillis,
-    firstTrackId,
-    lastTrackId,
-  } = useSelector((statement) => statement.albums.currentAlbum);
-
-  let trackId = useSelector((statement) => statement.player);
-
-  state = {
-    ...state,
-    tracksTitles,
-    tracksAauthors,
-    tracksDuration,
-    tracksIds,
-    tracksDurationMillis,
-    firstTrackId,
-    lastTrackId,
-    albumImage,
-    trackId,
-  };
-
-  loadAudio(true);
-};
 
 async function loadAudio(currentTrack) {
   const {
@@ -268,15 +237,19 @@ async function isPressed(error, result) {
       () => (state = {...state, needUpdate: true}),
     );
 
-    let trackId = useSelector((statement) => statement.player.trackId);
-    state = {
-      ...state,
-      trackId,
-    };
+    await AsyncStorage.getItem('track_id', (err, res) => {
+      if (err) {
+        return;
+      }
+      state = {
+        ...state,
+        trackId: JSON.parse(res),
+      };
+    });
 
     if (!state.trackPlayerInit) {
       setTimeout(async () => {
-        await TrackPlayer.skip(trackId).then(() => {
+        await TrackPlayer.skip(state.trackId).then(() => {
           let interval = setInterval(async () => {
             if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
               clearInterval(interval);
@@ -294,7 +267,7 @@ async function isPressed(error, result) {
         });
       }, 1500);
     } else {
-      await TrackPlayer.skip(trackId.toString()).then(() => {
+      await TrackPlayer.skip(state.trackId.toString()).then(() => {
         let interval = setInterval(async () => {
           if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
             console.log('ready to play 2');
@@ -331,7 +304,6 @@ async function isAlbumImageChanged(error, result) {
       albumImage: JSON.parse(result), // this is needed to prevent double call of this function
     };
     await TrackPlayer.reset();
-    getStoreToState(); // put store in state
   }
 }
 
@@ -394,12 +366,35 @@ export const Player = () => {
     });
   });
 
-  const {albumImage} = useSelector(
-    (statement) => statement.albums.currentAlbum,
-  );
-  if (albumImage !== null) {
-    getStoreToState();
-  }
+  // if (albumImageChanged) {
+  const {
+    albumImage,
+    tracksTitles,
+    tracksAauthors,
+    tracksDuration,
+    tracksIds,
+    tracksDurationMillis,
+    firstTrackId,
+    lastTrackId,
+  } = useSelector((statement) => statement.albums.currentAlbum);
+
+  let trackId = useSelector((statement) => statement.player);
+
+  state = {
+    ...state,
+    tracksTitles,
+    tracksAauthors,
+    tracksDuration,
+    tracksIds,
+    tracksDurationMillis,
+    firstTrackId,
+    lastTrackId,
+    albumImage,
+    trackId,
+  };
+
+  loadAudio(true);
+  // }
 
   AsyncStorage.setItem('move_to_next_album', JSON.stringify(false)); // dropping back moving to next album
 
@@ -436,8 +431,8 @@ export const Player = () => {
                 : require('../../../images/splash_phone/drawable-mdpi/vector_smart_object.png')
             }
           />
-          <TrackSlider />
-          <FileInfo />
+          {/* <TrackSlider /> */}
+          {/* <FileInfo /> */}
         </View>
         <ControlsButtons />
       </Modal>
