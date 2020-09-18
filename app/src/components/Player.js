@@ -28,7 +28,6 @@ const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
 var dispatch;
 var selector;
-
 var state = {
   currentIndex: 0,
   volume: 1.0,
@@ -83,7 +82,7 @@ function setupPlayer() {
           ...state,
           trackId: parseInt(res, 10),
         };
-        useDispatch(updateStorage({trackId: parseInt(res, 10)}));
+        dispatch(updateStorage({trackId: parseInt(res, 10)}));
         let interval = setInterval(async () => {
           if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
             console.log('ready to play');
@@ -120,9 +119,9 @@ const getStoreToState = () => {
     tracksDurationMillis,
     firstTrackId,
     lastTrackId,
-  } = selector((statement) => statement.albums.currentAlbum);
+  } = useSelector((statement) => statement.albums.currentAlbum);
 
-  let trackId = selector((statement) => statement.player.currentTrack);
+  let trackId = useSelector((statement) => statement.player);
 
   state = {
     ...state,
@@ -269,7 +268,7 @@ async function isPressed(error, result) {
       () => (state = {...state, needUpdate: true}),
     );
 
-    let trackId = selector((statement) => statement.player.trackId);
+    let trackId = useSelector((statement) => statement.player.trackId);
     state = {
       ...state,
       trackId,
@@ -364,7 +363,7 @@ async function canPlayerRender(err, res) {
 
 export const Player = () => {
   dispatch = useDispatch();
-  selector = useSelector();
+  // selector = useSelector();
   useEffect(() => {
     setupPlayer();
     checkForDir();

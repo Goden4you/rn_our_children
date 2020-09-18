@@ -5,7 +5,7 @@ import {FileInfo} from '../musicInfo/FileInfo';
 import {useSelector, useDispatch} from 'react-redux';
 import {updateStorage} from '../../store/actions/player';
 
-export const MinimazedPlayer = ({albumImage, trackPlayerInit}) => {
+export const MinimazedPlayer = () => {
   const {trackPlayerInit, albumImage} = useSelector((state) => state.player);
   const dispatch = useDispatch();
   return (
