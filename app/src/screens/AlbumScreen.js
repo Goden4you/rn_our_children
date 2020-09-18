@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/rules-of-hooks */
-import React, {useEffect, useState, useCallback} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -30,7 +29,7 @@ var needUpdate = false;
 var albumsPhotos = [];
 var canRender = false;
 
-const dispatch = useDispatch();
+var dispatch;
 
 async function fetchSongs(desc, id) {
   let songsCount = desc.toString().substring(0, 2);
@@ -166,6 +165,9 @@ export const AlbumScreen = ({navigation, route}) => {
     albumIdProps,
     albumsPhotosProps,
   } = route.params;
+
+  dispatch = useDispatch();
+
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {

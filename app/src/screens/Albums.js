@@ -66,9 +66,13 @@ async function fetchAlbums() {
       albumsIds[i] = parsedData[i].id;
     }
 
+    console.log('1 - ', albumsIds[0]);
+
     isAlbumsFetched = true;
 
     console.log('Albums data fetched.');
+
+    fetchAlbumsPhotos(); // fetch albums photos
   });
 }
 
@@ -76,8 +80,9 @@ async function fetchAlbums() {
 async function fetchAlbumsPhotos() {
   var j = 0;
   let fs = RNFetchBlob.fs;
+  console.log('2 - ', albumsIds[0]);
   const path = fs.dirs.CacheDir + '/albums_photos/';
-  await fs.exists(path).then(async (res) => {
+  await fs.exists(path + 1).then(async (res) => {
     console.log('exists? -', res);
     if (res) {
       console.log('Read albums photos from cache');
@@ -108,7 +113,7 @@ async function fetchAlbumsPhotos() {
         albumsPhotos[j] =
           'https://childrensproject.ocs.ru/api/v1/files/' +
           parsedData[0].artworkFileId;
-
+        console.log('фото', albumsPhotos[j]);
         await fs
           .writeFile(
             fs.dirs.CacheDir + '/albums_photos/' + i,
@@ -144,11 +149,11 @@ export const Albums = ({navigation}) => {
 
   useEffect(() => {
     if (albumsIds[2] === undefined) {
+      console.log('undefined 1');
       console.log('Albums Screen was unmounted, data loading started.');
       makeDirectory();
       setIsReady(false); // screen can`t be displaying
       fetchAlbums(); // fetch albums info
-      fetchAlbumsPhotos(); // fetch albums photos
       interval = setInterval(() => {
         if (isAlbumsFetched && isPhotosFetched) {
           setIsReady(true);
@@ -166,6 +171,7 @@ export const Albums = ({navigation}) => {
   }, [isReady, dispatch]);
 
   const allAlbums = useSelector((state) => state.albums.allAlbums);
+  console.log('all albums info: ', allAlbums);
 
   if (isReady) {
     return (

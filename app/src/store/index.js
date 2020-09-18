@@ -1,5 +1,6 @@
 import {createStore, combineReducers} from 'redux';
-import {albumsReducer, playerReducer} from './reducers/albums';
+import {albumsReducer} from './reducers/albums';
+import {playerReducer} from './reducers/player';
 
 const rootReducer = combineReducers({
   albums: albumsReducer,
