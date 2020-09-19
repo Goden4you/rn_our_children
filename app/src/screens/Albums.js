@@ -149,7 +149,6 @@ export const Albums = ({navigation}) => {
 
   useEffect(() => {
     if (albumsIds[2] === undefined) {
-      console.log('undefined 1');
       console.log('Albums Screen was unmounted, data loading started.');
       makeDirectory();
       setIsReady(false); // screen can`t be displaying
@@ -171,7 +170,6 @@ export const Albums = ({navigation}) => {
   }, [isReady, dispatch]);
 
   const allAlbums = useSelector((state) => state.albums.allAlbums);
-  console.log('all albums info: ', allAlbums);
 
   if (isReady) {
     return (
