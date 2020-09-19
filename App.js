@@ -12,7 +12,9 @@ function App() {
     <Provider store={store}>
       <View style={styles.container}>
         <AppNavigation />
-        <View style={styles.player}>{/* <Player /> */}</View>
+        <View style={styles.player}>
+          <Player />
+        </View>
       </View>
     </Provider>
   );

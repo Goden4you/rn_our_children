@@ -93,7 +93,7 @@ async function putPressedTrackIdInStore(value) {
 
 var intervalToMove = 0;
 
-const putPropsInStore = () => {
+const putPropsInStore = async () => {
   dispatch(
     toggleAlbum(
       albumImage,
@@ -106,12 +106,13 @@ const putPropsInStore = () => {
       lastTrackId,
     ),
   );
+  await AsyncStorage.setItem('album_image', JSON.stringify(albumImage));
 };
 
 async function onTrackPressed(trackId, albumIdProps) {
   if (albumIdProps !== albumId) {
-    putPropsInStore();
     albumId = albumIdProps;
+    putPropsInStore();
   }
 
   putPressedTrackIdInStore(trackId);
@@ -191,8 +192,13 @@ export const AlbumScreen = ({navigation, route}) => {
     } else {
       setIsReady(true);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isReady]);
+  }, [
+    isReady,
+    albumDescProps,
+    albumImageProps,
+    albumIdProps,
+    albumsPhotosProps,
+  ]);
 
   if (isReady) {
     return (

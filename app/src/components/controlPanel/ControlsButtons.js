@@ -1,15 +1,13 @@
 import React from 'react';
 import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
-import TrackPlayer from 'react-native-track-player';
 import AsyncStorage from '@react-native-community/async-storage';
 import {useSelector, useDispatch} from 'react-redux';
 import {updateStorage} from '../../store/actions/player';
 
 var state = {};
 
-export const ControlsButtons = ({}) => {
+export const ControlsButtons = ({TrackPlayer}) => {
   const dispatch = useDispatch();
-
   const handlePlayPause = async () => {
     if (state.audioLoaded) {
       const {isPlaying} = state;
@@ -201,7 +199,7 @@ export const ControlsButtons = ({}) => {
     firstTrackId,
     lastTrackId,
     albumImage,
-  } = useSelector((statement) => statement.player);
+  } = useSelector((statement) => statement.player.state);
   state = {
     ...state,
     audioLoaded,
@@ -213,13 +211,13 @@ export const ControlsButtons = ({}) => {
   };
   return (
     <View style={styles.controls}>
-      <TouchableOpacity style={styles.control} onPress={handlePreviousTrack}>
+      <TouchableOpacity style={styles.control}>
         <Image
           source={require('../../../../images/icons/playerControl/prevHit/prevHitCopy.png')}
           style={styles.controlImage}
         />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.control} onPress={handlePlayPause}>
+      <TouchableOpacity style={styles.control}>
         {state.isPlaying ? (
           <Image
             source={require('../../../../images/icons/playerControl/pauseHit/pauseHitCopy.png')}
@@ -232,7 +230,7 @@ export const ControlsButtons = ({}) => {
           />
         )}
       </TouchableOpacity>
-      <TouchableOpacity style={styles.control} onPress={handleNextTrack}>
+      <TouchableOpacity style={styles.control}>
         <Image
           source={require('../../../../images/icons/playerControl/nextHit/nextHitCopy.png')}
           style={styles.controlImage}
@@ -247,7 +245,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
   },
   control: {
-    margin: 20,
+    margin: 10,
     // width: '10%',
   },
   controlImage: {

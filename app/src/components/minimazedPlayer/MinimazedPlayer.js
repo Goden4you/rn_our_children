@@ -5,7 +5,7 @@ import {FileInfo} from '../musicInfo/FileInfo';
 import {useSelector, useDispatch} from 'react-redux';
 import {updateStorage} from '../../store/actions/player';
 
-export const MinimazedPlayer = () => {
+export const MinimazedPlayer = ({TrackPlayer}) => {
   const {trackPlayerInit, albumImage} = useSelector((state) => state.player);
   const dispatch = useDispatch();
   return (
@@ -28,7 +28,7 @@ export const MinimazedPlayer = () => {
         />
         <FileInfo />
       </TouchableOpacity>
-      <ControlsButtons />
+      <ControlsButtons TrackPlayer={TrackPlayer} />
     </View>
   );
 };

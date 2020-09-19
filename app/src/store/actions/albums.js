@@ -21,7 +21,7 @@ export const loadAlbums = (
 export const toggleAlbum = (
   albumImage,
   tracksTitles,
-  tracksAauthors,
+  tracksAuthors,
   tracksDuration,
   albumsIds,
   tracksDurationMillis,
@@ -31,7 +31,7 @@ export const toggleAlbum = (
   const albumTracks = {
     albumImage,
     tracksTitles,
-    tracksAauthors,
+    tracksAuthors,
     tracksDuration,
     albumsIds,
     tracksDurationMillis,
