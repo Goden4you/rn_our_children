@@ -3,9 +3,7 @@ import {
   LOAD_PLAYER,
   UPDATE_TRACK_ID,
   INIT_PLAYER,
-  UPDATE_LOADED_SIZE,
   TRACK_LOADING_ERROR,
-  TRACK_PLAYER_CREATING,
   UPDATE_STORAGE,
 } from '../types';
 
@@ -71,12 +69,5 @@ export const trackLoadingError = () => {
   return {
     type: TRACK_LOADING_ERROR,
     payload: params,
-  };
-};
-
-export const trackPlayerCreating = (player) => {
-  return {
-    type: TRACK_PLAYER_CREATING,
-    payload: player,
   };
 };

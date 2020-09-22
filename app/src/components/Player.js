@@ -45,6 +45,7 @@ var state = {
   loadedMusicSize: 0,
   isQueueEnded: false,
   needUpdate2: true,
+  albumImage: null,
 };
 
 function setupPlayer() {
@@ -96,8 +97,6 @@ function setupPlayer() {
     }
   });
 
-  // dispatch(updateStorage({TrackPlayer: TrackPlayer}));
-
   SplashScreen.hide();
 }
 
@@ -116,7 +115,6 @@ async function loadAudio(currentTrack) {
     isPlaying,
     trackId,
     pressed,
-    trackPlayerInit,
     tracksAuthors,
     tracksTitles,
     firstTrackId,
@@ -135,7 +133,6 @@ async function loadAudio(currentTrack) {
         await RNFetchBlob.fs.exists(path).then(async (res) => {
           if (res) {
             await RNFetchBlob.fs.readFile(path).then((uri) => {
-              console.log(uri);
               track[j] = {
                 id: i.toString(),
                 url: uri,
@@ -169,11 +166,6 @@ async function loadAudio(currentTrack) {
 
       if (currentTrack) {
         await TrackPlayer.skip(trackId.toString());
-      }
-
-      if (!trackPlayerInit) {
-        dispatch(initPlayer());
-        state = {...state, trackPlayerInit: true};
       }
 
       checkForLoad();
@@ -253,10 +245,11 @@ async function isPressed(error, result) {
     });
 
     if (!state.audioLoaded) {
-      console.log(state.trackId);
+      console.log('track id from isPressed - ', state.trackId);
+      dispatch(updateStorage({trackId: state.trackId}));
       loadAudio();
     } else if (!state.trackPlayerInit) {
-      console.log('не инициализирован 1');
+      dispatch(updateStorage({isPlaying: true}));
       setTimeout(async () => {
         await TrackPlayer.skip(state.trackId.toString());
         let interval = setInterval(async () => {
@@ -273,7 +266,7 @@ async function isPressed(error, result) {
         }, 250);
       }, 1500);
     } else {
-      console.log('инициализирован 1');
+      dispatch(updateStorage({isPlaying: true}));
       await TrackPlayer.skip(state.trackId.toString());
       let interval = setInterval(async () => {
         if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
@@ -295,20 +288,20 @@ async function isPressed(error, result) {
 }
 
 // cheking to put data of new album in store
-async function isAlbumImageChanged(error, result) {
+function isAlbumImageChanged(error, result) {
   if (error) {
     console.log('Error from isAlbumImageChanged()', error);
   }
   if (JSON.parse(result) !== state.albumImage && state.canPlayerRender) {
     console.log('isAlbumImageChanged called');
-    console.log('album image', result);
+    console.log('res from storage', JSON.parse(result));
     state = {
       ...state,
       audioLoaded: false,
-      trackPlayerInit: false,
+      // trackPlayerInit: false,
       albumImage: JSON.parse(result), // this is needed to prevent double call of this function
     };
-    await TrackPlayer.reset();
+    TrackPlayer.reset();
   }
 }
 
@@ -362,6 +355,7 @@ export const Player = () => {
     firstTrackId,
     lastTrackId,
   } = useSelector((statement) => statement.albums.currentAlbum);
+  console.log('album image from player selector', albumImage);
 
   const {trackId} = useSelector((statement) => statement.player.state);
 
