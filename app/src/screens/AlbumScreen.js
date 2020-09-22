@@ -25,7 +25,6 @@ var albumImage = null;
 var albumDesc = '';
 var firstTrackId = 0;
 var lastTrackId = 0;
-var needUpdate = false;
 var albumsPhotos = [];
 var canRender = false;
 
@@ -68,10 +67,10 @@ async function fetchSongs(desc, id) {
     lastTrackId = parsedData[songsCount - 1].songFileId;
 
     console.log('Songs fetched');
-    if (needUpdate) {
-      needUpdate = false;
-      putPropsInStore();
-    }
+    // if (needUpdate) {
+    //   needUpdate = false;
+    //   putPropsInStore();
+    // }
     canRender = true;
 
     intervalToMove = setInterval(async () => {
@@ -107,6 +106,7 @@ const putPropsInStore = async () => {
     ),
   );
   await AsyncStorage.setItem('album_image', JSON.stringify(albumImage));
+  console.log('putPropsInStore form ALBUMSCREEN called');
 };
 
 async function onTrackPressed(trackId, albumIdProps) {
@@ -156,7 +156,6 @@ function moveToNextAlbum(albumIdProps) {
       break;
   }
   console.log('last track pressed');
-  needUpdate = true;
   albumImage = albumsPhotos[albumIdProps - 30183];
   fetchSongs(songsCount, albumIdProps + 1);
 }

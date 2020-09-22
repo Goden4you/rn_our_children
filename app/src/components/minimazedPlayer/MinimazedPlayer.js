@@ -6,7 +6,10 @@ import {useSelector, useDispatch} from 'react-redux';
 import {updateStorage} from '../../store/actions/player';
 
 export const MinimazedPlayer = ({TrackPlayer}) => {
-  const {trackPlayerInit, albumImage} = useSelector((state) => state.player);
+  const {albumImage} = useSelector((state) => state.albums.currentAlbum);
+  const {trackPlayerInit} = useSelector((state) => state.player.state);
+  console.log('album image from minimazed = ', albumImage);
+  console.log('trackPlayerInit from minimazed = ', trackPlayerInit);
   const dispatch = useDispatch();
   return (
     <View style={styles.containerMinimazed}>
