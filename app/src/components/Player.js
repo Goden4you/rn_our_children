@@ -19,11 +19,13 @@ import {TrackSlider} from './slider/TrackSlider';
 import {ControlsButtons} from './controlPanel/ControlsButtons';
 import {useSelector, useDispatch} from 'react-redux';
 import {
-  initPlayer,
   loadTrack,
   trackLoadingError,
-  updateStorage,
   loadPlayer,
+  updateTrackId,
+  updateLoadedSize,
+  isTrackPlaying,
+  isMinimazed,
 } from '../store/actions/player';
 
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
@@ -64,14 +66,14 @@ function setupPlayer() {
     ],
   });
 
-  TrackPlayer.addEventListener('playback-queue-ended', async () => {
+  TrackPlayer.addEventListener('playback-queue-ended', () => {
     if (state.isPlaying && state.needUpdate2) {
       state = {
         ...state,
         trackId: state.lastTrackId,
         isQueueEnded: true,
       };
-      await TrackPlayer.reset();
+      TrackPlayer.reset();
       // this.handleNextTrack(); // TODO
       console.log('queue ended');
     }
@@ -79,18 +81,18 @@ function setupPlayer() {
 
   TrackPlayer.addEventListener('playback-track-changed', async () => {
     if (state.isPlaying && !state.isQueueEnded && !state.pressed) {
-      let trackId = TrackPlayer.getCurrentTrack();
+      let trackId = await TrackPlayer.getCurrentTrack();
       state = {
         ...state,
         trackId,
       };
-      dispatch(updateStorage({trackId}));
+      dispatch(updateTrackId(trackId));
       let interval = setInterval(async () => {
         if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
           console.log('ready to play');
           clearInterval(interval);
-          setTimeout(async () => {
-            await TrackPlayer.play();
+          setTimeout(() => {
+            TrackPlayer.play();
           }, 1000);
         }
       }, 250);
@@ -152,7 +154,7 @@ async function loadAudio(currentTrack) {
           j++;
         });
       }
-      await TrackPlayer.add(track);
+      TrackPlayer.add(track);
 
       state = {
         ...state,
@@ -163,10 +165,9 @@ async function loadAudio(currentTrack) {
       };
 
       dispatch(loadTrack(pressed, isPlaying));
-      dispatch(updateStorage({trackPositionInterval: false}));
 
       if (currentTrack) {
-        await TrackPlayer.skip(trackId.toString());
+        TrackPlayer.skip(trackId.toString());
       }
     }
   } catch (e) {
@@ -201,11 +202,11 @@ async function checkForLoad() {
     await RNFetchBlob.fs.exists(path).then(async (exist) => {
       console.log('Track exists? -', exist);
       if (!exist) {
-        await fetch(API_PATH + trackId).then(async (data) => {
+        await fetch(API_PATH + trackId).then((data) => {
           let fileSize = data.headers.get('Content-Length');
           let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
 
-          dispatch(updateStorage({totalSize}));
+          dispatch(updateLoadedSize(totalSize));
           state = {...state, loadedMusicSize: totalSize};
         });
         await RNFetchBlob.fs.writeFile(path, API_PATH + trackId);
@@ -245,17 +246,17 @@ async function isPressed(error, result) {
 
     if (!state.audioLoaded) {
       console.log('track id from isPressed - ', state.trackId);
-      dispatch(updateStorage({trackId: state.trackId}));
+      dispatch(updateTrackId(state.trackId));
       loadAudio();
     } else if (!state.trackPlayerInit) {
-      dispatch(updateStorage({isPlaying: true}));
+      dispatch(isTrackPlaying(true));
       setTimeout(async () => {
-        await TrackPlayer.skip(state.trackId.toString());
+        TrackPlayer.skip(state.trackId.toString());
         let interval = setInterval(async () => {
           if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
             clearInterval(interval);
-            setTimeout(async () => {
-              await TrackPlayer.play();
+            setTimeout(() => {
+              TrackPlayer.play();
               state = {
                 ...state,
                 isPlaying: true,
@@ -265,14 +266,14 @@ async function isPressed(error, result) {
         }, 250);
       }, 1500);
     } else {
-      dispatch(updateStorage({isPlaying: true}));
-      await TrackPlayer.skip(state.trackId.toString());
+      dispatch(isTrackPlaying(true));
+      TrackPlayer.skip(state.trackId.toString());
       let interval = setInterval(async () => {
         if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
           console.log('ready to play 2');
           clearInterval(interval);
-          setTimeout(async () => {
-            await TrackPlayer.play();
+          setTimeout(() => {
+            TrackPlayer.play();
             state = {
               ...state,
               isPlaying: true,
@@ -281,7 +282,7 @@ async function isPressed(error, result) {
         }
       }, 250);
     }
-    dispatch(updateStorage({isPlaying: true}));
+    dispatch(isTrackPlaying(true));
     checkForLoad();
   }
 }
@@ -297,11 +298,11 @@ function isAlbumImageChanged(error, result) {
     state = {
       ...state,
       audioLoaded: false,
-      trackPlayerInit: false,
+      // trackPlayerInit: false,
       albumImage: JSON.parse(result),
     };
-    dispatch(updateStorage({trackPlayerInit: false}));
-    TrackPlayer.reset(); // TODO не факт, что работает
+    // dispatch(updateStorage({trackPlayerInit: false}));
+    TrackPlayer.reset();
   }
 }
 
@@ -337,7 +338,7 @@ export const Player = () => {
               ...state,
               trackId: id,
             };
-            dispatch(updateStorage({trackId: id}));
+            dispatch(updateTrackId(id));
           });
         }
       }
@@ -356,7 +357,7 @@ export const Player = () => {
   } = useSelector((statement) => statement.albums.currentAlbum);
   console.log('album image from player selector', albumImage);
 
-  const {trackId} = useSelector((statement) => statement.player.state);
+  const {trackId} = useSelector((statement) => statement.player);
 
   state = {
     ...state,
@@ -380,7 +381,7 @@ export const Player = () => {
 
   return (
     <View style={styles.container}>
-      <MinimazedPlayer TrackPlayer={TrackPlayer} />
+      <MinimazedPlayer />
       <Modal
         animationType="slide"
         transparent={true}
@@ -395,7 +396,7 @@ export const Player = () => {
                 ...state,
                 minimazed: true,
               };
-              dispatch(updateStorage({minimazed: true}));
+              dispatch(isMinimazed(true));
             }}>
             <Image source={require('../../../images/icons/hide/hide.png')} />
           </TouchableOpacity>

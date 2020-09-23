@@ -4,7 +4,7 @@ import {useSelector} from 'react-redux';
 
 export const FileInfo = () => {
   const {trackPlayerInit, minimazed, trackId} = useSelector(
-    (state) => state.player.state,
+    (state) => state.player,
   );
   const {tracksTitles, tracksAuthors, firstTrackId} = useSelector(
     (state) => state.albums.currentAlbum,

@@ -87,7 +87,7 @@ async function fetchSongs(desc, id) {
 async function putPressedTrackIdInStore(value) {
   await AsyncStorage.setItem('pressedd', JSON.stringify(true));
   await AsyncStorage.setItem('track_id', JSON.stringify(value));
-  dispatch(updateStorage({trackId: value}));
+  dispatch(updateTrackId(value));
 }
 
 var intervalToMove = 0;
