@@ -3,12 +3,13 @@ import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {ControlsButtons} from '../controlPanel/ControlsButtons';
 import {FileInfo} from '../musicInfo/FileInfo';
 import {useSelector, useDispatch} from 'react-redux';
-import {updateStorage} from '../../store/actions/player';
+import {isMinimazed} from '../../store/actions/player';
 
-export const MinimazedPlayer = ({TrackPlayer}) => {
+export const MinimazedPlayer = () => {
   const {albumImage} = useSelector((state) => state.albums.currentAlbum);
-  const {trackPlayerInit} = useSelector((state) => state.player.state);
+  const {trackPlayerInit} = useSelector((state) => state.player);
   console.log('album image from minimazed = ', albumImage);
+  // const albumImage = null;
   console.log('trackPlayerInit from minimazed = ', trackPlayerInit);
   const dispatch = useDispatch();
   return (
@@ -16,8 +17,7 @@ export const MinimazedPlayer = ({TrackPlayer}) => {
       <TouchableOpacity
         style={styles.imageAndInfo}
         onPress={
-          () =>
-            trackPlayerInit ? dispatch(updateStorage({minimazed: false})) : null // open modal, if track was loaded
+          () => (trackPlayerInit ? dispatch(isMinimazed(false)) : null) // open modal, if track was loaded
         }>
         <Image
           style={styles.albumCoverMinimazed}
@@ -31,7 +31,7 @@ export const MinimazedPlayer = ({TrackPlayer}) => {
         />
         <FileInfo />
       </TouchableOpacity>
-      <ControlsButtons TrackPlayer={TrackPlayer} />
+      <ControlsButtons />
     </View>
   );
 };

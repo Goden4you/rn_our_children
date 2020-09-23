@@ -4,13 +4,14 @@ import {
   UPDATE_TRACK_ID,
   INIT_PLAYER,
   TRACK_LOADING_ERROR,
-  UPDATE_STORAGE,
+  UPDATE_LOADED_SIZE,
+  UPDATE_POSITION_INTERVAL,
+  IS_TRACK_PLAYING,
 } from '../types';
 
 export const loadPlayer = () => {
   const params = {
     trackPlayerInit: false,
-    albumImage: null,
     isPlaying: false,
     trackId: 0,
     minimazed: true,
@@ -22,18 +23,13 @@ export const loadPlayer = () => {
 };
 
 export const loadTrack = (pressed, isPlaying) => {
-  const params = {
+  return {
+    type: LOAD_AUDIO,
     audioLoaded: true,
     isPlaying: pressed ? true : isPlaying,
     trackPositionInterval: false,
-    isQueueEnded: false,
-    needUpdate2: true,
     trackPlayerInit: true,
     formattedCurrentTime: '00:00',
-  };
-  return {
-    type: LOAD_AUDIO,
-    payload: params,
   };
 };
 
@@ -44,30 +40,46 @@ export const updateTrackId = (id) => {
   };
 };
 
-export const updateStorage = (params) => {
+export const updateLoadedSize = (size) => {
   return {
-    type: UPDATE_STORAGE,
-    payload: params,
+    type: UPDATE_LOADED_SIZE,
+    payload: size,
   };
 };
 
-export const initPlayer = () => {
-  const params = {
-    trackPlayerInit: true,
+export const isTrackPlaying = (bool) => {
+  return {
+    type: IS_TRACK_PLAYING,
+    isPlaying: bool,
   };
+};
+
+export const isPlayerInit = (params) => {
   return {
     type: INIT_PLAYER,
     payload: params,
   };
 };
 
+export const isMinimazed = (bool) => {
+  return {
+    type: INIT_PLAYER,
+    minimazed: bool,
+  };
+};
+
 export const trackLoadingError = () => {
-  const params = {
+  return {
+    type: TRACK_LOADING_ERROR,
     isPlaying: false,
     trackPlayerInit: false,
   };
+};
+
+// TODO не факт что нужно
+export const updatePositionInterval = (params) => {
   return {
-    type: TRACK_LOADING_ERROR,
+    type: UPDATE_POSITION_INTERVAL,
     payload: params,
   };
 };
