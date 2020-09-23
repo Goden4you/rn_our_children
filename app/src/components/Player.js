@@ -95,6 +95,7 @@ function setupPlayer() {
         }
       }, 250);
     }
+    checkForLoad();
   });
 
   SplashScreen.hide();
@@ -167,8 +168,6 @@ async function loadAudio(currentTrack) {
       if (currentTrack) {
         await TrackPlayer.skip(trackId.toString());
       }
-
-      checkForLoad();
     }
   } catch (e) {
     console.log('failed to load audio', e);
@@ -298,10 +297,11 @@ function isAlbumImageChanged(error, result) {
     state = {
       ...state,
       audioLoaded: false,
-      // trackPlayerInit: false,
-      albumImage: JSON.parse(result), // this is needed to prevent double call of this function
+      trackPlayerInit: false,
+      albumImage: JSON.parse(result),
     };
-    TrackPlayer.reset();
+    dispatch(updateStorage({trackPlayerInit: false}));
+    TrackPlayer.reset(); // TODO не факт, что работает
   }
 }
 
@@ -319,7 +319,6 @@ export const Player = () => {
   useEffect(() => {
     console.log('use effect called');
     checkForDir();
-
     loadAudio();
     setInterval(async () => {
       await AsyncStorage.getItem('album_image', (err, res) =>
