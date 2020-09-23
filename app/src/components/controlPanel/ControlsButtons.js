@@ -34,7 +34,6 @@ export const ControlsButtons = ({TrackPlayer}) => {
       };
 
       dispatch(updateStorage(state));
-      this.checkForLoad(); // TODO посмотреть нужна ли здесь вообще
     }
   };
 
@@ -79,7 +78,6 @@ export const ControlsButtons = ({TrackPlayer}) => {
       } else {
         await TrackPlayer.seekTo(0);
       }
-      this.checkForLoad(); // TODO находится в компоненте Player
     }
   };
 
@@ -171,7 +169,6 @@ export const ControlsButtons = ({TrackPlayer}) => {
             2000,
           );
         }
-        this.checkForLoad(); // TODO в плеере
       }
     }
   };
