@@ -9,8 +9,6 @@ export const FileInfo = () => {
   const {tracksTitles, tracksAuthors, firstTrackId} = useSelector(
     (state) => state.albums.currentAlbum,
   );
-
-  console.log('File Info component called, trackId =', trackId);
   return trackPlayerInit ? (
     <View style={minimazed ? styles.trackInfoMinimazed : styles.trackInfo}>
       <Text

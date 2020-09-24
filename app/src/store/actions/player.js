@@ -7,18 +7,17 @@ import {
   UPDATE_LOADED_SIZE,
   UPDATE_POSITION_INTERVAL,
   IS_TRACK_PLAYING,
+  UPDATE_TIME,
+  HANDLE_PREV_NEXT,
 } from '../types';
 
 export const loadPlayer = () => {
-  const params = {
+  return {
+    type: LOAD_PLAYER,
     trackPlayerInit: false,
     isPlaying: false,
     trackId: 0,
     minimazed: true,
-  };
-  return {
-    type: LOAD_PLAYER,
-    payload: params,
   };
 };
 
@@ -81,5 +80,25 @@ export const updatePositionInterval = (params) => {
   return {
     type: UPDATE_POSITION_INTERVAL,
     payload: params,
+  };
+};
+
+export const updateTime = (current) => {
+  return {
+    type: UPDATE_TIME,
+    currentTime: current,
+  };
+};
+
+export const handlePrevNext = (trackId) => {
+  return {
+    type: HANDLE_PREV_NEXT,
+    currentTime: 0,
+    formattedCurrentTime: '00:00',
+    trackId,
+    pressed: false,
+    audioLoaded: true,
+    trackPositionInterval: true,
+    isPlaying: true,
   };
 };

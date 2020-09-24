@@ -1,8 +1,9 @@
-import {LOAD_ALBUMS, TOGGLE_ALBUM} from '../types';
+import {LOAD_ALBUMS, TOGGLE_ALBUM, ALBUM_CHANGED} from '../types';
 
 const initialState = {
   allAlbums: [],
   currentAlbum: [],
+  isAlbumChanged: false,
 };
 
 export const albumsReducer = (state = initialState, action) => {
@@ -11,6 +12,11 @@ export const albumsReducer = (state = initialState, action) => {
       return {...state, allAlbums: action.payload};
     case TOGGLE_ALBUM:
       return {...state, currentAlbum: action.payload};
+    case ALBUM_CHANGED:
+      return {
+        ...state,
+        isAlbumChanged: action.isAlbumChanged,
+      };
     default:
       return state;
   }

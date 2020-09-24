@@ -27,6 +27,7 @@ import {
   isTrackPlaying,
   isMinimazed,
 } from '../store/actions/player';
+import {albumChanged} from '../store/actions/albums';
 
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
@@ -36,7 +37,6 @@ var state = {
   minimazed: true,
   volume: 1.0,
   isBuffering: true,
-  currentTime: 0,
   needUpdate: true,
   needUpdate3: true,
   audioLoaded: false,
@@ -72,6 +72,7 @@ function setupPlayer() {
         ...state,
         trackId: state.lastTrackId,
         isQueueEnded: true,
+        needUpdate2: false,
       };
       TrackPlayer.reset();
       // this.handleNextTrack(); // TODO
@@ -87,6 +88,8 @@ function setupPlayer() {
         trackId,
       };
       dispatch(updateTrackId(trackId));
+
+      await AsyncStorage.setItem('track_id', JSON.stringify(trackId));
       let interval = setInterval(async () => {
         if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
           console.log('ready to play');
@@ -125,6 +128,7 @@ async function loadAudio(currentTrack) {
   } = state;
 
   try {
+    console.log('track if from loadAudio - ', trackId);
     if (trackId !== 0 && trackId !== undefined) {
       console.log('track id ', trackId);
       let j = 0; // for array of objects
@@ -242,14 +246,13 @@ async function isPressed(error, result) {
         trackId: JSON.parse(res),
         needUpdate: true,
       };
+      console.log('track id from async storage', res);
+      dispatch(updateTrackId(JSON.parse(res)));
     });
 
     if (!state.audioLoaded) {
-      console.log('track id from isPressed - ', state.trackId);
-      dispatch(updateTrackId(state.trackId));
+      console.log('вызвана поеботень, trackId = ', state.trackId);
       loadAudio();
-    } else if (!state.trackPlayerInit) {
-      dispatch(isTrackPlaying(true));
       setTimeout(async () => {
         TrackPlayer.skip(state.trackId.toString());
         let interval = setInterval(async () => {
@@ -266,7 +269,6 @@ async function isPressed(error, result) {
         }, 250);
       }, 1500);
     } else {
-      dispatch(isTrackPlaying(true));
       TrackPlayer.skip(state.trackId.toString());
       let interval = setInterval(async () => {
         if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
@@ -292,16 +294,15 @@ function isAlbumImageChanged(error, result) {
   if (error) {
     console.log('Error from isAlbumImageChanged()', error);
   }
-  if (JSON.parse(result) !== state.albumImage && state.canPlayerRender) {
+  if (state.isAlbumChanged && state.canPlayerRender) {
     console.log('isAlbumImageChanged called');
-    console.log('res from storage', JSON.parse(result));
     state = {
       ...state,
       audioLoaded: false,
       // trackPlayerInit: false,
       albumImage: JSON.parse(result),
     };
-    // dispatch(updateStorage({trackPlayerInit: false}));
+    dispatch(albumChanged(false));
     TrackPlayer.reset();
   }
 }
@@ -314,11 +315,11 @@ export const Player = () => {
     state = {
       ...state,
       trackPlayerInit: true,
+      minimazed: true,
     };
   }
 
   useEffect(() => {
-    console.log('use effect called');
     checkForDir();
     loadAudio();
     setInterval(async () => {
@@ -355,10 +356,9 @@ export const Player = () => {
     firstTrackId,
     lastTrackId,
   } = useSelector((statement) => statement.albums.currentAlbum);
-  console.log('album image from player selector', albumImage);
+  const {isAlbumChanged} = useSelector((statement) => statement.albums);
 
-  const {trackId} = useSelector((statement) => statement.player);
-
+  const {trackId, minimazed} = useSelector((statement) => statement.player);
   state = {
     ...state,
     tracksTitles,
@@ -368,8 +368,10 @@ export const Player = () => {
     tracksDurationMillis,
     firstTrackId,
     lastTrackId,
-    albumImage,
     trackId,
+    minimazed,
+    albumImage,
+    isAlbumChanged,
   };
 
   console.log('Player called');

@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
-import {toggleAlbum} from '../store/actions/albums';
+import {toggleAlbum, albumChanged} from '../store/actions/albums';
 import {updateStorage, updateTrackId} from '../store/actions/player';
 
 var phoneHeight = Dimensions.get('window').height;
@@ -92,7 +92,7 @@ async function putPressedTrackIdInStore(value) {
 
 var intervalToMove = 0;
 
-const putPropsInStore = async () => {
+const putPropsInStore = async (isAlbumChanged) => {
   dispatch(
     toggleAlbum(
       albumImage,
@@ -103,6 +103,7 @@ const putPropsInStore = async () => {
       tracksDurationMillis,
       firstTrackId,
       lastTrackId,
+      isAlbumChanged,
     ),
   );
   await AsyncStorage.setItem('album_image', JSON.stringify(albumImage));
@@ -112,7 +113,8 @@ const putPropsInStore = async () => {
 async function onTrackPressed(trackId, albumIdProps) {
   if (albumIdProps !== albumId) {
     albumId = albumIdProps;
-    putPropsInStore();
+    putPropsInStore(true);
+    dispatch(albumChanged(true));
   }
 
   putPressedTrackIdInStore(trackId);
@@ -176,7 +178,7 @@ export const AlbumScreen = ({navigation, route}) => {
   useEffect(() => {
     if (albumImageProps !== albumImage) {
       fetchSongs(albumDescProps, albumIdProps);
-
+      canRender = false;
       albumImage = albumImageProps;
       albumsPhotos = albumsPhotosProps;
       albumDesc = albumDescProps;

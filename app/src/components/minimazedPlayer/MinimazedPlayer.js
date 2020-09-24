@@ -8,9 +8,6 @@ import {isMinimazed} from '../../store/actions/player';
 export const MinimazedPlayer = () => {
   const {albumImage} = useSelector((state) => state.albums.currentAlbum);
   const {trackPlayerInit} = useSelector((state) => state.player);
-  console.log('album image from minimazed = ', albumImage);
-  // const albumImage = null;
-  console.log('trackPlayerInit from minimazed = ', trackPlayerInit);
   const dispatch = useDispatch();
   return (
     <View style={styles.containerMinimazed}>
