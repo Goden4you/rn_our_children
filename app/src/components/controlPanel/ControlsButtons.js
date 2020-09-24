@@ -3,7 +3,7 @@ import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-community/async-storage';
 import {useSelector, useDispatch} from 'react-redux';
 import TrackPlayer from 'react-native-track-player';
-import {updateStorage, isTrackPlaying} from '../../store/actions/player';
+import {isTrackPlaying, handlePrevNext} from '../../store/actions/player';
 
 var state = {};
 var dispatch;
@@ -11,6 +11,7 @@ var dispatch;
 const handlePlayPause = async () => {
   if (state.audioLoaded) {
     const {isPlaying} = state;
+    console.log('isPlaying from handlePlayPause - ', isPlaying);
 
     isPlaying
       ? TrackPlayer.pause().then(console.log('paused from handle'))
@@ -23,7 +24,7 @@ const handlePlayPause = async () => {
           console.log('Interval for position cleared'),
         );
       } else {
-        this.trackPosition();
+        // this.trackPosition();
       }
     }, 1000);
 
@@ -33,7 +34,7 @@ const handlePlayPause = async () => {
       trackPositionInterval: true,
     };
 
-    // dispatch(updateStorage(state));
+    dispatch(isTrackPlaying(!isPlaying));
   }
 };
 
@@ -45,14 +46,10 @@ const handlePreviousTrack = async () => {
       state = {
         ...state,
         trackId,
-        audioLoaded: true,
         currentTime: 0,
         formattedCurrentTime: '00:00',
         pressed: false,
-        trackPositionInterval: true,
       };
-
-      // dispatch(updateStorage(state));
 
       TrackPlayer.skipToPrevious().then(() => {
         console.log('skipped to - ', trackId);
@@ -63,13 +60,21 @@ const handlePreviousTrack = async () => {
           ) {
             console.log('ready to play');
             clearInterval(interval);
-            setTimeout(async () => {
+
+            await AsyncStorage.setItem(
+              'track_id',
+              JSON.stringify(state.trackId),
+            );
+            setTimeout(() => {
               TrackPlayer.play().then(() => {
                 state = {
                   ...state,
+                  audioLoaded: true,
                   isPlaying: true,
+                  trackPositionInterval: true,
                 };
-                dispatch(isTrackPlaying(true));
+
+                dispatch(handlePrevNext(trackId));
               });
             }, 1000);
           }
@@ -115,6 +120,11 @@ const handleNextTrack = async () => {
             ) {
               console.log('ready to play');
               clearInterval(interval);
+
+              await AsyncStorage.setItem(
+                'track_id',
+                JSON.stringify(state.trackId),
+              );
               setTimeout(() => {
                 TrackPlayer.play().then(() => {
                   state = {
@@ -124,7 +134,7 @@ const handleNextTrack = async () => {
                     trackPositionInterval: true,
                   };
 
-                  // dispatch(updateStorage(state));
+                  dispatch(handlePrevNext(trackId));
                 });
               }, 1000);
             }
@@ -141,6 +151,8 @@ const handleNextTrack = async () => {
           JSON.stringify(parseInt(trackId, 10) + 2),
         );
 
+        trackId += 2;
+
         state = {
           ...state,
           currentTime: 0,
@@ -148,9 +160,10 @@ const handleNextTrack = async () => {
           formattedCurrentTime: '00:00',
           pressed: false,
           needUpdate2: false,
+          trackId,
         };
 
-        // dispatch(updateStorage(state));
+        dispatch(handlePrevNext(trackId));
 
         setTimeout(async () => {
           console.log('isAlbumImageChanged from handle');
@@ -198,14 +211,12 @@ export const ControlsButtons = () => {
     setupListeners();
   }, []);
 
-  const {
-    audioLoaded,
-    isPlaying,
-    trackId,
-    firstTrackId,
-    lastTrackId,
-    albumImage,
-  } = useSelector((statement) => statement.player);
+  const {audioLoaded, isPlaying, trackId} = useSelector(
+    (statement) => statement.player,
+  );
+  const {firstTrackId, lastTrackId, albumImage} = useSelector(
+    (statement) => statement.albums.currentAlbum,
+  );
   state = {
     ...state,
     audioLoaded,
@@ -217,13 +228,13 @@ export const ControlsButtons = () => {
   };
   return (
     <View style={styles.controls}>
-      <TouchableOpacity style={styles.control}>
+      <TouchableOpacity style={styles.control} onPress={handlePreviousTrack}>
         <Image
           source={require('../../../../images/icons/playerControl/prevHit/prevHitCopy.png')}
           style={styles.controlImage}
         />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.control}>
+      <TouchableOpacity style={styles.control} onPress={handlePlayPause}>
         {state.isPlaying ? (
           <Image
             source={require('../../../../images/icons/playerControl/pauseHit/pauseHitCopy.png')}
@@ -236,7 +247,7 @@ export const ControlsButtons = () => {
           />
         )}
       </TouchableOpacity>
-      <TouchableOpacity style={styles.control}>
+      <TouchableOpacity style={styles.control} onPress={handleNextTrack}>
         <Image
           source={require('../../../../images/icons/playerControl/nextHit/nextHitCopy.png')}
           style={styles.controlImage}

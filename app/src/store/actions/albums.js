@@ -1,4 +1,4 @@
-import {LOAD_ALBUMS, TOGGLE_ALBUM} from '../types';
+import {LOAD_ALBUMS, TOGGLE_ALBUM, ALBUM_CHANGED} from '../types';
 
 export const loadAlbums = (
   albumsPhotos,
@@ -27,6 +27,7 @@ export const toggleAlbum = (
   tracksDurationMillis,
   firstTrackId,
   lastTrackId,
+  isAlbumChanged,
 ) => {
   const albumTracks = {
     albumImage,
@@ -42,5 +43,12 @@ export const toggleAlbum = (
   return {
     type: TOGGLE_ALBUM,
     payload: albumTracks,
+  };
+};
+
+export const albumChanged = (bool) => {
+  return {
+    type: ALBUM_CHANGED,
+    isAlbumChanged: bool,
   };
 };
