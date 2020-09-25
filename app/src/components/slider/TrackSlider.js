@@ -65,22 +65,24 @@ var intervalForPosition = setInterval(() => {
 export const TrackSlider = () => {
   const {
     trackPlayerInit,
-    formattedDurMillis,
     trackId,
-    firstTrackId,
-    tracksDuration,
     audioLoaded,
     trackPositionInterval,
     currentTime,
-    formattedCurrentTime,
   } = useSelector((statement) => statement.player);
+
+  const {tracksDurationMillis, firstTrackId, tracksDuration} = useSelector(
+    (statement) => statement.albums.currentAlbum,
+  );
+
+  let dur = tracksDurationMillis.map((value) => (value /= 1000));
 
   state = {
     ...state,
     audioLoaded,
     trackPositionInterval,
     currentTime,
-    formattedCurrentTime,
+    formattedDurMillis: dur,
   };
 
   dispatch = useDispatch();
@@ -90,7 +92,7 @@ export const TrackSlider = () => {
       <Slider
         minimumValue={0}
         maximumValue={
-          trackPlayerInit ? formattedDurMillis[trackId - firstTrackId] : 0
+          trackPlayerInit ? state.formattedDurMillis[trackId - firstTrackId] : 0
         }
         minimumTrackTintColor={'rgb(244,121,40)'}
         onSlidingComplete={(value) => {

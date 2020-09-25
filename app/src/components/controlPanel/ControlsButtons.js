@@ -211,7 +211,7 @@ export const ControlsButtons = () => {
     setupListeners();
   }, []);
 
-  const {audioLoaded, isPlaying, trackId} = useSelector(
+  const {audioLoaded, isPlaying, trackId, minimazed} = useSelector(
     (statement) => statement.player,
   );
   const {firstTrackId, lastTrackId, albumImage} = useSelector(
@@ -227,7 +227,7 @@ export const ControlsButtons = () => {
     albumImage,
   };
   return (
-    <View style={styles.controls}>
+    <View style={minimazed ? styles.controlsMinimazed : styles.controls}>
       <TouchableOpacity style={styles.control} onPress={handlePreviousTrack}>
         <Image
           source={require('../../../../images/icons/playerControl/prevHit/prevHitCopy.png')}
@@ -260,6 +260,14 @@ export const ControlsButtons = () => {
 const styles = StyleSheet.create({
   controls: {
     flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: '10%',
+  },
+  controlsMinimazed: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   control: {
     margin: 10,

@@ -65,8 +65,6 @@ async function fetchAlbums() {
       albumsIds[i] = parsedData[i].id;
     }
 
-    console.log('1 - ', albumsIds[0]);
-
     isAlbumsFetched = true;
 
     console.log('Albums data fetched.');
@@ -93,7 +91,11 @@ async function fetchAlbumsPhotos() {
     } else {
       console.log('Read album photos from network');
       try {
-        for (let i = 30184; i < 30191; i++) {
+        for (
+          let i = parseInt(albumsIds[0], 10);
+          i <= parseInt(albumsIds[6], 10);
+          i++
+        ) {
           const response = await fetch(
             'https://childrensproject.ocs.ru/api/v1/albums/' + i,
             {
