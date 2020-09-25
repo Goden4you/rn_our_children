@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   StyleSheet,
   View,
@@ -7,7 +7,6 @@ import {
   Modal,
   Alert,
   AppState,
-  Text,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
 import SplashScreen from 'react-native-splash-screen';
@@ -82,14 +81,14 @@ function setupPlayer() {
 
   TrackPlayer.addEventListener('playback-track-changed', async () => {
     if (state.isPlaying && !state.isQueueEnded && !state.pressed) {
-      let trackId = await TrackPlayer.getCurrentTrack();
+      let id = await TrackPlayer.getCurrentTrack();
       state = {
         ...state,
-        trackId,
+        trackId: parseInt(id, 10),
       };
-      dispatch(updateTrackId(trackId));
+      dispatch(updateTrackId(id));
 
-      await AsyncStorage.setItem('track_id', JSON.stringify(trackId));
+      await AsyncStorage.setItem('track_id', JSON.stringify(id));
       let interval = setInterval(async () => {
         if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
           console.log('ready to play');
@@ -308,6 +307,7 @@ function isAlbumImageChanged(error, result) {
 }
 
 export const Player = () => {
+  const [update, setUpdate] = useState(false);
   dispatch = useDispatch();
   if (!state.trackPlayerInit) {
     setupPlayer();
@@ -316,7 +316,11 @@ export const Player = () => {
       ...state,
       trackPlayerInit: true,
       minimazed: true,
+      update,
     };
+    setInterval(() => {
+      setUpdate(true);
+    }, 1000);
   }
 
   useEffect(() => {
@@ -374,12 +378,8 @@ export const Player = () => {
     isAlbumChanged,
   };
 
-  console.log('Player called');
-
   // TODO
   // AsyncStorage.setItem('move_to_next_album', JSON.stringify(false)); // dropping back moving to next album
-
-  // TODO Данные в минимизированный плеер, инфу о файле, слайдер пойдут через редакс
 
   return (
     <View style={styles.container}>

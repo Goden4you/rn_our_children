@@ -9,6 +9,7 @@ import {
   IS_TRACK_PLAYING,
   UPDATE_TIME,
   HANDLE_PREV_NEXT,
+  IS_MINIMAZED,
 } from '../types';
 
 export const loadPlayer = () => {
@@ -62,7 +63,7 @@ export const isPlayerInit = (params) => {
 
 export const isMinimazed = (bool) => {
   return {
-    type: INIT_PLAYER,
+    type: IS_MINIMAZED,
     minimazed: bool,
   };
 };

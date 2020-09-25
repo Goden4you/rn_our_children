@@ -12,27 +12,40 @@ import {
 import {useDispatch} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
 import {toggleAlbum, albumChanged} from '../store/actions/albums';
-import {updateStorage, updateTrackId} from '../store/actions/player';
+import {updateTrackId} from '../store/actions/player';
 
 var phoneHeight = Dimensions.get('window').height;
-var tracksTitles = [];
-var tracksAuthors = [];
-var tracksDuration = [];
-var tracksIds = [];
-var tracksDurationMillis = [];
-var albumId = 0;
-var albumImage = null;
-var albumDesc = '';
-var firstTrackId = 0;
-var lastTrackId = 0;
-var albumsPhotos = [];
-var canRender = false;
+var state = {
+  tracksTitles: [],
+  tracksAuthors: [],
+  tracksDuration: [],
+  tracksIds: [],
+  tracksDurationMillis: [],
+  albumId: 0,
+  albumImage: null,
+  albumDesc: '',
+  firstTrackId: 0,
+  lastTrackId: 0,
+  albumsPhotos: [],
+  canRender: false,
+};
 
 var dispatch;
 
 async function fetchSongs(desc, id) {
   let songsCount = desc.toString().substring(0, 2);
   songsCount = parseInt(songsCount, 10);
+  let {
+    tracksTitles,
+    tracksAuthors,
+    tracksDuration,
+    tracksIds,
+    tracksDurationMillis,
+    firstTrackId,
+    lastTrackId,
+    canRender,
+    albumId,
+  } = state;
   await fetch('https://childrensproject.ocs.ru/api/v1/albums/' + id, {
     method: 'GET',
     headers: {
@@ -63,15 +76,25 @@ async function fetchSongs(desc, id) {
       tracksDurationMillis[i] = parsedData[i].durationInMilliseconds;
     }
     firstTrackId = parsedData[0].songFileId;
-    console.log('songs count = ', songsCount);
     lastTrackId = parsedData[songsCount - 1].songFileId;
+    canRender = true;
+
+    state = {
+      tracksTitles,
+      tracksAuthors,
+      tracksDuration,
+      tracksIds,
+      tracksDurationMillis,
+      firstTrackId,
+      lastTrackId,
+      canRender,
+    };
 
     console.log('Songs fetched');
     // if (needUpdate) {
     //   needUpdate = false;
     //   putPropsInStore();
     // }
-    canRender = true;
 
     intervalToMove = setInterval(async () => {
       await AsyncStorage.getItem('move_to_next_album', (err, res) => {
@@ -92,28 +115,32 @@ async function putPressedTrackIdInStore(value) {
 
 var intervalToMove = 0;
 
-const putPropsInStore = async (isAlbumChanged) => {
+const putPropsInStore = async (isAlbumChanged, albumImageProps) => {
   dispatch(
     toggleAlbum(
-      albumImage,
-      tracksTitles,
-      tracksAuthors,
-      tracksDuration,
-      tracksIds,
-      tracksDurationMillis,
-      firstTrackId,
-      lastTrackId,
+      albumImageProps,
+      state.tracksTitles,
+      state.tracksAuthors,
+      state.tracksDuration,
+      state.tracksIds,
+      state.tracksDurationMillis,
+      state.firstTrackId,
+      state.lastTrackId,
       isAlbumChanged,
     ),
   );
-  await AsyncStorage.setItem('album_image', JSON.stringify(albumImage));
+  console.log('album image from putPropsInStore - ', albumImageProps);
+  await AsyncStorage.setItem('album_image', JSON.stringify(albumImageProps));
   console.log('putPropsInStore form ALBUMSCREEN called');
 };
 
-async function onTrackPressed(trackId, albumIdProps) {
-  if (albumIdProps !== albumId) {
-    albumId = albumIdProps;
-    putPropsInStore(true);
+async function onTrackPressed(trackId, albumIdProps, albumImageProps) {
+  if (albumIdProps !== state.albumId) {
+    state = {
+      ...state,
+      albumId: albumIdProps,
+    };
+    putPropsInStore(true, albumImageProps);
     dispatch(albumChanged(true));
   }
 
@@ -123,33 +150,36 @@ async function onTrackPressed(trackId, albumIdProps) {
 function moveToNextAlbum(albumIdProps) {
   clearInterval(intervalToMove, console.log('intervalToMove cleared'));
 
-  canRender = false;
+  state = {
+    ...state,
+    canRender: false,
+  };
 
   let songsCount = 0;
   switch (albumIdProps) {
     case 30184:
       console.log('album id props', albumIdProps);
-      songsCount = albumDesc;
+      songsCount = state.albumDesc;
       break;
     case 30185:
       console.log('album id props', albumIdProps);
-      songsCount = albumDesc + 3;
+      songsCount = state.albumDesc + 3;
       break;
     case 30186:
       console.log('album id props', albumIdProps);
-      songsCount = albumDesc + 2;
+      songsCount = state.albumDesc + 2;
       break;
     case 30187:
       console.log('album id props', albumIdProps);
-      songsCount = albumDesc - 4;
+      songsCount = state.albumDesc - 4;
       break;
     case 30188:
       console.log('album id props', albumIdProps);
-      songsCount = albumDesc;
+      songsCount = state.albumDesc;
       break;
     case 30189:
       console.log('album id props', albumIdProps);
-      songsCount = albumDesc + 4;
+      songsCount = state.albumDesc + 4;
       break;
     case 30190:
       return;
@@ -158,7 +188,10 @@ function moveToNextAlbum(albumIdProps) {
       break;
   }
   console.log('last track pressed');
-  albumImage = albumsPhotos[albumIdProps - 30183];
+  state = {
+    ...state,
+    albumImage: state.albumsPhotos[albumIdProps - 30183],
+  };
   fetchSongs(songsCount, albumIdProps + 1);
 }
 
@@ -176,15 +209,19 @@ export const AlbumScreen = ({navigation, route}) => {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    if (albumImageProps !== albumImage) {
+    if (albumImageProps !== state.albumImage) {
+      state = {
+        ...state,
+        canRender: false,
+        albumImage: albumImageProps,
+        albumsPhotos: albumsPhotosProps,
+        albumDesc: albumDescProps,
+      };
+
       fetchSongs(albumDescProps, albumIdProps);
-      canRender = false;
-      albumImage = albumImageProps;
-      albumsPhotos = albumsPhotosProps;
-      albumDesc = albumDescProps;
 
       let interval = setInterval(() => {
-        if (canRender) {
+        if (state.canRender) {
           clearInterval(interval);
           setIsReady(true);
           console.log('album screen ready');
@@ -241,26 +278,26 @@ export const AlbumScreen = ({navigation, route}) => {
           </ImageBackground>
           <View style={styles.songsWrap}>
             <View>
-              {tracksIds.map((value) => {
-                let index = tracksIds.indexOf(value);
+              {state.tracksIds.map((value) => {
+                let index = state.tracksIds.indexOf(value);
                 return (
                   <TouchableOpacity
                     style={styles.wrapper}
                     key={value}
                     onPress={() => {
-                      onTrackPressed(value, albumIdProps);
+                      onTrackPressed(value, albumIdProps, albumImageProps);
                     }}>
                     <View style={{width: '80%'}}>
                       <Text style={styles.songTitle}>
-                        {tracksTitles[index]}
+                        {state.tracksTitles[index]}
                       </Text>
                       <Text style={styles.songAuthor}>
-                        {tracksAuthors[index]}
+                        {state.tracksAuthors[index]}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.songDuration}>
-                        {tracksDuration[index]}
+                        {state.tracksDuration[index]}
                       </Text>
                     </View>
                   </TouchableOpacity>

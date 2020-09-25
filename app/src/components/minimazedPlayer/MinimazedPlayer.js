@@ -7,9 +7,9 @@ import {isMinimazed} from '../../store/actions/player';
 
 export const MinimazedPlayer = () => {
   const {albumImage} = useSelector((state) => state.albums.currentAlbum);
-  const {trackPlayerInit} = useSelector((state) => state.player);
+  const {trackPlayerInit, minimazed} = useSelector((state) => state.player);
   const dispatch = useDispatch();
-  return (
+  return minimazed ? (
     <View style={styles.containerMinimazed}>
       <TouchableOpacity
         style={styles.imageAndInfo}
@@ -23,14 +23,14 @@ export const MinimazedPlayer = () => {
               ? {
                   uri: albumImage,
                 }
-              : require('../../../../images/osya/none/ndCopy.png') // TODO избавиться от ../
+              : require('../../../../images/osya/none/ndCopy.png')
           }
         />
         <FileInfo />
       </TouchableOpacity>
       <ControlsButtons />
     </View>
-  );
+  ) : null;
 };
 
 const styles = StyleSheet.create({
