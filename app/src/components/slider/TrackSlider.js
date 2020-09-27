@@ -3,7 +3,7 @@ import {View, Text, StyleSheet} from 'react-native';
 import {Slider} from 'react-native-elements';
 import {useSelector, useDispatch} from 'react-redux';
 import TrackPlayer from 'react-native-track-player';
-import {updateStorage, updateTime} from '../../store/actions/player';
+import {updateTime} from '../../store/actions/player';
 
 var state = {
   currentTime: 0,
@@ -32,7 +32,6 @@ const handleTrackPosition = async (value) => {
 const trackPosition = async () => {
   if (state.audioLoaded) {
     let position = await TrackPlayer.getPosition();
-    // millis in correct format for user
     var time;
 
     var seconds = state.currentTime;
@@ -54,13 +53,9 @@ const trackPosition = async () => {
   }
 };
 
-var intervalForPosition = setInterval(() => {
-  if (state.trackPositionInterval) {
-    clearInterval(intervalForPosition, console.log('Interval cleared2'));
-  } else {
-    trackPosition();
-  }
-}, 900);
+setInterval(() => {
+  trackPosition();
+}, 1000);
 
 export const TrackSlider = () => {
   const {

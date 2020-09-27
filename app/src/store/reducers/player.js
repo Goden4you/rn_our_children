@@ -2,13 +2,13 @@ import {
   LOAD_PLAYER,
   UPDATE_TRACK_ID,
   LOAD_AUDIO,
-  UPDATE_STORAGE,
   TRACK_LOADING_ERROR,
   UPDATE_LOADED_SIZE,
   IS_TRACK_PLAYING,
   IS_MINIMAZED,
   UPDATE_TIME,
   HANDLE_PREV_NEXT,
+  QUEUE_ENDED,
 } from '../types';
 
 const initialState = {};
@@ -16,7 +16,6 @@ const initialState = {};
 export const playerReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOAD_PLAYER:
-      console.log('LOAD PLAYER загружен');
       return {
         ...state,
         trackPlayerInit: action.trackPlayerInit,
@@ -44,7 +43,7 @@ export const playerReducer = (state = initialState, action) => {
     case UPDATE_LOADED_SIZE:
       return {
         ...state,
-        loadedSize: action.payload,
+        loadedSize: action.size,
       };
     case IS_TRACK_PLAYING:
       return {
@@ -71,6 +70,11 @@ export const playerReducer = (state = initialState, action) => {
         audioLoaded: action.audioLoaded,
         trackPositionInterval: action.trackPositionInterval,
         isPlaying: action.isPlaying,
+      };
+    case QUEUE_ENDED:
+      return {
+        ...state,
+        queueEnded: action.queueEnded,
       };
     default:
       return state;

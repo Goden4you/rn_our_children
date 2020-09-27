@@ -28,6 +28,7 @@ var state = {
   lastTrackId: 0,
   albumsPhotos: [],
   canRender: false,
+  needUpdate: false,
 };
 
 var dispatch;
@@ -44,7 +45,7 @@ async function fetchSongs(desc, id) {
     firstTrackId,
     lastTrackId,
     canRender,
-    albumId,
+    needUpdate,
   } = state;
   await fetch('https://childrensproject.ocs.ru/api/v1/albums/' + id, {
     method: 'GET',
@@ -80,6 +81,7 @@ async function fetchSongs(desc, id) {
     canRender = true;
 
     state = {
+      ...state,
       tracksTitles,
       tracksAuthors,
       tracksDuration,
@@ -91,19 +93,14 @@ async function fetchSongs(desc, id) {
     };
 
     console.log('Songs fetched');
-    // if (needUpdate) {
-    //   needUpdate = false;
-    //   putPropsInStore();
-    // }
-
-    intervalToMove = setInterval(async () => {
-      await AsyncStorage.getItem('move_to_next_album', (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        JSON.parse(res) ? moveToNextAlbum(albumId) : null;
-      });
-    }, 1000);
+    if (needUpdate) {
+      state = {
+        ...state,
+        needUpdate: false,
+      };
+      putPropsInStore(true, state.albumImage);
+      dispatch(albumChanged(true));
+    }
   });
 }
 
@@ -116,6 +113,7 @@ async function putPressedTrackIdInStore(value) {
 var intervalToMove = 0;
 
 const putPropsInStore = async (isAlbumChanged, albumImageProps) => {
+  console.log('putPropsInStore called');
   dispatch(
     toggleAlbum(
       albumImageProps,
@@ -129,13 +127,12 @@ const putPropsInStore = async (isAlbumChanged, albumImageProps) => {
       isAlbumChanged,
     ),
   );
-  console.log('album image from putPropsInStore - ', albumImageProps);
   await AsyncStorage.setItem('album_image', JSON.stringify(albumImageProps));
-  console.log('putPropsInStore form ALBUMSCREEN called');
 };
 
 async function onTrackPressed(trackId, albumIdProps, albumImageProps) {
   if (albumIdProps !== state.albumId) {
+    console.log('on track pressed called');
     state = {
       ...state,
       albumId: albumIdProps,
@@ -147,52 +144,47 @@ async function onTrackPressed(trackId, albumIdProps, albumImageProps) {
   putPressedTrackIdInStore(trackId);
 }
 
-function moveToNextAlbum(albumIdProps) {
+function moveToNextAlbum() {
   clearInterval(intervalToMove, console.log('intervalToMove cleared'));
 
   state = {
     ...state,
     canRender: false,
+    needUpdate: true,
   };
 
+  let {albumId} = state;
+
   let songsCount = 0;
-  switch (albumIdProps) {
+  switch (albumId) {
     case 30184:
-      console.log('album id props', albumIdProps);
       songsCount = state.albumDesc;
       break;
     case 30185:
-      console.log('album id props', albumIdProps);
       songsCount = state.albumDesc + 3;
       break;
     case 30186:
-      console.log('album id props', albumIdProps);
       songsCount = state.albumDesc + 2;
       break;
     case 30187:
-      console.log('album id props', albumIdProps);
       songsCount = state.albumDesc - 4;
       break;
     case 30188:
-      console.log('album id props', albumIdProps);
       songsCount = state.albumDesc;
       break;
     case 30189:
-      console.log('album id props', albumIdProps);
       songsCount = state.albumDesc + 4;
       break;
     case 30190:
       return;
     default:
-      console.log('album id props', albumIdProps);
       break;
   }
-  console.log('last track pressed');
   state = {
     ...state,
-    albumImage: state.albumsPhotos[albumIdProps - 30183],
+    albumImage: state.albumsPhotos[albumId - 30183],
   };
-  fetchSongs(songsCount, albumIdProps + 1);
+  fetchSongs(songsCount, albumId + 1);
 }
 
 export const AlbumScreen = ({navigation, route}) => {
@@ -208,6 +200,18 @@ export const AlbumScreen = ({navigation, route}) => {
 
   const [isReady, setIsReady] = useState(false);
 
+  // TODO
+  if (state.albumImage === null) {
+    intervalToMove = setInterval(async () => {
+      await AsyncStorage.getItem('move_to_next_album', (err, res) => {
+        if (err) {
+          console.log(err);
+        }
+        JSON.parse(res) ? moveToNextAlbum(state.albumId) : null;
+      });
+    }, 1000);
+  }
+
   useEffect(() => {
     if (albumImageProps !== state.albumImage) {
       state = {
@@ -216,15 +220,14 @@ export const AlbumScreen = ({navigation, route}) => {
         albumImage: albumImageProps,
         albumsPhotos: albumsPhotosProps,
         albumDesc: albumDescProps,
+        // albumId: albumIdProps,
       };
-
       fetchSongs(albumDescProps, albumIdProps);
 
       let interval = setInterval(() => {
         if (state.canRender) {
           clearInterval(interval);
           setIsReady(true);
-          console.log('album screen ready');
         }
       }, 250);
     } else {
@@ -234,8 +237,8 @@ export const AlbumScreen = ({navigation, route}) => {
     isReady,
     albumDescProps,
     albumImageProps,
-    albumIdProps,
     albumsPhotosProps,
+    albumIdProps,
   ]);
 
   if (isReady) {
