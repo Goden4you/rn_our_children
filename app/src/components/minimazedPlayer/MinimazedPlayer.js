@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {ControlsButtons} from '../controlPanel/ControlsButtons';
 import {FileInfo} from '../musicInfo/FileInfo';

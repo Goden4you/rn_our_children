@@ -78,11 +78,15 @@ async function fetchAlbumsPhotos() {
   var j = 0;
   let fs = RNFetchBlob.fs;
   const path = fs.dirs.CacheDir + '/albums_photos/';
-  await fs.exists(path + 1).then(async (res) => {
+  await fs.exists(path + albumsIds[0]).then(async (res) => {
     console.log('exists? -', res);
     if (res) {
       console.log('Read albums photos from cache');
-      for (let i = albumsIds[0]; i < albumsIds[7]; i++) {
+      for (
+        let i = parseInt(albumsIds[0], 10);
+        i <= parseInt(albumsIds[6], 10);
+        i++
+      ) {
         await fs.readFile(path + i).then((data) => {
           albumsPhotos[j] = data;
           j++;

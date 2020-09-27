@@ -10,6 +10,7 @@ import {
   UPDATE_TIME,
   HANDLE_PREV_NEXT,
   IS_MINIMAZED,
+  QUEUE_ENDED,
 } from '../types';
 
 export const loadPlayer = () => {
@@ -43,7 +44,7 @@ export const updateTrackId = (id) => {
 export const updateLoadedSize = (size) => {
   return {
     type: UPDATE_LOADED_SIZE,
-    payload: size,
+    size,
   };
 };
 
@@ -101,5 +102,12 @@ export const handlePrevNext = (trackId) => {
     audioLoaded: true,
     trackPositionInterval: true,
     isPlaying: true,
+  };
+};
+
+export const isQueueEnded = (bool) => {
+  return {
+    type: QUEUE_ENDED,
+    queueEnded: bool,
   };
 };
