@@ -7,7 +7,6 @@ import {Provider} from 'react-redux';
 import store from './app/src/store';
 
 function App() {
-  console.log('something');
   return (
     <Provider store={store}>
       <View style={styles.container}>

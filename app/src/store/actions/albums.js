@@ -1,4 +1,9 @@
-import {LOAD_ALBUMS, TOGGLE_ALBUM, ALBUM_CHANGED} from '../types';
+import {
+  LOAD_ALBUMS,
+  TOGGLE_ALBUM,
+  ALBUM_CHANGED,
+  VERY_FIRST_LAST_TRACK,
+} from '../types';
 
 export const loadAlbums = (
   albumsPhotos,
@@ -50,5 +55,13 @@ export const albumChanged = (bool) => {
   return {
     type: ALBUM_CHANGED,
     isAlbumChanged: bool,
+  };
+};
+
+export const firstLastTrackId = (first, last) => {
+  return {
+    type: VERY_FIRST_LAST_TRACK,
+    first,
+    last,
   };
 };

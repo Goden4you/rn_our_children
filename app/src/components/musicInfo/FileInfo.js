@@ -33,8 +33,8 @@ export const FileInfo = () => {
 
 const styles = StyleSheet.create({
   trackInfoMinimazed: {
-    width: '70%',
     paddingLeft: 10,
+    paddingRight: 30,
     textAlign: 'left',
   },
   trackInfo: {
