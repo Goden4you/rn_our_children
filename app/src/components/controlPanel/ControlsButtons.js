@@ -8,7 +8,6 @@ import {
   handlePrevNext,
   isQueueEnded,
 } from '../../store/actions/player';
-import {albumChanged} from '../../store/actions/albums';
 
 var state = {};
 var dispatch;
@@ -17,7 +16,7 @@ const handlePlayPause = async () => {
   if (state.audioLoaded) {
     const {isPlaying} = state;
 
-    isPlaying ? await TrackPlayer.pause() : await TrackPlayer.play();
+    isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
 
     state = {
       ...state,
@@ -44,10 +43,7 @@ const handlePreviousTrack = async () => {
 
       TrackPlayer.skipToPrevious().then(() => {
         let interval = setInterval(async () => {
-          if (
-            (await TrackPlayer.getState()) === TrackPlayer.STATE_READY ||
-            TrackPlayer.STATE_PAUSED
-          ) {
+          if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
             clearInterval(interval);
 
             await AsyncStorage.setItem(
@@ -103,11 +99,7 @@ const handleNextTrack = async () => {
         TrackPlayer.skipToNext().then(() => {
           console.log('skipped to next - ', trackId);
           let interval = setInterval(async () => {
-            if (
-              (await TrackPlayer.getState()) === TrackPlayer.STATE_READY ||
-              TrackPlayer.STATE_PAUSED
-            ) {
-              console.log('ready to play');
+            if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
               clearInterval(interval);
 
               await AsyncStorage.setItem(
@@ -149,15 +141,6 @@ const handleNextTrack = async () => {
         };
 
         dispatch(handlePrevNext(trackId));
-        // dispatch(isQueueEnded(true));
-
-        // setTimeout(async () => {
-        // dispatch(albumChanged(true));
-        // await AsyncStorage.setItem(
-        //   'album_image',
-        //   JSON.stringify(state.albumImage),
-        // );
-        // }, 3000);
 
         setTimeout(
           async () =>
@@ -172,31 +155,30 @@ const handleNextTrack = async () => {
   }
 };
 
-const setupListeners = async () => {
-  TrackPlayer.addEventListener('remote-pause', () => {
-    handlePlayPause();
-  });
+// const setupListeners = () => {
+//   TrackPlayer.addEventListener('remote-pause', () => {
+//     handlePlayPause();
+//   });
 
-  TrackPlayer.addEventListener('remote-play', () => {
-    handlePlayPause();
-  });
+//   TrackPlayer.addEventListener('remote-play', () => {
+//     handlePlayPause();
+//   });
 
-  TrackPlayer.addEventListener('remote-next', () => {
-    handleNextTrack();
-  });
+//   TrackPlayer.addEventListener('remote-next', () => {
+//     handleNextTrack();
+//   });
 
-  TrackPlayer.addEventListener('remote-previous', () => {
-    handlePreviousTrack();
-  });
-};
+//   TrackPlayer.addEventListener('remote-previous', () => {
+//     handlePreviousTrack();
+//   });
+// };
 
 export const ControlsButtons = () => {
   dispatch = useDispatch();
 
-  useEffect(() => {
-    console.log('use effect called from ControlsButtons');
-    setupListeners();
-  }, []);
+  // useEffect(() => {
+  //   setupListeners();
+  // }, []);
 
   const {audioLoaded, isPlaying, trackId, queueEnded} = useSelector(
     (statement) => statement.player,

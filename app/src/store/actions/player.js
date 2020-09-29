@@ -5,12 +5,12 @@ import {
   INIT_PLAYER,
   TRACK_LOADING_ERROR,
   UPDATE_LOADED_SIZE,
-  UPDATE_POSITION_INTERVAL,
   IS_TRACK_PLAYING,
   UPDATE_TIME,
   HANDLE_PREV_NEXT,
   IS_MINIMAZED,
   QUEUE_ENDED,
+  UPDATE_PRESSED,
 } from '../types';
 
 export const loadPlayer = () => {
@@ -77,11 +77,10 @@ export const trackLoadingError = () => {
   };
 };
 
-// TODO не факт что нужно
-export const updatePositionInterval = (params) => {
+export const updatePressed = (bool) => {
   return {
-    type: UPDATE_POSITION_INTERVAL,
-    payload: params,
+    type: UPDATE_PRESSED,
+    pressed: bool,
   };
 };
 

@@ -10,17 +10,16 @@ import {
 } from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import {useDispatch, useSelector} from 'react-redux';
-import {loadAlbums} from '../store/actions/albums';
+import {firstLastTrackId, loadAlbums} from '../store/actions/albums';
 
-// initializing arrays, where data will be put
 var albumsTitles = [];
 var albumsDesc = [];
 var albumsIds = [];
 var albumsPhotos = [];
 var isAlbumsFetched = false;
 var isPhotosFetched = false;
+var dispatch;
 
-// images of osya to each album
 var osyaSrc = [
   require('../../../images/osya/1/osya1.png'),
   require('../../../images/osya/2/osya2.png'),
@@ -31,57 +30,49 @@ var osyaSrc = [
   require('../../../images/osya/7/osya7.png'),
 ];
 
-// fetching albums data to put them in variables
 async function fetchAlbums() {
-  await fetch('https://childrensproject.ocs.ru/api/v1/albums', {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
+  const response = await fetch(
+    'https://childrensproject.ocs.ru/api/v1/albums',
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
     },
-  }).then(async (response) => {
-    const data = await response.json();
-    const parsedData = JSON.parse(JSON.stringify(data));
-    // console.log("Data downloading completed...", parsedData);
+  );
+  const data = await response.json();
+  const parsedData = JSON.parse(JSON.stringify(data));
 
-    // put albums TITLES
-    for (let i = 0; i < 7; i++) {
-      albumsTitles[i] = parsedData[i].title;
+  for (let i = 0; i < 7; i++) {
+    albumsTitles[i] = parsedData[i].title;
+  }
+
+  for (let i = 0; i < 7; i++) {
+    if (parsedData[i].songsCount % 10 === 2) {
+      albumsDesc[i] = parsedData[i].songsCount + ' песни';
+    } else if (parsedData[i].songsCount % 10 === 4) {
+      albumsDesc[i] = parsedData[i].songsCount + ' песни';
+    } else {
+      albumsDesc[i] = parsedData[i].songsCount + ' песен';
     }
+  }
 
-    // put albums SONGS COUNT with using cases
-    for (let i = 0; i < 7; i++) {
-      if (parsedData[i].songsCount % 10 === 2) {
-        albumsDesc[i] = parsedData[i].songsCount + ' песни';
-      } else if (parsedData[i].songsCount % 10 === 4) {
-        albumsDesc[i] = parsedData[i].songsCount + ' песни';
-      } else {
-        albumsDesc[i] = parsedData[i].songsCount + ' песен';
-      }
-    }
+  for (let i = 0; i < 7; i++) {
+    albumsIds[i] = parsedData[i].id;
+  }
 
-    // put albums IDs
-    for (let i = 0; i < 7; i++) {
-      albumsIds[i] = parsedData[i].id;
-    }
+  isAlbumsFetched = true;
 
-    isAlbumsFetched = true;
-
-    console.log('Albums data fetched.');
-
-    fetchAlbumsPhotos(); // fetch albums photos
-  });
+  fetchAlbumsPhotos();
 }
 
-// fetching albums photos
 async function fetchAlbumsPhotos() {
   var j = 0;
   let fs = RNFetchBlob.fs;
   const path = fs.dirs.CacheDir + '/albums_photos/';
   await fs.exists(path + albumsIds[0]).then(async (res) => {
-    console.log('exists? -', res);
     if (res) {
-      console.log('Read albums photos from cache');
       for (
         let i = parseInt(albumsIds[0], 10);
         i <= parseInt(albumsIds[6], 10);
@@ -93,7 +84,6 @@ async function fetchAlbumsPhotos() {
         });
       }
     } else {
-      console.log('Read album photos from network');
       try {
         for (
           let i = parseInt(albumsIds[0], 10);
@@ -114,56 +104,82 @@ async function fetchAlbumsPhotos() {
           const data = await response.json();
           const parsedData = JSON.parse(JSON.stringify(data));
 
-          // put albums PHOTOS in variable
           albumsPhotos[j] =
             'https://childrensproject.ocs.ru/api/v1/files/' +
             parsedData[0].artworkFileId;
 
-          await fs
-            .writeFile(
-              fs.dirs.CacheDir + '/albums_photos/' + i,
-              'https://childrensproject.ocs.ru/api/v1/files/' +
-                parsedData[0].artworkFileId,
-            )
-            .then(() => console.log('Album Photo now in cache'));
+          await fs.writeFile(
+            fs.dirs.CacheDir + '/albums_photos/' + i,
+            'https://childrensproject.ocs.ru/api/v1/files/' +
+              parsedData[0].artworkFileId,
+          );
 
           j++;
         }
       } catch (e) {}
     }
   });
-  // loop to fetch all album`s data
 
   isPhotosFetched = true;
   console.log('Albums photos fetched.');
+  // fetchFirstLastTrack();
+}
+
+async function fetchFirstLastTrack() {
+  const response = await fetch(
+    'https://childrensproject.ocs.ru/api/v1/albums' + albumsIds[0],
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  const data = await response.json();
+  const parsedData = JSON.parse(JSON.stringify(data));
+  const veryFirstTrackId = parsedData[0].songFileId;
+
+  const response2 = await fetch(
+    'https://childrensproject.ocs.ru/api/v1/albums' + albumsIds[6],
+    {
+      method: 'GET',
+      headers: {
+        Accept: 'application/json',
+        'Content-Type': 'application/json',
+      },
+    },
+  );
+  const data2 = await response2.json();
+  const parsedData2 = JSON.parse(JSON.stringify(data2));
+  // parsedData2.map((some) => console.log('parsedData2 map', some));
+  console.log('parsedData2 -', parsedData2);
+
+  // dispatch(firstLastTrackId(veryFirstTrackId, veryLastTrackId));
 }
 
 async function makeDirectory() {
   let fs = RNFetchBlob.fs;
-  await fs.exists(fs.dirs.CacheDir + '/albums_photos/').then(async (res) => {
-    if (!res) {
-      await fs.mkdir(fs.dirs.CacheDir + '/albums_photos/');
-    }
-    console.log('Is dir for albums photos exist? - ', res);
-  });
+  const res = await fs.exists(fs.dirs.CacheDir + '/albums_photos/');
+  if (!res) {
+    await fs.mkdir(fs.dirs.CacheDir + '/albums_photos/');
+  }
 }
 
 export const Albums = ({navigation}) => {
-  const [isReady, setIsReady] = useState(false); // state to display screen data
+  const [isReady, setIsReady] = useState(false);
 
-  const dispatch = useDispatch();
+  dispatch = useDispatch();
 
   useEffect(() => {
     if (albumsIds[2] === undefined) {
-      console.log('Albums Screen was unmounted, data loading started.');
       makeDirectory();
-      setIsReady(false); // screen can`t be displaying
-      fetchAlbums(); // fetch albums info
+      setIsReady(false);
+      fetchAlbums();
       let interval = setInterval(() => {
         if (isAlbumsFetched && isPhotosFetched) {
           setIsReady(true);
           clearInterval(interval);
-          console.log('Albums now visible');
         }
       }, 250);
     }
@@ -173,7 +189,7 @@ export const Albums = ({navigation}) => {
     if (!isReady && albumsIds[2]) {
       setIsReady(true);
     }
-  }, [isReady, dispatch]);
+  }, [isReady]);
 
   const allAlbums = useSelector((state) => state.albums.allAlbums);
 
@@ -203,7 +219,7 @@ export const Albums = ({navigation}) => {
             return (
               <View style={styles.albumWrap} key={index + 1000}>
                 <TouchableOpacity
-                  style={styles.albumImage}
+                  style={styles.albumImageWrap}
                   onPress={() => {
                     navigation.navigate('AlbumScreen', {
                       albumTitleProps: allAlbums.titles[index],
@@ -217,7 +233,7 @@ export const Albums = ({navigation}) => {
                     source={{
                       uri: allAlbums.photos[index],
                     }}
-                    style={{width: '100%', height: '100%'}}
+                    style={styles.albumImage}
                   />
                 </TouchableOpacity>
                 <View style={styles.albumInfo}>
@@ -253,29 +269,28 @@ const styles = StyleSheet.create({
     marginRight: 30,
     height: phoneHeight - 160,
   },
-  albumImage: {
+  albumImageWrap: {
     width: 200,
     height: 200,
-    marginRight: 15,
+    marginRight: '5%',
+  },
+  albumImage: {
+    width: '100%',
+    height: '100%',
   },
   albumWrap: {
     marginBottom: 31,
     flexDirection: 'row',
+    justifyContent: 'space-between',
   },
   albumInfo: {
     justifyContent: 'space-between',
   },
   albumTitle: {
-    // fontFamily:
-    //   Platform.OS === 'ios'
-    //     ? 'HouschkaPro-DemiBold'
-    //     : 'HouschkaPro-DemiBold.ttf',
     color: 'rgb(244,121,40)',
     fontSize: 33,
   },
   albumDesc: {
-    fontSize: 24,
-    // fontFamily:
-    //   Platform.OS === 'ios' ? 'HouschkaPro-Light' : 'HouschkaPro-Light.ttf',
+    fontSize: 22,
   },
 });

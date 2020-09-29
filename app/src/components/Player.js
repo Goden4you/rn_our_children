@@ -7,6 +7,7 @@ import {
   Modal,
   Alert,
   AppState,
+  Linking,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
 import SplashScreen from 'react-native-splash-screen';
@@ -26,8 +27,10 @@ import {
   isTrackPlaying,
   isMinimazed,
   isQueueEnded,
+  updatePressed,
 } from '../store/actions/player';
 import {albumChanged, toggleAlbum} from '../store/actions/albums';
+import store from '../store';
 
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
@@ -52,13 +55,13 @@ var state = {
 
 async function setupPlayer() {
   TrackPlayer.setupPlayer();
-  console.log('Player created');
   TrackPlayer.updateOptions({
     capabilities: [
       TrackPlayer.CAPABILITY_PLAY,
       TrackPlayer.CAPABILITY_PAUSE,
       TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
       TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+      TrackPlayer.CAPABILITY_SKIP,
     ],
     compactCapabilities: [
       TrackPlayer.CAPABILITY_PLAY,
@@ -76,7 +79,7 @@ async function setupPlayer() {
       };
       TrackPlayer.reset();
       dispatch(isQueueEnded(true));
-      console.log('queue ended');
+      console.log('isQueueEnded from playback-queue-ended called');
     }
   });
 
@@ -93,23 +96,30 @@ async function setupPlayer() {
           ...state,
           trackId: parseInt(id, 10),
         };
-        console.log('playback track changed, trackId =', state.trackId);
-        dispatch(updateTrackId(id));
+        dispatch(updateTrackId(parseInt(id, 10)));
+        console.log('updateTrackId from playback-track-changed called');
 
         await AsyncStorage.setItem('track_id', JSON.stringify(id));
         let interval = setInterval(async () => {
           if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
-            console.log('ready to play');
             clearInterval(interval);
-            // setTimeout(() => {
             TrackPlayer.play();
-            // }, 1000);
+          } else if (
+            (await TrackPlayer.getState()) === TrackPlayer.STATE_PLAYING
+          ) {
+            clearInterval(interval);
           }
         }, 500);
       }
       checkForLoad();
     } catch (e) {
       console.log(e);
+    }
+  });
+
+  Linking.addEventListener('url', (data) => {
+    if (data.url === 'trackplayer://notification.click') {
+      Linking.openURL(data.url);
     }
   });
 
@@ -120,11 +130,10 @@ async function setupPlayer() {
 
 async function checkForDir() {
   let fs = RNFetchBlob.fs;
-  await fs.exists(fs.dirs.CacheDir + '/loaded_tracks/').then(async (res) => {
-    if (!res) {
-      await fs.mkdir(fs.dirs.CacheDir + '/loaded_tracks/');
-    }
-  });
+  const res = await fs.exists(fs.dirs.CacheDir + '/loaded_tracks/');
+  if (!res) {
+    await fs.mkdir(fs.dirs.CacheDir + '/loaded_tracks/');
+  }
 }
 
 async function loadAudio(currentTrack) {
@@ -139,12 +148,9 @@ async function loadAudio(currentTrack) {
   } = state;
 
   try {
-    console.log('track if from loadAudio - ', trackId);
     if (trackId !== 0 && trackId !== undefined && trackId !== null) {
       console.log('loadAudio started');
-      console.log('firstTrackId - ', firstTrackId);
-      console.log('lastTrackId - ', lastTrackId);
-      let j = 0; // for array of objects
+      let j = 0;
       var track = [];
       for (let i = firstTrackId; i <= lastTrackId; i++) {
         var path =
@@ -187,11 +193,16 @@ async function loadAudio(currentTrack) {
         TrackPlayer.skip(trackId.toString());
         let interval = setInterval(async () => {
           if (
-            (await TrackPlayer.getState()) === TrackPlayer.STATE_READY ||
-            TrackPlayer.STATE_PAUSED
+            (await TrackPlayer.getState()) === TrackPlayer.STATE_READY &&
+            state.isPlaying
           ) {
             TrackPlayer.play();
             clearInterval(interval);
+            state = {
+              ...state,
+              isPlaying: true,
+              pressed: false,
+            };
           }
         }, 250);
 
@@ -199,20 +210,18 @@ async function loadAudio(currentTrack) {
       }
     }
   } catch (e) {
-    console.log('failed to load audio', e);
-    console.log('track id in faile', trackId);
     Alert.alert(
       'Ошибка',
       'Не удалось загрузить музыку, попробуйте позже',
       [
         {
           text: 'Ок',
-          onPress: () => console.log('Ok button pressed'),
         },
       ],
       {cancelable: false},
     );
     dispatch(trackLoadingError());
+    console.log('trackLoadingError from loadAudio called');
     state = {
       ...state,
       isPlaying: false,
@@ -227,7 +236,6 @@ async function checkForLoad() {
     var path =
       RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/' + trackId + '.mp3';
     await RNFetchBlob.fs.exists(path).then(async (exist) => {
-      console.log('Track exists? -', exist);
       if (!exist) {
         await fetch(API_PATH + trackId).then((data) => {
           let fileSize = data.headers.get('Content-Length');
@@ -236,7 +244,6 @@ async function checkForLoad() {
           state = {...state, loadedMusicSize: totalSize};
         });
         await RNFetchBlob.fs.writeFile(path, API_PATH + trackId);
-        console.log('New Track Now In Cache');
       }
     });
   } catch (e) {
@@ -244,94 +251,64 @@ async function checkForLoad() {
   }
 }
 
-// called every second and checking if track in AlbumScreen was pressed
-async function isPressed(error, result) {
-  if (error) {
-    console.log('Error from isPressed()', error);
-  }
-  if (result === JSON.stringify(true) && state.needUpdate) {
-    console.log('isPressed called');
+async function isPressed() {
+  console.log('isPressed called');
+  state = {
+    ...state,
+    needUpdate: false,
+    pressed: true,
+  };
+
+  await AsyncStorage.setItem('pressed', JSON.stringify(false));
+
+  dispatch(updatePressed(false));
+
+  await AsyncStorage.getItem('track_id', (err, res) => {
+    if (err) {
+      return;
+    }
     state = {
       ...state,
-      needUpdate: false,
-      pressed: true,
+      trackId: JSON.parse(res),
+      needUpdate: true,
     };
+    dispatch(updateTrackId(JSON.parse(res)));
+    console.log('updateTrackId from isPressed called');
+  });
 
-    await AsyncStorage.setItem('pressedd', JSON.stringify(false));
-
-    await AsyncStorage.getItem('track_id', (err, res) => {
-      if (err) {
-        return;
+  if (!state.audioLoaded) {
+    loadAudio(true);
+  } else {
+    TrackPlayer.skip(state.trackId.toString());
+    let interval = setInterval(async () => {
+      if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
+        TrackPlayer.play();
+        clearInterval(interval);
+        state = {
+          ...state,
+          isPlaying: true,
+          pressed: false,
+        };
       }
-      state = {
-        ...state,
-        trackId: JSON.parse(res),
-        needUpdate: true,
-      };
-      dispatch(updateTrackId(JSON.parse(res)));
-    });
-
-    if (!state.audioLoaded) {
-      loadAudio();
-      // setTimeout(async () => {
-      TrackPlayer.skip(state.trackId.toString());
-      let interval = setInterval(async () => {
-        if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
-          clearInterval(interval);
-          // setTimeout(() => {
-          TrackPlayer.play();
-          state = {
-            ...state,
-            isPlaying: true,
-            pressed: false,
-          };
-          // }, 1000);
-        }
-      }, 250);
-      // }, 1500);
-    } else {
-      TrackPlayer.skip(state.trackId.toString());
-      let interval = setInterval(async () => {
-        if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
-          console.log('ready to play 2');
-          clearInterval(interval);
-          // setTimeout(() => {
-          TrackPlayer.play();
-          state = {
-            ...state,
-            isPlaying: true,
-            pressed: false,
-          };
-          // }, 1000);
-        }
-      }, 250);
-    }
-    dispatch(isTrackPlaying(true));
-    checkForLoad();
+    }, 250);
   }
+  dispatch(isTrackPlaying(true));
+  checkForLoad();
 }
 
 // cheking to put data of new album in store
-async function isAlbumImageChanged(error, result) {
-  if (error) {
-    console.log('Error from isAlbumImageChanged()', error);
-  }
-  if (state.isAlbumChanged && state.canPlayerRender) {
-    console.log('isAlbumImageChanged called');
-    state = {
-      ...state,
-      audioLoaded: false,
-      needUpdate2: false,
-      // isQueueEnded: true,
-      // trackPlayerInit: false,
-      // albumImage: JSON.parse(result),
-    };
-    dispatch(albumChanged(false));
-    TrackPlayer.reset();
-    console.log('pressed - ', state.pressed);
-    if (!state.pressed) {
-      loadAudio(true);
-    }
+async function isAlbumImageChanged() {
+  console.log('isAlbumImageChanged called');
+  state = {
+    ...state,
+    audioLoaded: false,
+    needUpdate2: false,
+  };
+  dispatch(albumChanged(false));
+  TrackPlayer.reset();
+  console.log('pressed - ', state.pressed);
+  if (!state.pressed) {
+    loadAudio(true);
   }
 }
 
@@ -345,7 +322,6 @@ const componentUnmounted = async () => {
     lastTrackId,
     trackId,
   } = state;
-  console.log('unmounted function called');
   await AsyncStorage.multiSet([
     ['tracks_titles', JSON.stringify(tracksTitles)],
     ['tracks_authors', JSON.stringify(tracksAuthors)],
@@ -357,6 +333,7 @@ const componentUnmounted = async () => {
   ]);
   TrackPlayer.stop();
   TrackPlayer.destroy();
+  AppState.removeEventListener('change');
 };
 
 const componentMounted = async () => {
@@ -376,9 +353,7 @@ const componentMounted = async () => {
       if (err) {
         console.log(err);
       }
-      console.log('stores - ', stores[1][1]);
       if (stores[1][1] !== null && stores[1][1] !== undefined) {
-        console.log('mounted component called');
         dispatch(
           toggleAlbum(
             JSON.parse(stores[0][1]),
@@ -405,7 +380,7 @@ const componentMounted = async () => {
 };
 
 export const Player = () => {
-  const [update, setUpdate] = useState(false);
+  // const [update, setUpdate] = useState(false);
   dispatch = useDispatch();
   if (!state.trackPlayerInit) {
     componentMounted();
@@ -415,11 +390,11 @@ export const Player = () => {
       ...state,
       trackPlayerInit: true,
       minimazed: true,
-      update,
+      // update,
     };
-    setInterval(() => {
-      setUpdate(true);
-    }, 1000);
+    // setInterval(() => {
+    //   setUpdate(true);
+    // }, 1000);
   }
 
   const {
@@ -431,9 +406,9 @@ export const Player = () => {
     firstTrackId,
     lastTrackId,
   } = useSelector((statement) => statement.albums.currentAlbum);
+  const {trackId, minimazed} = useSelector((statement) => statement.player);
   const {isAlbumChanged} = useSelector((statement) => statement.albums);
 
-  const {trackId, minimazed} = useSelector((statement) => statement.player);
   state = {
     ...state,
     tracksTitles,
@@ -451,16 +426,27 @@ export const Player = () => {
   useEffect(() => {
     checkForDir();
     loadAudio();
+    const unsubscribe = store.subscribe(() => store.getState());
+    unsubscribe();
+
     setInterval(async () => {
-      await AsyncStorage.getItem('album_image', (err, res) =>
-        isAlbumImageChanged(err, res),
-      );
-      await AsyncStorage.getItem('pressedd', (err, res) => isPressed(err, res));
-    }, 1000);
+      await AsyncStorage.getItem('pressed', (err, res) => {
+        if (err) {
+          return;
+        }
+        if (JSON.parse(res) === true) {
+          isPressed();
+        }
+      });
+
+      if (state.isAlbumChanged === true) {
+        isAlbumImageChanged();
+      }
+    }, 250);
 
     AppState.addEventListener('change', async (res) => {
       if (AppState.currentState === 'active') {
-        if (state.trackPlayerInit) {
+        if (state.audioLoaded) {
           await TrackPlayer.getCurrentTrack().then((id) => {
             state = {
               ...state,
@@ -526,14 +512,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  imageAndInfo: {
-    flexDirection: 'row',
-    width: 240,
-    height: '100%',
-    alignItems: 'center',
-  },
   albumCover: {
-    width: 350,
-    height: 350,
+    width: '80%',
+    height: '50%',
   },
 });

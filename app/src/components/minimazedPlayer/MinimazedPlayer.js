@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React from 'react';
 import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
 import {ControlsButtons} from '../controlPanel/ControlsButtons';
 import {FileInfo} from '../musicInfo/FileInfo';
@@ -13,9 +13,7 @@ export const MinimazedPlayer = () => {
     <View style={styles.containerMinimazed}>
       <TouchableOpacity
         style={styles.imageAndInfo}
-        onPress={
-          () => (trackPlayerInit ? dispatch(isMinimazed(false)) : null) // open modal, if track was loaded
-        }>
+        onPress={() => (trackPlayerInit ? dispatch(isMinimazed(false)) : null)}>
         <Image
           style={styles.albumCoverMinimazed}
           source={
@@ -23,7 +21,7 @@ export const MinimazedPlayer = () => {
               ? {
                   uri: albumImage,
                 }
-              : require('../../../../images/osya/none/ndCopy.png')
+              : require('../../../../images/osya/none/ndCopy.png') // TODO
           }
         />
         <FileInfo />
@@ -48,7 +46,7 @@ const styles = StyleSheet.create({
   },
   imageAndInfo: {
     flexDirection: 'row',
-    width: 240,
+    width: '65%',
     height: '100%',
     alignItems: 'center',
   },

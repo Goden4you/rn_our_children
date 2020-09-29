@@ -9,6 +9,7 @@ import {
   UPDATE_TIME,
   HANDLE_PREV_NEXT,
   QUEUE_ENDED,
+  UPDATE_PRESSED,
 } from '../types';
 
 const initialState = {};
@@ -75,6 +76,11 @@ export const playerReducer = (state = initialState, action) => {
       return {
         ...state,
         queueEnded: action.queueEnded,
+      };
+    case UPDATE_PRESSED:
+      return {
+        ...state,
+        pressed: action.pressed,
       };
     default:
       return state;

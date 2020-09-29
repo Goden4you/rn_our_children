@@ -15,7 +15,7 @@ import {toggleAlbum, albumChanged} from '../store/actions/albums';
 import {updateTrackId} from '../store/actions/player';
 
 var phoneHeight = Dimensions.get('window').height;
-var state = {
+var statement = {
   tracksTitles: [],
   tracksAuthors: [],
   tracksDuration: [],
@@ -46,7 +46,7 @@ async function fetchSongs(desc, id) {
     lastTrackId,
     canRender,
     needUpdate,
-  } = state;
+  } = statement;
   await fetch('https://childrensproject.ocs.ru/api/v1/albums/' + id, {
     method: 'GET',
     headers: {
@@ -80,8 +80,8 @@ async function fetchSongs(desc, id) {
     lastTrackId = parsedData[songsCount - 1].songFileId;
     canRender = true;
 
-    state = {
-      ...state,
+    statement = {
+      ...statement,
       tracksTitles,
       tracksAuthors,
       tracksDuration,
@@ -94,19 +94,20 @@ async function fetchSongs(desc, id) {
 
     console.log('Songs fetched');
     if (needUpdate) {
-      state = {
-        ...state,
+      console.log('needUpdate from loadAudio =', needUpdate);
+      statement = {
+        ...statement,
         needUpdate: false,
       };
-      putPropsInStore(true, state.albumImage);
+      putPropsInStore(true, statement.albumImage);
       dispatch(albumChanged(true));
     }
   });
 }
 
-async function putPressedTrackIdInStore(value) {
-  await AsyncStorage.setItem('pressedd', JSON.stringify(true));
+async function putTrackIdInStore(value) {
   await AsyncStorage.setItem('track_id', JSON.stringify(value));
+  await AsyncStorage.setItem('pressed', JSON.stringify(true));
   dispatch(updateTrackId(value));
 }
 
@@ -117,13 +118,13 @@ const putPropsInStore = async (isAlbumChanged, albumImageProps) => {
   dispatch(
     toggleAlbum(
       albumImageProps,
-      state.tracksTitles,
-      state.tracksAuthors,
-      state.tracksDuration,
-      state.tracksIds,
-      state.tracksDurationMillis,
-      state.firstTrackId,
-      state.lastTrackId,
+      statement.tracksTitles,
+      statement.tracksAuthors,
+      statement.tracksDuration,
+      statement.tracksIds,
+      statement.tracksDurationMillis,
+      statement.firstTrackId,
+      statement.lastTrackId,
       isAlbumChanged,
     ),
   );
@@ -131,58 +132,58 @@ const putPropsInStore = async (isAlbumChanged, albumImageProps) => {
 };
 
 async function onTrackPressed(trackId, albumIdProps, albumImageProps) {
-  if (albumIdProps !== state.albumId) {
+  if (albumIdProps !== statement.albumId) {
     console.log('on track pressed called');
-    state = {
-      ...state,
+    statement = {
+      ...statement,
       albumId: albumIdProps,
     };
     putPropsInStore(true, albumImageProps);
     dispatch(albumChanged(true));
   }
 
-  putPressedTrackIdInStore(trackId);
+  putTrackIdInStore(trackId);
 }
 
 function moveToNextAlbum() {
   clearInterval(intervalToMove, console.log('intervalToMove cleared'));
 
-  state = {
-    ...state,
+  statement = {
+    ...statement,
     canRender: false,
     needUpdate: true,
   };
 
-  let {albumId} = state;
+  let {albumId} = statement;
 
   let songsCount = 0;
   switch (albumId) {
     case 30184:
-      songsCount = state.albumDesc;
+      songsCount = statement.albumDesc;
       break;
     case 30185:
-      songsCount = state.albumDesc + 3;
+      songsCount = statement.albumDesc + 3;
       break;
     case 30186:
-      songsCount = state.albumDesc + 2;
+      songsCount = statement.albumDesc + 2;
       break;
     case 30187:
-      songsCount = state.albumDesc - 4;
+      songsCount = statement.albumDesc - 4;
       break;
     case 30188:
-      songsCount = state.albumDesc;
+      songsCount = statement.albumDesc;
       break;
     case 30189:
-      songsCount = state.albumDesc + 4;
+      songsCount = statement.albumDesc + 4;
       break;
     case 30190:
       return;
     default:
       break;
   }
-  state = {
-    ...state,
-    albumImage: state.albumsPhotos[albumId - 30183],
+  statement = {
+    ...statement,
+    albumImage: statement.albumsPhotos[albumId - 30183],
   };
   fetchSongs(songsCount, albumId + 1);
 }
@@ -200,22 +201,21 @@ export const AlbumScreen = ({navigation, route}) => {
 
   const [isReady, setIsReady] = useState(false);
 
-  // TODO
-  if (state.albumImage === null) {
+  if (statement.albumImage === null) {
     intervalToMove = setInterval(async () => {
       await AsyncStorage.getItem('move_to_next_album', (err, res) => {
         if (err) {
           console.log(err);
         }
-        JSON.parse(res) ? moveToNextAlbum(state.albumId) : null;
+        JSON.parse(res) ? moveToNextAlbum(statement.albumId) : null;
       });
     }, 1000);
   }
 
   useEffect(() => {
-    if (albumImageProps !== state.albumImage) {
-      state = {
-        ...state,
+    if (albumImageProps !== statement.albumImage) {
+      statement = {
+        ...statement,
         canRender: false,
         albumImage: albumImageProps,
         albumsPhotos: albumsPhotosProps,
@@ -225,7 +225,7 @@ export const AlbumScreen = ({navigation, route}) => {
       fetchSongs(albumDescProps, albumIdProps);
 
       let interval = setInterval(() => {
-        if (state.canRender) {
+        if (statement.canRender) {
           clearInterval(interval);
           setIsReady(true);
         }
@@ -281,8 +281,8 @@ export const AlbumScreen = ({navigation, route}) => {
           </ImageBackground>
           <View style={styles.songsWrap}>
             <View>
-              {state.tracksIds.map((value) => {
-                let index = state.tracksIds.indexOf(value);
+              {statement.tracksIds.map((value) => {
+                let index = statement.tracksIds.indexOf(value);
                 return (
                   <TouchableOpacity
                     style={styles.wrapper}
@@ -290,17 +290,17 @@ export const AlbumScreen = ({navigation, route}) => {
                     onPress={() => {
                       onTrackPressed(value, albumIdProps, albumImageProps);
                     }}>
-                    <View style={{width: '80%'}}>
+                    <View style={styles.songInfo}>
                       <Text style={styles.songTitle}>
-                        {state.tracksTitles[index]}
+                        {statement.tracksTitles[index]}
                       </Text>
                       <Text style={styles.songAuthor}>
-                        {state.tracksAuthors[index]}
+                        {statement.tracksAuthors[index]}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.songDuration}>
-                        {state.tracksDuration[index]}
+                        {statement.tracksDuration[index]}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -323,7 +323,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   container: {
-    height: phoneHeight - 160,
+    height: phoneHeight - 180,
   },
   albumWrap: {
     padding: 25,
@@ -354,6 +354,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  songInfo: {width: '80%'},
   songTitle: {
     fontSize: 24,
     fontFamily: 'HouschkaPro-Medium',
