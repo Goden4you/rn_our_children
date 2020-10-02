@@ -12,7 +12,6 @@ import {Albums} from '../screens/Albums';
 import {AppSettings} from '../screens/AppSettings';
 import {AlbumScreen} from '../screens/AlbumScreen';
 
-// creating new stack
 const MainStack = createStackNavigator();
 
 export const AppNavigation = () => {
@@ -25,7 +24,6 @@ export const AppNavigation = () => {
             height: 80,
           },
           headerTitleStyle: {
-            // fontFamily: 'HouschkaPro-Bold',
             color: '#fff',
           },
           headerTitleAlign: 'center',

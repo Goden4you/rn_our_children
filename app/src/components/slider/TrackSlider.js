@@ -11,7 +11,6 @@ var state = {
 };
 var dispatch;
 
-// called when user ended sliding track position
 const handleTrackPosition = async (value) => {
   try {
     if (state.audioLoaded) {
@@ -58,13 +57,9 @@ setInterval(() => {
 }, 1000);
 
 export const TrackSlider = () => {
-  const {
-    trackPlayerInit,
-    trackId,
-    audioLoaded,
-    trackPositionInterval,
-    currentTime,
-  } = useSelector((statement) => statement.player);
+  const {trackPlayerInit, trackId, audioLoaded, currentTime} = useSelector(
+    (statement) => statement.player,
+  );
 
   const {tracksDurationMillis, firstTrackId, tracksDuration} = useSelector(
     (statement) => statement.albums.currentAlbum,
@@ -75,7 +70,6 @@ export const TrackSlider = () => {
   state = {
     ...state,
     audioLoaded,
-    trackPositionInterval,
     currentTime,
     formattedDurMillis: dur,
   };

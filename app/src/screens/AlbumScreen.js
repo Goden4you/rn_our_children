@@ -22,6 +22,7 @@ var statement = {
   tracksIds: [],
   tracksDurationMillis: [],
   albumId: 0,
+  albumsIds: [],
   albumImage: null,
   albumDesc: '',
   firstTrackId: 0,
@@ -33,6 +34,7 @@ var statement = {
 
 var dispatch;
 
+// TODO move fetch to api folder
 async function fetchSongs(desc, id) {
   let songsCount = desc.toString().substring(0, 2);
   songsCount = parseInt(songsCount, 10);
@@ -154,36 +156,39 @@ function moveToNextAlbum() {
     needUpdate: true,
   };
 
-  let {albumId} = statement;
+  let {albumId, albumsIds} = statement;
 
   let songsCount = 0;
   switch (albumId) {
-    case 30184:
+    case parseInt(albumsIds[0], 10):
       songsCount = statement.albumDesc;
       break;
-    case 30185:
+    case parseInt(albumsIds[1], 10):
       songsCount = statement.albumDesc + 3;
       break;
-    case 30186:
+    case parseInt(albumsIds[2], 10):
       songsCount = statement.albumDesc + 2;
       break;
-    case 30187:
+    case parseInt(albumsIds[3], 10):
       songsCount = statement.albumDesc - 4;
       break;
-    case 30188:
+    case parseInt(albumsIds[4], 10):
       songsCount = statement.albumDesc;
       break;
-    case 30189:
+    case parseInt(albumsIds[5], 10):
       songsCount = statement.albumDesc + 4;
       break;
-    case 30190:
+    case parseInt(albumsIds[6], 10):
       return;
     default:
       break;
   }
+  console.log(statement.albumsPhotos);
+  console.log(albumId, parseInt(albumsIds[0], 10) - 1);
   statement = {
     ...statement,
-    albumImage: statement.albumsPhotos[albumId - 30183],
+    albumImage:
+      statement.albumsPhotos[albumId - parseInt(albumsIds[0], 10) - 1],
   };
   fetchSongs(songsCount, albumId + 1);
 }
@@ -195,6 +200,7 @@ export const AlbumScreen = ({navigation, route}) => {
     albumImageProps,
     albumIdProps,
     albumsPhotosProps,
+    albumsIdsProps,
   } = route.params;
 
   dispatch = useDispatch();
@@ -220,7 +226,7 @@ export const AlbumScreen = ({navigation, route}) => {
         albumImage: albumImageProps,
         albumsPhotos: albumsPhotosProps,
         albumDesc: albumDescProps,
-        // albumId: albumIdProps,
+        albumsIds: albumsIdsProps,
       };
       fetchSongs(albumDescProps, albumIdProps);
 
@@ -239,6 +245,7 @@ export const AlbumScreen = ({navigation, route}) => {
     albumImageProps,
     albumsPhotosProps,
     albumIdProps,
+    albumsIdsProps,
   ]);
 
   if (isReady) {

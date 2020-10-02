@@ -1,5 +1,5 @@
+import {fromJS} from 'immutable';
 import {
-  LOAD_PLAYER,
   UPDATE_TRACK_ID,
   LOAD_AUDIO,
   TRACK_LOADING_ERROR,
@@ -12,76 +12,52 @@ import {
   UPDATE_PRESSED,
 } from '../types';
 
-const initialState = {};
+const initialState = fromJS({
+  trackPlayerInit: false,
+  isPlaying: false,
+  trackId: null,
+  minimazed: true,
+  audioLoaded: false,
+  formattedCurrentTime: '00:00',
+  currentTime: 0,
+  loadedSize: 0,
+  pressed: false,
+  queueEnded: false,
+});
 
 export const playerReducer = (state = initialState, action) => {
   switch (action.type) {
-    case LOAD_PLAYER:
-      return {
-        ...state,
-        trackPlayerInit: action.trackPlayerInit,
-        isPlaying: action.isPlaying,
-        trackId: action.trackId,
-        minimazed: action.minimazed,
-      };
     case LOAD_AUDIO:
-      return {
-        ...state,
-        audioLoaded: action.audioLoaded,
-        isPlaying: action.isPlaying,
-        trackPositionInterval: action.trackPositionInterval,
-        trackPlayerInit: action.trackPlayerInit,
-        formattedCurrentTime: action.formattedCurrentTime,
-      };
+      return state
+        .set('audioLoaded', action.audioLoaded)
+        .set('isPlaying', action.isPlaying)
+        .set('trackPlayerInit', action.trackPlayerInit);
     case UPDATE_TRACK_ID:
-      return {...state, trackId: action.payload};
+      return state.set('trackId', action.payload);
     case TRACK_LOADING_ERROR:
-      return {
-        ...state,
-        isPlaying: action.isPlaying,
-        trackPlayerInit: action.trackPlayerInit,
-      };
+      return state
+        .set('isPlaying', action.isPlaying)
+        .set('trackPlayerInit', action.trackPlayerInit);
     case UPDATE_LOADED_SIZE:
-      return {
-        ...state,
-        loadedSize: action.size,
-      };
+      return state.set('loadedSize', action.size);
     case IS_TRACK_PLAYING:
-      return {
-        ...state,
-        isPlaying: action.isPlaying,
-      };
+      return state.set('isPlaying', action.isPlaying);
     case IS_MINIMAZED:
-      return {
-        ...state,
-        minimazed: action.minimazed,
-      };
+      return state.set('minimazed', action.minimazed);
     case UPDATE_TIME:
-      return {
-        ...state,
-        currentTime: action.currentTime,
-      };
+      return state.set('currentTime', action.currentTime);
     case HANDLE_PREV_NEXT:
-      return {
-        ...state,
-        currentTime: action.currentTime,
-        formattedCurrentTime: action.formattedCurrentTime,
-        trackId: action.trackId,
-        pressed: action.pressed,
-        audioLoaded: action.audioLoaded,
-        trackPositionInterval: action.trackPositionInterval,
-        isPlaying: action.isPlaying,
-      };
+      return state
+        .set('currentTime', action.currentTime)
+        .set('formattedCurrentTime', action.formattedCurrentTime)
+        .set('trackId', action.trackId)
+        .set('pressed', action.pressed)
+        .set('audioLoaded', action.audioLoaded)
+        .set('isPlaying', action.isPlaying);
     case QUEUE_ENDED:
-      return {
-        ...state,
-        queueEnded: action.queueEnded,
-      };
+      return state.set('queueEnded', action.queueEnded);
     case UPDATE_PRESSED:
-      return {
-        ...state,
-        pressed: action.pressed,
-      };
+      return state.set('pressed', action.pressed);
     default:
       return state;
   }

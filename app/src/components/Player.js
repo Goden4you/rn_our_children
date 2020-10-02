@@ -21,7 +21,6 @@ import {useSelector, useDispatch} from 'react-redux';
 import {
   loadTrack,
   trackLoadingError,
-  loadPlayer,
   updateTrackId,
   updateLoadedSize,
   isTrackPlaying,
@@ -296,7 +295,6 @@ async function isPressed() {
   checkForLoad();
 }
 
-// cheking to put data of new album in store
 async function isAlbumImageChanged() {
   console.log('isAlbumImageChanged called');
   state = {
@@ -306,9 +304,11 @@ async function isAlbumImageChanged() {
   };
   dispatch(albumChanged(false));
   TrackPlayer.reset();
-  console.log('pressed - ', state.pressed);
-  if (!state.pressed) {
+  let move = await AsyncStorage.getItem('move_to_next_album');
+  if (JSON.parse(move)) {
+    console.log('loadAudio called from album changed');
     loadAudio(true);
+    await AsyncStorage.setItem('move_to_next_album', JSON.stringify(false));
   }
 }
 
@@ -372,7 +372,6 @@ const componentMounted = async () => {
           ...state,
           trackId: JSON.parse(stores[7][1]),
         };
-        loadAudio(true);
         dispatch(updateLoadedSize(stores[8][1]));
       }
     },
@@ -385,16 +384,11 @@ export const Player = () => {
   if (!state.trackPlayerInit) {
     componentMounted();
     setupPlayer();
-    dispatch(loadPlayer());
     state = {
       ...state,
       trackPlayerInit: true,
       minimazed: true,
-      // update,
     };
-    // setInterval(() => {
-    //   setUpdate(true);
-    // }, 1000);
   }
 
   const {
@@ -425,7 +419,7 @@ export const Player = () => {
 
   useEffect(() => {
     checkForDir();
-    loadAudio();
+    state.firstTrackId ? loadAudio(true) : loadAudio();
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
 
