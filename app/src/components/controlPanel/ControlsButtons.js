@@ -21,7 +21,6 @@ const handlePlayPause = async () => {
     state = {
       ...state,
       isPlaying: !isPlaying,
-      trackPositionInterval: true,
     };
 
     dispatch(isTrackPlaying(!isPlaying));
@@ -56,7 +55,6 @@ const handlePreviousTrack = async () => {
                   ...state,
                   audioLoaded: true,
                   isPlaying: true,
-                  trackPositionInterval: true,
                 };
 
                 dispatch(handlePrevNext(trackId));
@@ -73,17 +71,19 @@ const handlePreviousTrack = async () => {
 
 const handleNextTrack = async () => {
   if (state.audioLoaded) {
-    let {trackId, lastTrackId} = state;
+    let {trackId, lastTrackId, veryLastTrackId, veryFirstTrackId} = state;
 
-    if (trackId === 33954) {
-      // TODO херня, нужно переписать
-      console.log('all tracks ended');
+    if (trackId === veryLastTrackId) {
       TrackPlayer.pause();
+      state = {
+        ...state,
+        isPlaying: false,
+      };
+      dispatch(isTrackPlaying(false));
       return;
     }
 
-    if (trackId !== 33799) {
-      // TODO херня, нужно переписать
+    if (trackId !== veryFirstTrackId - 1) {
       console.log('last track', lastTrackId);
       console.log('track id', trackId);
       if (trackId + 1 <= lastTrackId) {
@@ -111,7 +111,6 @@ const handleNextTrack = async () => {
                   ...state,
                   audioLoaded: true,
                   isPlaying: true,
-                  trackPositionInterval: true,
                 };
 
                 dispatch(handlePrevNext(trackId));
@@ -141,50 +140,22 @@ const handleNextTrack = async () => {
         };
 
         dispatch(handlePrevNext(trackId));
-
-        setTimeout(
-          async () =>
-            await AsyncStorage.setItem(
-              'move_to_next_album',
-              JSON.stringify(false),
-            ),
-          1500,
-        );
       }
     }
   }
 };
 
-// const setupListeners = () => {
-//   TrackPlayer.addEventListener('remote-pause', () => {
-//     handlePlayPause();
-//   });
-
-//   TrackPlayer.addEventListener('remote-play', () => {
-//     handlePlayPause();
-//   });
-
-//   TrackPlayer.addEventListener('remote-next', () => {
-//     handleNextTrack();
-//   });
-
-//   TrackPlayer.addEventListener('remote-previous', () => {
-//     handlePreviousTrack();
-//   });
-// };
-
 export const ControlsButtons = () => {
   dispatch = useDispatch();
-
-  // useEffect(() => {
-  //   setupListeners();
-  // }, []);
 
   const {audioLoaded, isPlaying, trackId, queueEnded} = useSelector(
     (statement) => statement.player,
   );
   const {firstTrackId, lastTrackId, albumImage} = useSelector(
     (statement) => statement.albums.currentAlbum,
+  );
+  const {veryFirstTrackId, veryLastTrackId} = useSelector(
+    (statement) => statement.albums,
   );
   if (queueEnded) {
     handleNextTrack();
@@ -198,6 +169,8 @@ export const ControlsButtons = () => {
     firstTrackId,
     lastTrackId,
     albumImage,
+    veryFirstTrackId,
+    veryLastTrackId,
   };
   return (
     <View style={styles.controls}>

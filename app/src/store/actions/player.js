@@ -1,6 +1,5 @@
 import {
   LOAD_AUDIO,
-  LOAD_PLAYER,
   UPDATE_TRACK_ID,
   INIT_PLAYER,
   TRACK_LOADING_ERROR,
@@ -13,24 +12,12 @@ import {
   UPDATE_PRESSED,
 } from '../types';
 
-export const loadPlayer = () => {
-  return {
-    type: LOAD_PLAYER,
-    trackPlayerInit: false,
-    isPlaying: false,
-    trackId: 0,
-    minimazed: true,
-  };
-};
-
 export const loadTrack = (pressed, isPlaying) => {
   return {
     type: LOAD_AUDIO,
     audioLoaded: true,
     isPlaying: pressed ? true : isPlaying,
-    trackPositionInterval: false,
     trackPlayerInit: true,
-    formattedCurrentTime: '00:00',
   };
 };
 
@@ -99,7 +86,6 @@ export const handlePrevNext = (trackId) => {
     trackId,
     pressed: false,
     audioLoaded: true,
-    trackPositionInterval: true,
     isPlaying: true,
   };
 };

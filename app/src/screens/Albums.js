@@ -30,6 +30,7 @@ var osyaSrc = [
   require('../../../images/osya/7/osya7.png'),
 ];
 
+// TODO move fetch to api folder
 async function fetchAlbums() {
   const response = await fetch(
     'https://childrensproject.ocs.ru/api/v1/albums',
@@ -49,16 +50,6 @@ async function fetchAlbums() {
   }
 
   for (let i = 0; i < 7; i++) {
-    if (parsedData[i].songsCount % 10 === 2) {
-      albumsDesc[i] = parsedData[i].songsCount + ' песни';
-    } else if (parsedData[i].songsCount % 10 === 4) {
-      albumsDesc[i] = parsedData[i].songsCount + ' песни';
-    } else {
-      albumsDesc[i] = parsedData[i].songsCount + ' песен';
-    }
-  }
-
-  for (let i = 0; i < 7; i++) {
     albumsIds[i] = parsedData[i].id;
   }
 
@@ -67,6 +58,7 @@ async function fetchAlbums() {
   fetchAlbumsPhotos();
 }
 
+// TODO move fetch to api folder
 async function fetchAlbumsPhotos() {
   var j = 0;
   let fs = RNFetchBlob.fs;
@@ -122,12 +114,12 @@ async function fetchAlbumsPhotos() {
 
   isPhotosFetched = true;
   console.log('Albums photos fetched.');
-  // fetchFirstLastTrack();
+  fetchFirstLastTrack();
 }
 
 async function fetchFirstLastTrack() {
   const response = await fetch(
-    'https://childrensproject.ocs.ru/api/v1/albums' + albumsIds[0],
+    'https://childrensproject.ocs.ru/api/v1/albums/' + albumsIds[0],
     {
       method: 'GET',
       headers: {
@@ -141,7 +133,7 @@ async function fetchFirstLastTrack() {
   const veryFirstTrackId = parsedData[0].songFileId;
 
   const response2 = await fetch(
-    'https://childrensproject.ocs.ru/api/v1/albums' + albumsIds[6],
+    'https://childrensproject.ocs.ru/api/v1/albums/' + albumsIds[6],
     {
       method: 'GET',
       headers: {
@@ -152,10 +144,9 @@ async function fetchFirstLastTrack() {
   );
   const data2 = await response2.json();
   const parsedData2 = JSON.parse(JSON.stringify(data2));
-  // parsedData2.map((some) => console.log('parsedData2 map', some));
-  console.log('parsedData2 -', parsedData2);
+  const veryLastTrackId = parsedData2[parsedData2.length - 1].songFileId;
 
-  // dispatch(firstLastTrackId(veryFirstTrackId, veryLastTrackId));
+  dispatch(firstLastTrackId(veryFirstTrackId, veryLastTrackId));
 }
 
 async function makeDirectory() {
@@ -227,6 +218,7 @@ export const Albums = ({navigation}) => {
                       albumImageProps: allAlbums.photos[index],
                       albumIdProps: allAlbums.ids[index],
                       albumsPhotosProps: allAlbums.photos,
+                      albumsIdsProps: allAlbums.ids,
                     });
                   }}>
                   <Image

@@ -3,7 +3,6 @@ export const TOGGLE_ALBUM = 'TOGGLE_ALBUM';
 export const ALBUM_CHANGED = 'ALBUM_CHANGED';
 export const VERY_FIRST_LAST_TRACK = 'VERY_FIRST_LAST_TRACK';
 
-export const LOAD_PLAYER = 'LOAD_PLAYER';
 export const LOAD_AUDIO = 'LOAD_AUDIO';
 export const UPDATE_TRACK_ID = 'UPDATE_TRACK_ID';
 export const INIT_PLAYER = 'INIT_PLAYER';
