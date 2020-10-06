@@ -1,12 +1,12 @@
 import React, {useEffect} from 'react';
 import {View, TouchableOpacity, Image, StyleSheet} from 'react-native';
-import AsyncStorage from '@react-native-community/async-storage';
 import {useSelector, useDispatch} from 'react-redux';
 import TrackPlayer from 'react-native-track-player';
 import {
   isTrackPlaying,
   handlePrevNext,
   isQueueEnded,
+  needMoveToNextAlbum,
 } from '../../store/actions/player';
 
 var state = {};
@@ -28,6 +28,7 @@ const handlePlayPause = async () => {
 };
 
 const handlePreviousTrack = async () => {
+  console.log('audio loaded? -', state.audioLoaded);
   if (state.audioLoaded) {
     let {trackId} = state;
     if (JSON.parse(trackId) - 1 >= state.firstTrackId) {
@@ -41,27 +42,13 @@ const handlePreviousTrack = async () => {
       };
 
       TrackPlayer.skipToPrevious().then(() => {
-        let interval = setInterval(async () => {
-          if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
-            clearInterval(interval);
+        state = {
+          ...state,
+          audioLoaded: true,
+          isPlaying: true,
+        };
 
-            await AsyncStorage.setItem(
-              'track_id',
-              JSON.stringify(state.trackId),
-            );
-            setTimeout(() => {
-              TrackPlayer.play().then(() => {
-                state = {
-                  ...state,
-                  audioLoaded: true,
-                  isPlaying: true,
-                };
-
-                dispatch(handlePrevNext(trackId));
-              });
-            }, 1000);
-          }
-        }, 250);
+        dispatch(handlePrevNext(trackId));
       });
     } else {
       TrackPlayer.seekTo(0);
@@ -69,7 +56,7 @@ const handlePreviousTrack = async () => {
   }
 };
 
-const handleNextTrack = async () => {
+const handleNextTrack = () => {
   if (state.audioLoaded) {
     let {trackId, lastTrackId, veryLastTrackId, veryFirstTrackId} = state;
 
@@ -84,8 +71,6 @@ const handleNextTrack = async () => {
     }
 
     if (trackId !== veryFirstTrackId - 1) {
-      console.log('last track', lastTrackId);
-      console.log('track id', trackId);
       if (trackId + 1 <= lastTrackId) {
         trackId += 1;
         state = {
@@ -97,38 +82,18 @@ const handleNextTrack = async () => {
         };
 
         TrackPlayer.skipToNext().then(() => {
-          console.log('skipped to next - ', trackId);
-          let interval = setInterval(async () => {
-            if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
-              clearInterval(interval);
-
-              await AsyncStorage.setItem(
-                'track_id',
-                JSON.stringify(state.trackId),
-              );
-              TrackPlayer.play().then(() => {
-                state = {
-                  ...state,
-                  audioLoaded: true,
-                  isPlaying: true,
-                };
-
-                dispatch(handlePrevNext(trackId));
-              });
-            }
-          }, 250);
+          state = {
+            ...state,
+            audioLoaded: true,
+            isPlaying: true,
+          };
+          console.log('trackId from handleNext - ', trackId);
+          dispatch(handlePrevNext(trackId));
         });
       } else {
-        await AsyncStorage.setItem(
-          'move_to_next_album',
-          JSON.stringify(true),
-          () => console.log('move to next album prop true set'),
-        );
-        await AsyncStorage.setItem(
-          'track_id',
-          JSON.stringify(parseInt(trackId, 10) + 2),
-        );
-
+        TrackPlayer.stop();
+        dispatch(needMoveToNextAlbum(true));
+        console.log('move to next album prop true set');
         trackId = parseInt(trackId, 10) + 2;
 
         state = {
@@ -148,6 +113,15 @@ const handleNextTrack = async () => {
 export const ControlsButtons = () => {
   dispatch = useDispatch();
 
+  useEffect(() => {
+    setInterval(() => {
+      if (state.queueEnded) {
+        handleNextTrack();
+        dispatch(isQueueEnded(false));
+      }
+    }, 500);
+  }, []);
+
   const {audioLoaded, isPlaying, trackId, queueEnded} = useSelector(
     (statement) => statement.player,
   );
@@ -157,10 +131,6 @@ export const ControlsButtons = () => {
   const {veryFirstTrackId, veryLastTrackId} = useSelector(
     (statement) => statement.albums,
   );
-  if (queueEnded) {
-    handleNextTrack();
-    dispatch(isQueueEnded(false));
-  }
   state = {
     ...state,
     audioLoaded,
@@ -171,6 +141,7 @@ export const ControlsButtons = () => {
     albumImage,
     veryFirstTrackId,
     veryLastTrackId,
+    queueEnded,
   };
   return (
     <View style={styles.controls}>

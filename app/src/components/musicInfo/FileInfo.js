@@ -3,13 +3,11 @@ import {View, Text, StyleSheet} from 'react-native';
 import {useSelector} from 'react-redux';
 
 export const FileInfo = () => {
-  const {trackPlayerInit, minimazed, trackId} = useSelector(
-    (state) => state.player,
-  );
+  const {minimazed, trackId} = useSelector((state) => state.player);
   const {tracksTitles, tracksAuthors, firstTrackId} = useSelector(
     (state) => state.albums.currentAlbum,
   );
-  return trackPlayerInit ? (
+  return tracksTitles ? (
     <View style={minimazed ? styles.trackInfoMinimazed : styles.trackInfo}>
       <Text
         style={

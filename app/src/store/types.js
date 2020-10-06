@@ -19,3 +19,4 @@ export const UPDATE_TIME = 'UPDATE_TIME';
 export const HANDLE_PREV_NEXT = 'HANDLE_PREV_NEXT';
 export const QUEUE_ENDED = 'QUEUE_ENDED';
 export const UPDATE_PRESSED = 'UPDATE_PRESSED';
+export const MOVE_TO_NEXT_ALBUM = 'MOVE_TO_NEXT_ALBUM';

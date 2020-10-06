@@ -1,6 +1,6 @@
 import {call, put} from 'redux-saga/effects';
 import * as albumsActions from '../store/actions/albums';
-import {calcSongsDesc} from '../utils/calcSongsDesc';
+import {calcSongsDesc} from '../utils/utils';
 import Api from '../api';
 
 export function* fetchAlbumsData() {
