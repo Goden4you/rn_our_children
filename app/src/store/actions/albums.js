@@ -30,7 +30,6 @@ export const toggleAlbum = (
   tracksTitles,
   tracksAuthors,
   tracksDuration,
-  // albumsIds,
   tracksIds,
   tracksDurationMillis,
   firstTrackId,

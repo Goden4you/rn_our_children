@@ -9,6 +9,7 @@ import {
   HANDLE_PREV_NEXT,
   QUEUE_ENDED,
   UPDATE_PRESSED,
+  MOVE_TO_NEXT_ALBUM,
 } from '../types';
 
 const initialState = {
@@ -22,6 +23,7 @@ const initialState = {
   loadedSize: 0,
   pressed: false,
   queueEnded: false,
+  moveToNextAlbum: false,
 };
 
 export const playerReducer = (state = initialState, action) => {
@@ -63,6 +65,8 @@ export const playerReducer = (state = initialState, action) => {
       return (state = {...state, queueEnded: action.queueEnded});
     case UPDATE_PRESSED:
       return (state = {...state, pressed: action.pressed});
+    case MOVE_TO_NEXT_ALBUM:
+      return (state = {...state, moveToNextAlbum: action.payload});
     default:
       return state;
   }

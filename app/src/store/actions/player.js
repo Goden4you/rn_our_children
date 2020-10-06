@@ -10,6 +10,7 @@ import {
   IS_MINIMAZED,
   QUEUE_ENDED,
   UPDATE_PRESSED,
+  MOVE_TO_NEXT_ALBUM,
 } from '../types';
 
 export const loadTrack = (pressed, isPlaying) => {
@@ -94,5 +95,12 @@ export const isQueueEnded = (bool) => {
   return {
     type: QUEUE_ENDED,
     queueEnded: bool,
+  };
+};
+
+export const needMoveToNextAlbum = (bool) => {
+  return {
+    type: MOVE_TO_NEXT_ALBUM,
+    payload: bool,
   };
 };

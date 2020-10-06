@@ -16,7 +16,7 @@ import {
   openAlbumScreen,
   updateAlbumImage,
 } from '../store/actions/albums';
-import {updateTrackId} from '../store/actions/player';
+import {updatePressed, updateTrackId} from '../store/actions/player';
 import store from '../store';
 
 var phoneHeight = Dimensions.get('window').height;
@@ -39,15 +39,15 @@ var statement = {
 var dispatch;
 
 async function putTrackIdInStore(value) {
-  await AsyncStorage.setItem('track_id', JSON.stringify(value));
-  await AsyncStorage.setItem('pressed', JSON.stringify(true));
+  dispatch(updatePressed(true));
   dispatch(updateTrackId(value));
 }
 
-var intervalToMove = 0;
-
 async function onTrackPressed(trackId, albumIdProps) {
-  if (albumIdProps !== statement.albumId) {
+  if (
+    albumIdProps !== statement.albumId ||
+    statement.currentTracksIds !== statement.openedTracksIds
+  ) {
     console.log('on track pressed called');
     statement = {
       ...statement,
@@ -60,47 +60,50 @@ async function onTrackPressed(trackId, albumIdProps) {
   putTrackIdInStore(trackId);
 }
 
-function moveToNextAlbum() {
-  clearInterval(intervalToMove, console.log('intervalToMove cleared'));
+function needMoveToNextAlbum() {
+  let albumId = statement.albumId;
+  let albumDesc = statement.albumDesc;
+  let albumsIds = statement.albumsIds;
 
-  statement = {
-    ...statement,
-    canRender: false,
-  };
+  albumDesc = albumDesc.toString().substring(0, 2);
+  albumDesc = parseInt(albumDesc, 10);
 
-  let {albumId, albumsIds} = statement;
-
-  let songsCount = 0;
   switch (albumId) {
     case parseInt(albumsIds[0], 10):
-      songsCount = statement.albumDesc;
+      albumId = albumsIds[1];
       break;
     case parseInt(albumsIds[1], 10):
-      songsCount = statement.albumDesc + 3;
+      albumDesc += 3;
+      albumId = albumsIds[2];
       break;
     case parseInt(albumsIds[2], 10):
-      songsCount = statement.albumDesc + 2;
+      albumDesc += 2;
+      albumId = albumsIds[3];
       break;
     case parseInt(albumsIds[3], 10):
-      songsCount = statement.albumDesc - 4;
+      albumDesc -= 4;
+      albumId = albumsIds[4];
       break;
     case parseInt(albumsIds[4], 10):
-      songsCount = statement.albumDesc;
+      albumId = albumsIds[5];
       break;
     case parseInt(albumsIds[5], 10):
-      songsCount = statement.albumDesc + 4;
+      albumDesc += 4;
+      albumId = albumsIds[6];
       break;
     case parseInt(albumsIds[6], 10):
+      console.log(7);
       return;
     default:
       break;
   }
   statement = {
     ...statement,
-    albumImage:
-      statement.albumsPhotos[albumId - parseInt(albumsIds[0], 10) - 1],
+    albumImage: statement.albumsPhotos[albumId - parseInt(albumsIds[0], 10)],
   };
+  dispatch(openAlbumScreen(albumDesc, albumId));
   dispatch(albumChanged(true));
+  dispatch(updateAlbumImage(statement.albumImage));
 }
 
 export const AlbumScreen = ({navigation, route}) => {
@@ -116,17 +119,12 @@ export const AlbumScreen = ({navigation, route}) => {
   dispatch = useDispatch();
 
   const [isReady, setIsReady] = useState(false);
-
-  if (statement.albumImage === null) {
-    intervalToMove = setInterval(async () => {
-      await AsyncStorage.getItem('move_to_next_album', (err, res) => {
-        if (err) {
-          console.log(err);
-        }
-        JSON.parse(res) ? moveToNextAlbum(statement.albumId) : null;
-      });
-    }, 1000);
-  }
+  const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
+    (state) => state.albums.openedAlbum,
+  );
+  const currentAlbum = useSelector((state) => state.albums.currentAlbum);
+  const {moveToNextAlbum} = useSelector((state) => state.player);
+  statement = {...statement, moveToNextAlbum};
 
   useEffect(() => {
     if (albumImageProps !== statement.albumImage) {
@@ -139,16 +137,26 @@ export const AlbumScreen = ({navigation, route}) => {
         albumsPhotos: albumsPhotosProps,
         albumDesc: albumDescProps,
         albumsIds: albumsIdsProps,
+        currentTracksIds: currentAlbum.tracksIds,
+        openedTracksIds: tracksIds,
       };
       dispatch(openAlbumScreen(albumDescProps, albumIdProps));
-
-      // let interval = setInterval(() => {
-      //   if (statement.canRender) {
-      //     clearInterval(interval);
     }
+    setInterval(() => {
+      if (statement.moveToNextAlbum) {
+        console.log('caleed');
+        needMoveToNextAlbum();
+      }
+    }, 500);
     setTimeout(() => {
       setIsReady(true);
-    }, 2000);
+    }, 1500);
+    return async function cleanUp() {
+      await AsyncStorage.setItem(
+        'album_image',
+        JSON.stringify(statement.albumImage),
+      );
+    };
   }, [
     isReady,
     albumDescProps,
@@ -156,11 +164,9 @@ export const AlbumScreen = ({navigation, route}) => {
     albumsPhotosProps,
     albumIdProps,
     albumsIdsProps,
+    tracksIds,
+    currentAlbum,
   ]);
-
-  const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
-    (state) => state.albums.openedAlbum,
-  );
 
   if (isReady) {
     return (

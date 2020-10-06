@@ -1,11 +1,16 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import * as albumsActions from '../store/actions/albums';
-import {albumSongsCount, openedAlbumId} from '../store/selectors';
+import {
+  albumSongsCount,
+  openedAlbumId,
+  isAlbumChanged,
+} from '../store/selectors';
 import Api from '../api';
 import {ALBUM_CHANGED, OPEN_ALBUM_SCREEN} from '../store/types';
 
 function* fetchCurrentAlbumSaga(currentAlbum) {
   try {
+    const albumChanged = yield select(isAlbumChanged);
     const songsCount = yield select(albumSongsCount);
     const albumId = yield select(openedAlbumId);
     const response = yield call(Api.getListOfAlbumsSongs, albumId);
@@ -47,7 +52,8 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
         lastTrackId,
       ),
     );
-    if (currentAlbum) {
+    if (currentAlbum && albumChanged) {
+      console.log('data put in currentAlbum');
       yield put(
         albumsActions.toggleAlbum(
           tracksTitles,

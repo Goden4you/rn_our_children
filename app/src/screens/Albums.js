@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
   ScrollView,
   View,
@@ -10,18 +10,8 @@ import {
 } from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
 import {useDispatch, useSelector} from 'react-redux';
-import {firstLastTrackId, loadAlbums} from '../store/actions/albums';
-import SplashScreen from 'react-native-splash-screen';
-import * as selectors from '../store/selectors';
-import store from '../store';
-// import {} from '../sagas/albumsSaga';
+import {firstLastTrackId} from '../store/actions/albums';
 
-var albumsTitles = [];
-var albumsDesc = [];
-var albumsIds = [];
-var albumsPhotos = [];
-var isAlbumsFetched = false;
-var isPhotosFetched = false;
 var dispatch;
 
 var osyaSrc = [
@@ -34,96 +24,9 @@ var osyaSrc = [
   require('../../../images/osya/7/osya7.png'),
 ];
 
-// TODO move fetch to api folder
-async function fetchAlbums() {
-  const response = await fetch(
-    'https://childrensproject.ocs.ru/api/v1/albums',
-    {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    },
-  );
-  const data = await response.json();
-  const parsedData = JSON.parse(JSON.stringify(data));
-
-  for (let i = 0; i < 7; i++) {
-    albumsTitles[i] = parsedData[i].title;
-  }
-
-  for (let i = 0; i < 7; i++) {
-    albumsIds[i] = parsedData[i].id;
-  }
-
-  isAlbumsFetched = true;
-
-  fetchAlbumsPhotos();
-}
-
-// TODO move fetch to api folder
-async function fetchAlbumsPhotos() {
-  var j = 0;
-  let fs = RNFetchBlob.fs;
-  const path = fs.dirs.CacheDir + '/albums_photos/';
-  await fs.exists(path + albumsIds[0]).then(async (res) => {
-    if (res) {
-      for (
-        let i = parseInt(albumsIds[0], 10);
-        i <= parseInt(albumsIds[6], 10);
-        i++
-      ) {
-        await fs.readFile(path + i).then((data) => {
-          albumsPhotos[j] = data;
-          j++;
-        });
-      }
-    } else {
-      try {
-        for (
-          let i = parseInt(albumsIds[0], 10);
-          i <= parseInt(albumsIds[6], 10);
-          i++
-        ) {
-          const response = await fetch(
-            'https://childrensproject.ocs.ru/api/v1/albums/' + i,
-            {
-              method: 'GET',
-              headers: {
-                Accept: 'application/json',
-                'Content-Type': 'application/json',
-              },
-            },
-          );
-
-          const data = await response.json();
-          const parsedData = JSON.parse(JSON.stringify(data));
-
-          albumsPhotos[j] =
-            'https://childrensproject.ocs.ru/api/v1/files/' +
-            parsedData[0].artworkFileId;
-
-          await fs.writeFile(
-            fs.dirs.CacheDir + '/albums_photos/' + i,
-            'https://childrensproject.ocs.ru/api/v1/files/' +
-              parsedData[0].artworkFileId,
-          );
-
-          j++;
-        }
-      } catch (e) {}
-    }
-  });
-
-  isPhotosFetched = true;
-  console.log('Albums photos fetched.');
-  fetchFirstLastTrack();
-}
-
 async function fetchFirstLastTrack() {
   const response = await fetch(
-    'https://childrensproject.ocs.ru/api/v1/albums/' + albumsIds[0],
+    'https://childrensproject.ocs.ru/api/v1/albums/' + 30184,
     {
       method: 'GET',
       headers: {
@@ -137,7 +40,7 @@ async function fetchFirstLastTrack() {
   const veryFirstTrackId = parsedData[0].songFileId;
 
   const response2 = await fetch(
-    'https://childrensproject.ocs.ru/api/v1/albums/' + albumsIds[6],
+    'https://childrensproject.ocs.ru/api/v1/albums/' + 30190,
     {
       method: 'GET',
       headers: {
@@ -162,20 +65,15 @@ async function makeDirectory() {
 }
 
 export const Albums = ({navigation}) => {
-  const [isReady, setIsReady] = useState(false);
-
   dispatch = useDispatch();
 
   useEffect(() => {
     makeDirectory();
-
-    setTimeout(() => {
-      setIsReady(true);
-    }, 3000);
-  }, [isReady]);
+    fetchFirstLastTrack();
+  }, []);
 
   const allAlbums = useSelector((state) => state.albums.allAlbums);
-  if (isReady) {
+  if (allAlbums.albumsPhotos) {
     return (
       <View style={styles.container}>
         <ScrollView
