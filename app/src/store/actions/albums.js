@@ -3,6 +3,9 @@ import {
   TOGGLE_ALBUM,
   ALBUM_CHANGED,
   VERY_FIRST_LAST_TRACK,
+  OPEN_ALBUM,
+  UPDATE_ALBUM_IMAGE,
+  OPEN_ALBUM_SCREEN,
 } from '../types';
 
 export const loadAlbums = (
@@ -12,10 +15,10 @@ export const loadAlbums = (
   albumsIds,
 ) => {
   const albums = {
-    photos: albumsPhotos,
-    titles: albumsTitles,
-    desc: albumsDesc,
-    ids: albumsIds,
+    albumsPhotos: albumsPhotos,
+    albumsTitles: albumsTitles,
+    albumsDesc: albumsDesc,
+    albumsIds: albumsIds,
   };
   return {
     type: LOAD_ALBUMS,
@@ -24,22 +27,20 @@ export const loadAlbums = (
 };
 
 export const toggleAlbum = (
-  albumImage,
   tracksTitles,
   tracksAuthors,
   tracksDuration,
-  albumsIds,
+  // albumsIds,
+  tracksIds,
   tracksDurationMillis,
   firstTrackId,
   lastTrackId,
-  isAlbumChanged,
 ) => {
   const albumTracks = {
-    albumImage,
     tracksTitles,
     tracksAuthors,
     tracksDuration,
-    albumsIds,
+    tracksIds,
     tracksDurationMillis,
     firstTrackId,
     lastTrackId,
@@ -48,6 +49,48 @@ export const toggleAlbum = (
   return {
     type: TOGGLE_ALBUM,
     payload: albumTracks,
+  };
+};
+
+export const openAlbum = (
+  tracksTitles,
+  tracksAuthors,
+  tracksDuration,
+  // TODO albumsIds,
+  tracksIds,
+  tracksDurationMillis,
+  firstTrackId,
+  lastTrackId,
+) => {
+  const albumTracks = {
+    tracksTitles,
+    tracksAuthors,
+    tracksDuration,
+    tracksIds,
+    tracksDurationMillis,
+    firstTrackId,
+    lastTrackId,
+  };
+  return {
+    type: OPEN_ALBUM,
+    payload: albumTracks,
+  };
+};
+
+export const updateAlbumImage = (image) => {
+  return {
+    type: UPDATE_ALBUM_IMAGE,
+    image,
+  };
+};
+
+export const openAlbumScreen = (desc, albumId) => {
+  let songsCount = desc.toString().substring(0, 2);
+  songsCount = parseInt(songsCount, 10);
+  return {
+    type: OPEN_ALBUM_SCREEN,
+    songsCount,
+    albumId,
   };
 };
 

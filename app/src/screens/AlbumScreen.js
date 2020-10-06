@@ -9,10 +9,15 @@ import {
   ImageBackground,
   Dimensions,
 } from 'react-native';
-import {useDispatch} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import AsyncStorage from '@react-native-community/async-storage';
-import {toggleAlbum, albumChanged} from '../store/actions/albums';
+import {
+  albumChanged,
+  openAlbumScreen,
+  updateAlbumImage,
+} from '../store/actions/albums';
 import {updateTrackId} from '../store/actions/player';
+import store from '../store';
 
 var phoneHeight = Dimensions.get('window').height;
 var statement = {
@@ -29,83 +34,9 @@ var statement = {
   lastTrackId: 0,
   albumsPhotos: [],
   canRender: false,
-  needUpdate: false,
 };
 
 var dispatch;
-
-// TODO move fetch to api folder
-async function fetchSongs(desc, id) {
-  let songsCount = desc.toString().substring(0, 2);
-  songsCount = parseInt(songsCount, 10);
-  let {
-    tracksTitles,
-    tracksAuthors,
-    tracksDuration,
-    tracksIds,
-    tracksDurationMillis,
-    firstTrackId,
-    lastTrackId,
-    canRender,
-    needUpdate,
-  } = statement;
-  await fetch('https://childrensproject.ocs.ru/api/v1/albums/' + id, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      'Content-Type': 'application/json',
-    },
-  }).then(async (response) => {
-    const data = await response.json();
-    const parsedData = JSON.parse(JSON.stringify(data));
-
-    for (let i = 0; i < songsCount; i++) {
-      tracksTitles[i] = parsedData[i].title;
-    }
-
-    for (let i = 0; i < songsCount; i++) {
-      tracksAuthors[i] = parsedData[i].author;
-    }
-
-    for (let i = 0; i < songsCount; i++) {
-      tracksDuration[i] = parsedData[i].duration;
-    }
-
-    for (let i = 0; i < songsCount; i++) {
-      tracksIds[i] = parsedData[i].songFileId;
-    }
-
-    for (let i = 0; i < songsCount; i++) {
-      tracksDurationMillis[i] = parsedData[i].durationInMilliseconds;
-    }
-    firstTrackId = parsedData[0].songFileId;
-    lastTrackId = parsedData[songsCount - 1].songFileId;
-    canRender = true;
-
-    statement = {
-      ...statement,
-      tracksTitles,
-      tracksAuthors,
-      tracksDuration,
-      tracksIds,
-      tracksDurationMillis,
-      firstTrackId,
-      lastTrackId,
-      canRender,
-    };
-
-    console.log('Songs fetched');
-    if (needUpdate) {
-      console.log('needUpdate from loadAudio =', needUpdate);
-      statement = {
-        ...statement,
-        needUpdate: false,
-      };
-      putPropsInStore(true, statement.albumImage);
-      dispatch(albumChanged(true));
-    }
-  });
-}
 
 async function putTrackIdInStore(value) {
   await AsyncStorage.setItem('track_id', JSON.stringify(value));
@@ -115,33 +46,15 @@ async function putTrackIdInStore(value) {
 
 var intervalToMove = 0;
 
-const putPropsInStore = async (isAlbumChanged, albumImageProps) => {
-  console.log('putPropsInStore called');
-  dispatch(
-    toggleAlbum(
-      albumImageProps,
-      statement.tracksTitles,
-      statement.tracksAuthors,
-      statement.tracksDuration,
-      statement.tracksIds,
-      statement.tracksDurationMillis,
-      statement.firstTrackId,
-      statement.lastTrackId,
-      isAlbumChanged,
-    ),
-  );
-  await AsyncStorage.setItem('album_image', JSON.stringify(albumImageProps));
-};
-
-async function onTrackPressed(trackId, albumIdProps, albumImageProps) {
+async function onTrackPressed(trackId, albumIdProps) {
   if (albumIdProps !== statement.albumId) {
     console.log('on track pressed called');
     statement = {
       ...statement,
       albumId: albumIdProps,
     };
-    putPropsInStore(true, albumImageProps);
     dispatch(albumChanged(true));
+    dispatch(updateAlbumImage(statement.albumImage));
   }
 
   putTrackIdInStore(trackId);
@@ -153,7 +66,6 @@ function moveToNextAlbum() {
   statement = {
     ...statement,
     canRender: false,
-    needUpdate: true,
   };
 
   let {albumId, albumsIds} = statement;
@@ -183,14 +95,12 @@ function moveToNextAlbum() {
     default:
       break;
   }
-  console.log(statement.albumsPhotos);
-  console.log(albumId, parseInt(albumsIds[0], 10) - 1);
   statement = {
     ...statement,
     albumImage:
       statement.albumsPhotos[albumId - parseInt(albumsIds[0], 10) - 1],
   };
-  fetchSongs(songsCount, albumId + 1);
+  dispatch(albumChanged(true));
 }
 
 export const AlbumScreen = ({navigation, route}) => {
@@ -220,6 +130,8 @@ export const AlbumScreen = ({navigation, route}) => {
 
   useEffect(() => {
     if (albumImageProps !== statement.albumImage) {
+      const unsubscribe = store.subscribe(() => store.getState());
+      unsubscribe();
       statement = {
         ...statement,
         canRender: false,
@@ -228,17 +140,15 @@ export const AlbumScreen = ({navigation, route}) => {
         albumDesc: albumDescProps,
         albumsIds: albumsIdsProps,
       };
-      fetchSongs(albumDescProps, albumIdProps);
+      dispatch(openAlbumScreen(albumDescProps, albumIdProps));
 
-      let interval = setInterval(() => {
-        if (statement.canRender) {
-          clearInterval(interval);
-          setIsReady(true);
-        }
-      }, 250);
-    } else {
-      setIsReady(true);
+      // let interval = setInterval(() => {
+      //   if (statement.canRender) {
+      //     clearInterval(interval);
     }
+    setTimeout(() => {
+      setIsReady(true);
+    }, 2000);
   }, [
     isReady,
     albumDescProps,
@@ -247,6 +157,10 @@ export const AlbumScreen = ({navigation, route}) => {
     albumIdProps,
     albumsIdsProps,
   ]);
+
+  const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
+    (state) => state.albums.openedAlbum,
+  );
 
   if (isReady) {
     return (
@@ -288,26 +202,26 @@ export const AlbumScreen = ({navigation, route}) => {
           </ImageBackground>
           <View style={styles.songsWrap}>
             <View>
-              {statement.tracksIds.map((value) => {
-                let index = statement.tracksIds.indexOf(value);
+              {tracksIds.map((value) => {
+                let index = tracksIds.indexOf(value);
                 return (
                   <TouchableOpacity
                     style={styles.wrapper}
                     key={value}
                     onPress={() => {
-                      onTrackPressed(value, albumIdProps, albumImageProps);
+                      onTrackPressed(value, albumIdProps);
                     }}>
                     <View style={styles.songInfo}>
                       <Text style={styles.songTitle}>
-                        {statement.tracksTitles[index]}
+                        {tracksTitles[index]}
                       </Text>
                       <Text style={styles.songAuthor}>
-                        {statement.tracksAuthors[index]}
+                        {tracksAuthors[index]}
                       </Text>
                     </View>
                     <View>
                       <Text style={styles.songDuration}>
-                        {statement.tracksDuration[index]}
+                        {tracksDuration[index]}
                       </Text>
                     </View>
                   </TouchableOpacity>

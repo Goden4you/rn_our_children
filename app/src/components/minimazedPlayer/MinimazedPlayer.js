@@ -6,7 +6,7 @@ import {useSelector, useDispatch} from 'react-redux';
 import {isMinimazed} from '../../store/actions/player';
 
 export const MinimazedPlayer = () => {
-  const {albumImage} = useSelector((state) => state.albums.currentAlbum);
+  const {currentAlbumImage} = useSelector((state) => state.albums);
   const {trackPlayerInit, minimazed} = useSelector((state) => state.player);
   const dispatch = useDispatch();
   return minimazed ? (
@@ -19,7 +19,7 @@ export const MinimazedPlayer = () => {
           source={
             trackPlayerInit
               ? {
-                  uri: albumImage,
+                  uri: currentAlbumImage,
                 }
               : require('../../../../images/osya/none/ndCopy.png') // TODO
           }

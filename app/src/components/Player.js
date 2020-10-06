@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
   StyleSheet,
   View,
@@ -10,8 +10,8 @@ import {
   Linking,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
-import SplashScreen from 'react-native-splash-screen';
 import AsyncStorage from '@react-native-community/async-storage';
+import SplashScreen from 'react-native-splash-screen';
 import RNFetchBlob from 'rn-fetch-blob';
 import {MinimazedPlayer} from './minimazedPlayer/MinimazedPlayer';
 import {FileInfo} from './musicInfo/FileInfo';
@@ -30,6 +30,7 @@ import {
 } from '../store/actions/player';
 import {albumChanged, toggleAlbum} from '../store/actions/albums';
 import store from '../store';
+import {currentAlbum} from '../store/selectors';
 
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
@@ -121,10 +122,9 @@ async function setupPlayer() {
       Linking.openURL(data.url);
     }
   });
+  SplashScreen.hide();
 
   await AsyncStorage.setItem('move_to_next_album', JSON.stringify(false));
-
-  SplashScreen.hide();
 }
 
 async function checkForDir() {
@@ -353,6 +353,7 @@ const componentMounted = async () => {
       if (err) {
         console.log(err);
       }
+      console.log('album image - ', stores[0][1]);
       if (stores[1][1] !== null && stores[1][1] !== undefined) {
         dispatch(
           toggleAlbum(
@@ -379,7 +380,6 @@ const componentMounted = async () => {
 };
 
 export const Player = () => {
-  // const [update, setUpdate] = useState(false);
   dispatch = useDispatch();
   if (!state.trackPlayerInit) {
     componentMounted();
@@ -392,7 +392,6 @@ export const Player = () => {
   }
 
   const {
-    albumImage,
     tracksTitles,
     tracksAuthors,
     tracksDuration,
@@ -400,6 +399,7 @@ export const Player = () => {
     firstTrackId,
     lastTrackId,
   } = useSelector((statement) => statement.albums.currentAlbum);
+  const {currentAlbumImage} = useSelector((statement) => statement.albums);
   const {trackId, minimazed} = useSelector((statement) => statement.player);
   const {isAlbumChanged} = useSelector((statement) => statement.albums);
 
@@ -413,7 +413,7 @@ export const Player = () => {
     lastTrackId,
     trackId,
     minimazed,
-    albumImage,
+    albumImage: currentAlbumImage,
     isAlbumChanged,
   };
 
