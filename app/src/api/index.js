@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const API_ALL_ALBUMS = 'https://childrensproject.ocs.ru/api/v1/albums';
-const API_ALL_ALBUMS_PHOTOS = 'https://childrensproject.ocs.ru/api/v1/files/';
+const API_ALL_ALBUMS_PHOTOS = 'https://childrensproject.ocs.ru/api/v1/files';
 
 const allAlbumsInstance = axios.create({
   baseURL: API_ALL_ALBUMS,
@@ -44,15 +44,15 @@ class Api {
 
   // next section
   static getListOfAllAlbumsData() {
-    return Api.getAllAlbums('', {}); // TODO add params
+    return Api.getAllAlbums('/');
   }
 
-  static getListOfAllAlbumsPhotos() {
-    return Api.getAllAlbumsPhotos('', {}); // TODO add params
+  static getListOfAllAlbumsPhotos(id) {
+    return Api.getAllAlbumsPhotos(`/${id}`); // TODO add params
   }
 
-  static getListOfAlbumsSongs() {
-    return Api.getAlbumsSongs('', {}); // TODO add params
+  static getListOfAlbumsSongs(id) {
+    return Api.getAlbumsSongs(`/${id}`); // TODO add params
   }
 }
 

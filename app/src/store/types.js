@@ -1,6 +1,9 @@
 export const LOAD_ALBUMS = 'LOAD_ALBUMS';
 export const TOGGLE_ALBUM = 'TOGGLE_ALBUM';
+export const OPEN_ALBUM = 'OPEN_ALBUM';
 export const ALBUM_CHANGED = 'ALBUM_CHANGED';
+export const UPDATE_ALBUM_IMAGE = 'UPDATE_ALBUM_IMAGE';
+export const OPEN_ALBUM_SCREEN = 'OPEN_ALBUM_SCREEN';
 export const VERY_FIRST_LAST_TRACK = 'VERY_FIRST_LAST_TRACK';
 
 export const LOAD_AUDIO = 'LOAD_AUDIO';

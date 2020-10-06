@@ -11,6 +11,10 @@ import {
 import RNFetchBlob from 'rn-fetch-blob';
 import {useDispatch, useSelector} from 'react-redux';
 import {firstLastTrackId, loadAlbums} from '../store/actions/albums';
+import SplashScreen from 'react-native-splash-screen';
+import * as selectors from '../store/selectors';
+import store from '../store';
+// import {} from '../sagas/albumsSaga';
 
 var albumsTitles = [];
 var albumsDesc = [];
@@ -163,27 +167,14 @@ export const Albums = ({navigation}) => {
   dispatch = useDispatch();
 
   useEffect(() => {
-    if (albumsIds[2] === undefined) {
-      makeDirectory();
-      setIsReady(false);
-      fetchAlbums();
-      let interval = setInterval(() => {
-        if (isAlbumsFetched && isPhotosFetched) {
-          setIsReady(true);
-          clearInterval(interval);
-        }
-      }, 250);
-    }
+    makeDirectory();
 
-    dispatch(loadAlbums(albumsPhotos, albumsTitles, albumsDesc, albumsIds));
-
-    if (!isReady && albumsIds[2]) {
+    setTimeout(() => {
       setIsReady(true);
-    }
+    }, 3000);
   }, [isReady]);
 
   const allAlbums = useSelector((state) => state.albums.allAlbums);
-
   if (isReady) {
     return (
       <View style={styles.container}>
@@ -205,25 +196,25 @@ export const Albums = ({navigation}) => {
                 })
           }
           scrollEventThrottle={16}>
-          {albumsPhotos.map((value) => {
-            let index = albumsPhotos.indexOf(value);
+          {allAlbums.albumsPhotos.map((value) => {
+            let index = allAlbums.albumsPhotos.indexOf(value);
             return (
               <View style={styles.albumWrap} key={index + 1000}>
                 <TouchableOpacity
                   style={styles.albumImageWrap}
                   onPress={() => {
                     navigation.navigate('AlbumScreen', {
-                      albumTitleProps: allAlbums.titles[index],
-                      albumDescProps: allAlbums.desc[index],
-                      albumImageProps: allAlbums.photos[index],
-                      albumIdProps: allAlbums.ids[index],
-                      albumsPhotosProps: allAlbums.photos,
-                      albumsIdsProps: allAlbums.ids,
+                      albumTitleProps: allAlbums.albumsTitles[index],
+                      albumDescProps: allAlbums.albumsDesc[index],
+                      albumImageProps: allAlbums.albumsPhotos[index],
+                      albumIdProps: allAlbums.albumsIds[index],
+                      albumsPhotosProps: allAlbums.albumsPhotos,
+                      albumsIdsProps: allAlbums.albumsIds,
                     });
                   }}>
                   <Image
                     source={{
-                      uri: allAlbums.photos[index],
+                      uri: allAlbums.albumsPhotos[index],
                     }}
                     style={styles.albumImage}
                   />
@@ -231,10 +222,10 @@ export const Albums = ({navigation}) => {
                 <View style={styles.albumInfo}>
                   <View>
                     <Text style={styles.albumTitle}>
-                      {allAlbums.titles[index]}
+                      {allAlbums.albumsTitles[index]}
                     </Text>
                     <Text style={styles.albumDesc}>
-                      {allAlbums.desc[index]}
+                      {allAlbums.albumsDesc[index]}
                     </Text>
                   </View>
                   <View>
