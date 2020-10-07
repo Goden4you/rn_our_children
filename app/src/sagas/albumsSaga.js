@@ -8,20 +8,22 @@ import {
   takeAlbumsPhotos,
 } from '../utils/utils';
 import Api from '../api';
-import {albumsIds, albumSongsCount} from '../store/selectors';
+import {albumsIds} from '../store/selectors';
 
-export async function* fetchAlbumsData() {
+export function* fetchAlbumsData() {
   try {
     let titles = [];
     let ids = [];
     let photos = [];
-    let photosIds = [];
-    let data = takeAlbumsData();
+    let data = yield call(takeAlbumsData);
 
-    if (data === []) {
+    if (!data) {
+      console.log('data does not exist for allAlbums');
       const response1 = yield call(Api.getListOfAllAlbumsData);
       data = response1.data;
-      putAlbumsData(data);
+      yield call(putAlbumsData, data);
+    } else {
+      data = JSON.parse(data);
     }
     for (let i = 0; i < 7; i++) {
       titles[i] = data[i].title;
@@ -29,32 +31,33 @@ export async function* fetchAlbumsData() {
     }
     const desc = calcSongsDesc(data);
 
-    photos = takeAlbumsPhotos();
-
-    if (photos === []) {
+    photos = yield call(takeAlbumsPhotos);
+    if (!photos) {
+      photos = [];
       var j = 0;
       for (let i = ids[0]; i <= ids[6]; i++) {
         const response2 = yield call(Api.getListOfAlbumsSongs, i);
 
-        photosIds[j] = response2.data[0].artworkFileId;
-        let photoData = yield call(Api.getListOfAllAlbumsPhotos, photosIds[j]);
+        let photoId = response2.data[0].artworkFileId;
+        let photoData = yield call(Api.getListOfAllAlbumsPhotos, photoId);
         photos[j] = photoData.request.responseURL;
         j++;
       }
-      putAlbumsPhotos(photos);
+      yield call(putAlbumsPhotos, photos);
+    } else {
+      photos = JSON.parse(photos);
     }
 
     yield put(albumsActions.loadAlbums(photos, titles, desc, ids));
 
-    fetchFirstLastTrack();
+    yield call(fetchFirstLastTrack, data[6].songsCount);
   } catch (e) {
     console.log(e);
   }
 }
 
-function* fetchFirstLastTrack() {
+function* fetchFirstLastTrack(songsCount) {
   const ids = yield select(albumsIds);
-  const songsCount = yield select(albumSongsCount);
 
   const response1 = yield call(Api.getListOfAlbumsSongs, ids[0]);
   const firstTrack = response1.data[0].songFileId;
