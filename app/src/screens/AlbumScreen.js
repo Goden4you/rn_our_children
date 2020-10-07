@@ -131,6 +131,7 @@ export const AlbumScreen = ({navigation, route}) => {
         currentTracksIds: currentAlbum.tracksIds,
         openedTracksIds: tracksIds,
       };
+      console.log('use effect from AlbumScreen called');
       dispatch(openAlbumScreen(albumDescProps, albumIdProps));
     }
     setInterval(() => {
@@ -138,10 +139,13 @@ export const AlbumScreen = ({navigation, route}) => {
         needMoveToNextAlbum();
       }
     }, 500);
+    let time;
+
+    tracksIds ? (time = 500) : (time = 1500);
 
     setTimeout(() => {
       setIsReady(true);
-    }, 1500);
+    }, time);
 
     return async function cleanUp() {
       await AsyncStorage.setItem(

@@ -15,12 +15,14 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
     const songsCount = yield select(albumSongsCount);
     const albumId = yield select(openedAlbumId);
 
-    let data = takeCurAlbumData(albumId);
+    let data = yield call(takeCurAlbumData, albumId);
 
-    if (data === []) {
+    if (!data) {
       const response = yield call(Api.getListOfAlbumsSongs, albumId);
       data = response.data;
-      putCurAlbumData(data, albumId);
+      yield call(putCurAlbumData, [data, albumId]);
+    } else {
+      data = JSON.parse(data);
     }
 
     let tracksTitles = [];
@@ -62,6 +64,7 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       ),
     );
     if (currentAlbum && albumChanged) {
+      console.log('data put in currentAlbum');
       yield put(
         albumsActions.toggleAlbum(
           tracksTitles,

@@ -35,7 +35,6 @@ export const albumsReducer = (state = initialState, action) => {
         openedAlbum: action.payload,
       });
     case OPEN_ALBUM_SCREEN:
-      console.log('reducer called');
       return (state = {
         ...state,
         songsCount: action.songsCount,

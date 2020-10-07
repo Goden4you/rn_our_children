@@ -11,7 +11,6 @@ const allAlbumsPhotosInstace = axios.create({
   baseURL: API_ALL_ALBUMS_PHOTOS,
 });
 
-// TODO change url for current album
 const albumSongsInstance = axios.create({
   baseURL: API_ALL_ALBUMS,
 });
@@ -29,7 +28,6 @@ class Api {
     return albumSongsInstance;
   }
 
-  // next section
   static getAllAlbums(url, config) {
     return Api.getAllAlbumsInstance().get(url, config);
   }
@@ -42,17 +40,16 @@ class Api {
     return Api.getAlbumSongsInstance().get(url, config);
   }
 
-  // next section
   static getListOfAllAlbumsData() {
     return Api.getAllAlbums('/');
   }
 
   static getListOfAllAlbumsPhotos(id) {
-    return Api.getAllAlbumsPhotos(`/${id}`); // TODO add params
+    return Api.getAllAlbumsPhotos(`/${id}`);
   }
 
   static getListOfAlbumsSongs(id) {
-    return Api.getAlbumsSongs(`/${id}`); // TODO add params
+    return Api.getAlbumsSongs(`/${id}`);
   }
 }
 

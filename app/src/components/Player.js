@@ -35,7 +35,7 @@ import {
   updateAlbumImage,
 } from '../store/actions/albums';
 import store from '../store';
-import {checkTrackInCache, makeLoadedTracksDir} from '../utils/utils';
+import {makeLoadedTracksDir} from '../utils/utils';
 
 var dispatch;
 var state = {
@@ -48,6 +48,8 @@ var state = {
   albumImage: null,
   isPlaying: false,
 };
+
+const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
 async function setupPlayer() {
   TrackPlayer.setupPlayer();
@@ -73,6 +75,7 @@ async function setupPlayer() {
         isQueueEnded: true,
         needUpdate2: false,
       };
+      console.log('ended1 - ', state.isQueueEnded);
       TrackPlayer.reset();
       dispatch(isQueueEnded(true));
       console.log('isQueueEnded from playback-queue-ended called');
@@ -81,6 +84,7 @@ async function setupPlayer() {
 
   TrackPlayer.addEventListener('playback-track-changed', async () => {
     try {
+      console.log('ended2 - ', state.isQueueEnded);
       if (
         state.isPlaying &&
         !state.isQueueEnded &&
@@ -123,6 +127,10 @@ async function setupPlayer() {
   SplashScreen.hide();
 
   dispatch(needMoveToNextAlbum(false));
+  state = {
+    ...state,
+    trackPlayerInit: true,
+  };
 }
 
 async function loadAudio(currentTrack, firstStart) {
@@ -186,7 +194,7 @@ async function loadAudio(currentTrack, firstStart) {
         audioLoaded: true,
         isPlaying: !firstStart,
         isQueueEnded: false,
-        // needUpdate2: true,
+        needUpdate2: true,
       };
       dispatch(loadTrack(pressed, state.isPlaying));
     }
@@ -211,10 +219,24 @@ async function loadAudio(currentTrack, firstStart) {
 }
 
 async function checkForLoad() {
-  let {trackId, loadedMusicSize} = state;
-  let totalSize = checkTrackInCache(trackId, loadedMusicSize);
-  dispatch(updateLoadedSize(totalSize));
-  state = {...state, loadedMusicSize: totalSize};
+  try {
+    let {trackId, loadedMusicSize} = state;
+    var path =
+      RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/' + trackId + '.mp3';
+    await RNFetchBlob.fs.exists(path).then(async (exist) => {
+      if (!exist) {
+        await fetch(API_PATH + trackId).then((data) => {
+          let fileSize = data.headers.get('Content-Length');
+          let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
+          dispatch(updateLoadedSize(totalSize));
+          state = {...state, loadedMusicSize: totalSize};
+        });
+        await RNFetchBlob.fs.writeFile(path, API_PATH + trackId);
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
 }
 
 function isPressed() {
@@ -229,7 +251,9 @@ function isPressed() {
     let interval = setInterval(() => {
       if (state.firstTrackId) {
         clearInterval(interval);
-        loadAudio(true, false);
+        setTimeout(() => {
+          loadAudio(true, false);
+        }, 1000);
       }
     }, 250);
   } else {
@@ -280,6 +304,7 @@ const componentUnmounted = async () => {
     firstTrackId,
     lastTrackId,
     trackId,
+    loadedMusicSize,
   } = state;
   if (tracksTitles) {
     await AsyncStorage.multiSet([
@@ -290,12 +315,13 @@ const componentUnmounted = async () => {
       ['first_track_id', JSON.stringify(firstTrackId)],
       ['last_track_id', JSON.stringify(lastTrackId)],
       ['track_id', JSON.stringify(trackId)],
+      ['loaded_size', JSON.stringify(loadedMusicSize)],
     ]);
   }
   TrackPlayer.stop();
   TrackPlayer.destroy();
   AppState.removeEventListener('change');
-  Linking.removeAllListeners();
+  Linking.removeEventListener('url');
 };
 
 const componentMounted = async () => {
@@ -315,8 +341,8 @@ const componentMounted = async () => {
       if (err) {
         console.log(err);
       }
+      console.log('stores - ', stores);
       if (stores[1][1]) {
-        dispatch(updateAlbumImage(JSON.parse(stores[0][1])));
         dispatch(
           toggleAlbum(
             JSON.parse(stores[1][1]),
@@ -329,6 +355,7 @@ const componentMounted = async () => {
           ),
         );
         dispatch(updateTrackId(JSON.parse(stores[7][1])));
+        dispatch(updateAlbumImage(JSON.parse(stores[0][1])));
         state = {
           ...state,
           trackId: JSON.parse(stores[7][1]),
@@ -337,6 +364,10 @@ const componentMounted = async () => {
       }
     },
   );
+
+  setupPlayer();
+  makeLoadedTracksDir();
+  state.firstTrackId ? loadAudio(true, true) : null;
 };
 
 export const Player = () => {
@@ -375,13 +406,6 @@ export const Player = () => {
 
   useEffect(() => {
     componentMounted();
-    setupPlayer();
-    state = {
-      ...state,
-      trackPlayerInit: true,
-    };
-    makeLoadedTracksDir();
-    state.firstTrackId ? loadAudio(true, true) : null;
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
 

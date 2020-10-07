@@ -55,7 +55,6 @@ export const openAlbum = (
   tracksTitles,
   tracksAuthors,
   tracksDuration,
-  // TODO albumsIds,
   tracksIds,
   tracksDurationMillis,
   firstTrackId,
