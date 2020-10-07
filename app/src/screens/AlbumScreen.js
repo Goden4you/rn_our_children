@@ -21,19 +21,11 @@ import store from '../store';
 
 var phoneHeight = Dimensions.get('window').height;
 var statement = {
-  tracksTitles: [],
-  tracksAuthors: [],
-  tracksDuration: [],
-  tracksIds: [],
-  tracksDurationMillis: [],
   albumId: 0,
   albumsIds: [],
   albumImage: null,
   albumDesc: '',
-  firstTrackId: 0,
-  lastTrackId: 0,
   albumsPhotos: [],
-  canRender: false,
 };
 
 var dispatch;
@@ -53,8 +45,8 @@ async function onTrackPressed(trackId, albumIdProps) {
       ...statement,
       albumId: albumIdProps,
     };
-    dispatch(albumChanged(true));
     dispatch(updateAlbumImage(statement.albumImage));
+    dispatch(albumChanged(true));
   }
 
   putTrackIdInStore(trackId);
@@ -101,9 +93,9 @@ function needMoveToNextAlbum() {
     ...statement,
     albumImage: statement.albumsPhotos[albumId - parseInt(albumsIds[0], 10)],
   };
+  dispatch(updateAlbumImage(statement.albumImage));
   dispatch(openAlbumScreen(albumDesc, albumId));
   dispatch(albumChanged(true));
-  dispatch(updateAlbumImage(statement.albumImage));
 }
 
 export const AlbumScreen = ({navigation, route}) => {
@@ -132,7 +124,6 @@ export const AlbumScreen = ({navigation, route}) => {
       unsubscribe();
       statement = {
         ...statement,
-        canRender: false,
         albumImage: albumImageProps,
         albumsPhotos: albumsPhotosProps,
         albumDesc: albumDescProps,
@@ -144,13 +135,14 @@ export const AlbumScreen = ({navigation, route}) => {
     }
     setInterval(() => {
       if (statement.moveToNextAlbum) {
-        console.log('caleed');
         needMoveToNextAlbum();
       }
     }, 500);
+
     setTimeout(() => {
       setIsReady(true);
     }, 1500);
+
     return async function cleanUp() {
       await AsyncStorage.setItem(
         'album_image',
