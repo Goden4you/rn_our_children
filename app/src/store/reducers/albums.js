@@ -1,4 +1,3 @@
-import {fromJS, List} from 'immutable';
 import {
   LOAD_ALBUMS,
   TOGGLE_ALBUM,

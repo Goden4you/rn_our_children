@@ -35,23 +35,13 @@ import {
   updateAlbumImage,
 } from '../store/actions/albums';
 import store from '../store';
-
-const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
+import {checkTrackInCache, makeLoadedTracksDir} from '../utils/utils';
 
 var dispatch;
 var state = {
-  currentIndex: 0,
   minimazed: true,
-  volume: 1.0,
-  isBuffering: true,
-  needUpdate: true,
-  needUpdate3: true,
   audioLoaded: false,
-  firstRun: true,
   pressed: false,
-  interval: 0,
-  canPlayerRender: true,
-  formattedDurMillis: [],
   loadedMusicSize: 0,
   isQueueEnded: false,
   needUpdate2: false,
@@ -94,7 +84,7 @@ async function setupPlayer() {
       if (
         state.isPlaying &&
         !state.isQueueEnded &&
-        !state.firstRun &&
+        !state.pressed &&
         state.audioLoaded
       ) {
         let id = await TrackPlayer.getCurrentTrack();
@@ -102,8 +92,8 @@ async function setupPlayer() {
           ...state,
           trackId: parseInt(id, 10),
         };
+        console.log('trackId from listener - ', parseInt(id, 10));
         dispatch(updateTrackId(parseInt(id, 10)));
-        console.log('updateTrackId from playback-track-changed called');
 
         let interval = setInterval(async () => {
           if (
@@ -133,14 +123,6 @@ async function setupPlayer() {
   SplashScreen.hide();
 
   dispatch(needMoveToNextAlbum(false));
-}
-
-async function checkForDir() {
-  let fs = RNFetchBlob.fs;
-  const res = await fs.exists(fs.dirs.CacheDir + '/loaded_tracks/');
-  if (!res) {
-    await fs.mkdir(fs.dirs.CacheDir + '/loaded_tracks/');
-  }
 }
 
 async function loadAudio(currentTrack, firstStart) {
@@ -229,37 +211,17 @@ async function loadAudio(currentTrack, firstStart) {
 }
 
 async function checkForLoad() {
-  try {
-    let {trackId, loadedMusicSize} = state;
-    var path =
-      RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/' + trackId + '.mp3';
-    await RNFetchBlob.fs.exists(path).then(async (exist) => {
-      if (!exist) {
-        await fetch(API_PATH + trackId).then((data) => {
-          let fileSize = data.headers.get('Content-Length');
-          let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
-          dispatch(updateLoadedSize(totalSize));
-          state = {...state, loadedMusicSize: totalSize};
-        });
-        await RNFetchBlob.fs.writeFile(path, API_PATH + trackId);
-      }
-    });
-  } catch (e) {
-    console.log(e);
-  }
+  let {trackId, loadedMusicSize} = state;
+  let totalSize = checkTrackInCache(trackId, loadedMusicSize);
+  dispatch(updateLoadedSize(totalSize));
+  state = {...state, loadedMusicSize: totalSize};
 }
 
-async function isPressed() {
+function isPressed() {
   console.log('isPressed called');
   state = {
     ...state,
-    needUpdate: false,
     pressed: true,
-  };
-
-  state = {
-    ...state,
-    needUpdate: true,
   };
 
   if (!state.audioLoaded) {
@@ -291,7 +253,7 @@ async function isPressed() {
   checkForLoad();
 }
 
-async function isAlbumImageChanged(move) {
+function isAlbumImageChanged(move) {
   console.log('isAlbumImageChanged called');
   state = {
     ...state,
@@ -333,6 +295,7 @@ const componentUnmounted = async () => {
   TrackPlayer.stop();
   TrackPlayer.destroy();
   AppState.removeEventListener('change');
+  Linking.removeAllListeners();
 };
 
 const componentMounted = async () => {
@@ -417,7 +380,7 @@ export const Player = () => {
       ...state,
       trackPlayerInit: true,
     };
-    checkForDir();
+    makeLoadedTracksDir();
     state.firstTrackId ? loadAudio(true, true) : null;
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();

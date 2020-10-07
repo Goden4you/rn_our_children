@@ -7,39 +7,48 @@ import {
 } from '../store/selectors';
 import Api from '../api';
 import {ALBUM_CHANGED, OPEN_ALBUM_SCREEN} from '../store/types';
+import {putCurAlbumData, takeCurAlbumData} from '../utils/utils';
 
 function* fetchCurrentAlbumSaga(currentAlbum) {
   try {
     const albumChanged = yield select(isAlbumChanged);
     const songsCount = yield select(albumSongsCount);
     const albumId = yield select(openedAlbumId);
-    const response = yield call(Api.getListOfAlbumsSongs, albumId);
+
+    let data = takeCurAlbumData(albumId);
+
+    if (data === []) {
+      const response = yield call(Api.getListOfAlbumsSongs, albumId);
+      data = response.data;
+      putCurAlbumData(data, albumId);
+    }
+
     let tracksTitles = [];
     let tracksAuthors = [];
     let tracksDuration = [];
     let tracksIds = [];
     let tracksDurationMillis = [];
     for (let i = 0; i < songsCount; i++) {
-      tracksTitles[i] = response.data[i].title;
+      tracksTitles[i] = data[i].title;
     }
 
     for (let i = 0; i < songsCount; i++) {
-      tracksAuthors[i] = response.data[i].author;
+      tracksAuthors[i] = data[i].author;
     }
 
     for (let i = 0; i < songsCount; i++) {
-      tracksDuration[i] = response.data[i].duration;
+      tracksDuration[i] = data[i].duration;
     }
 
     for (let i = 0; i < songsCount; i++) {
-      tracksIds[i] = response.data[i].songFileId;
+      tracksIds[i] = data[i].songFileId;
     }
 
     for (let i = 0; i < songsCount; i++) {
-      tracksDurationMillis[i] = response.data[i].durationInMilliseconds;
+      tracksDurationMillis[i] = data[i].durationInMilliseconds;
     }
-    let firstTrackId = response.data[0].songFileId;
-    let lastTrackId = response.data[songsCount - 1].songFileId;
+    let firstTrackId = data[0].songFileId;
+    let lastTrackId = data[songsCount - 1].songFileId;
 
     yield put(
       albumsActions.openAlbum(
@@ -53,7 +62,6 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       ),
     );
     if (currentAlbum && albumChanged) {
-      console.log('data put in currentAlbum');
       yield put(
         albumsActions.toggleAlbum(
           tracksTitles,

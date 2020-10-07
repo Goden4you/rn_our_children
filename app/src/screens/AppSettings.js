@@ -15,7 +15,6 @@ async function deleteLoadedMusic() {
   if (state.loadedMusic !== 0) {
     RNFetchBlob.fs.unlink(RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/');
     dispatch(updateLoadedSize(0));
-    await AsyncStorage.setItem('can_player_render', JSON.stringify(false));
   }
 }
 

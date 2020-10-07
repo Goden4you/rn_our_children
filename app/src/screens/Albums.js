@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React from 'react';
 import {
   ScrollView,
   View,
@@ -8,11 +8,7 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import RNFetchBlob from 'rn-fetch-blob';
-import {useDispatch, useSelector} from 'react-redux';
-import {firstLastTrackId} from '../store/actions/albums';
-
-var dispatch;
+import {useSelector} from 'react-redux';
 
 var osyaSrc = [
   require('../../../images/osya/1/osya1.png'),
@@ -24,54 +20,7 @@ var osyaSrc = [
   require('../../../images/osya/7/osya7.png'),
 ];
 
-async function fetchFirstLastTrack() {
-  const response = await fetch(
-    'https://childrensproject.ocs.ru/api/v1/albums/' + 30184,
-    {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    },
-  );
-  const data = await response.json();
-  const parsedData = JSON.parse(JSON.stringify(data));
-  const veryFirstTrackId = parsedData[0].songFileId;
-
-  const response2 = await fetch(
-    'https://childrensproject.ocs.ru/api/v1/albums/' + 30190,
-    {
-      method: 'GET',
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-    },
-  );
-  const data2 = await response2.json();
-  const parsedData2 = JSON.parse(JSON.stringify(data2));
-  const veryLastTrackId = parsedData2[parsedData2.length - 1].songFileId;
-
-  dispatch(firstLastTrackId(veryFirstTrackId, veryLastTrackId));
-}
-
-async function makeDirectory() {
-  let fs = RNFetchBlob.fs;
-  const res = await fs.exists(fs.dirs.CacheDir + '/albums_photos/');
-  if (!res) {
-    await fs.mkdir(fs.dirs.CacheDir + '/albums_photos/');
-  }
-}
-
 export const Albums = ({navigation}) => {
-  dispatch = useDispatch();
-
-  useEffect(() => {
-    makeDirectory();
-    fetchFirstLastTrack();
-  }, []);
-
   const allAlbums = useSelector((state) => state.albums.allAlbums);
   if (allAlbums.albumsPhotos) {
     return (
