@@ -21,6 +21,11 @@ async function deleteLoadedMusic() {
 export const AppSettings = () => {
   const {loadedSize} = useSelector((statement) => statement.player);
   let size = (loadedSize / 1000000).toFixed(2);
+  state = {
+    ...state,
+    loadedMusic: size,
+  };
+  console.log('loadedSize -', size);
 
   dispatch = useDispatch();
 

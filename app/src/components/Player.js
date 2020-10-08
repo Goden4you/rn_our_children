@@ -228,6 +228,7 @@ async function checkForLoad() {
         await fetch(API_PATH + trackId).then((data) => {
           let fileSize = data.headers.get('Content-Length');
           let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
+          console.log('total size 1-', totalSize);
           dispatch(updateLoadedSize(totalSize));
           state = {...state, loadedMusicSize: totalSize};
         });
@@ -296,28 +297,7 @@ function isAlbumImageChanged(move) {
 }
 
 const componentUnmounted = async () => {
-  const {
-    tracksTitles,
-    tracksAuthors,
-    tracksDuration,
-    tracksDurationMillis,
-    firstTrackId,
-    lastTrackId,
-    trackId,
-    loadedMusicSize,
-  } = state;
-  if (tracksTitles) {
-    await AsyncStorage.multiSet([
-      ['tracks_titles', JSON.stringify(tracksTitles)],
-      ['tracks_authors', JSON.stringify(tracksAuthors)],
-      ['tracks_duration', JSON.stringify(tracksDuration)],
-      ['tracks_duration_millis', JSON.stringify(tracksDurationMillis)],
-      ['first_track_id', JSON.stringify(firstTrackId)],
-      ['last_track_id', JSON.stringify(lastTrackId)],
-      ['track_id', JSON.stringify(trackId)],
-      ['loaded_size', JSON.stringify(loadedMusicSize)],
-    ]);
-  }
+  state = {};
   TrackPlayer.stop();
   TrackPlayer.destroy();
   AppState.removeEventListener('change');
@@ -325,49 +305,16 @@ const componentUnmounted = async () => {
 };
 
 const componentMounted = async () => {
-  await AsyncStorage.multiGet(
-    [
-      'album_image',
-      'tracks_titles',
-      'tracks_authors',
-      'tracks_duration',
-      'tracks_duration_millis',
-      'first_track_id',
-      'last_track_id',
-      'track_id',
-      'loaded_size',
-    ],
-    (err, stores) => {
-      if (err) {
-        console.log(err);
-      }
-      console.log('stores - ', stores);
-      if (stores[1][1]) {
-        dispatch(
-          toggleAlbum(
-            JSON.parse(stores[1][1]),
-            JSON.parse(stores[2][1]),
-            JSON.parse(stores[3][1]),
-            null,
-            JSON.parse(stores[4][1]),
-            JSON.parse(stores[5][1]),
-            JSON.parse(stores[6][1]),
-          ),
-        );
-        dispatch(updateTrackId(JSON.parse(stores[7][1])));
-        dispatch(updateAlbumImage(JSON.parse(stores[0][1])));
-        state = {
-          ...state,
-          trackId: JSON.parse(stores[7][1]),
-        };
-        dispatch(updateLoadedSize(stores[8][1]));
-      }
-    },
-  );
-
   setupPlayer();
   makeLoadedTracksDir();
-  state.firstTrackId ? loadAudio(true, true) : null;
+  let size = await AsyncStorage.getItem('loaded_size');
+  size = JSON.parse(size);
+  dispatch(updateLoadedSize(size));
+  state = {
+    ...state,
+    loadedMusicSize: size,
+  };
+  console.log(state);
 };
 
 export const Player = () => {
@@ -406,6 +353,7 @@ export const Player = () => {
 
   useEffect(() => {
     componentMounted();
+    state.firstTrackId ? loadAudio(true, true) : null;
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
 

@@ -148,10 +148,10 @@ export const AlbumScreen = ({navigation, route}) => {
     }, time);
 
     return async function cleanUp() {
-      await AsyncStorage.setItem(
-        'album_image',
-        JSON.stringify(statement.albumImage),
-      );
+      // await AsyncStorage.setItem(
+      //   'album_image',
+      //   JSON.stringify(statement.albumImage),
+      // );
     };
   }, [
     isReady,
