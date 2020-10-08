@@ -18,7 +18,6 @@ export function* fetchAlbumsData() {
     let data = yield call(takeAlbumsData);
 
     if (!data) {
-      console.log('data does not exist for allAlbums');
       const response1 = yield call(Api.getListOfAllAlbumsData);
       data = response1.data;
       yield call(putAlbumsData, data);
@@ -66,5 +65,4 @@ function* fetchFirstLastTrack(songsCount) {
   const lastTrack = response2.data[songsCount - 1].songFileId;
 
   yield put(albumsActions.firstLastTrackId(firstTrack, lastTrack));
-  console.log('first last track put');
 }

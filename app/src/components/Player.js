@@ -71,16 +71,13 @@ async function setupPlayer() {
         isQueueEnded: true,
         needUpdate2: false,
       };
-      console.log('ended1 - ', state.isQueueEnded);
       TrackPlayer.reset();
       dispatch(isQueueEnded(true));
-      console.log('isQueueEnded from playback-queue-ended called');
     }
   });
 
   TrackPlayer.addEventListener('playback-track-changed', async () => {
     try {
-      console.log('ended2 - ', state.isQueueEnded);
       if (
         state.isPlaying &&
         !state.isQueueEnded &&
@@ -92,7 +89,6 @@ async function setupPlayer() {
           ...state,
           trackId: parseInt(id, 10),
         };
-        console.log('trackId from listener - ', parseInt(id, 10));
         dispatch(updateTrackId(parseInt(id, 10)));
 
         let interval = setInterval(async () => {
@@ -111,7 +107,7 @@ async function setupPlayer() {
       }
       checkForLoad();
     } catch (e) {
-      console.log(e);
+      return e;
     }
   });
 
@@ -141,18 +137,14 @@ async function loadAudio(currentTrack, firstStart) {
 
   try {
     if (trackId !== 0 && trackId !== undefined && trackId !== null) {
-      console.log('loadAudio started', trackId);
       let j = 0;
       var track = [];
-      console.log('firstTrackId - ', firstTrackId);
-      console.log('lastTrackId - ', lastTrackId);
       for (let i = firstTrackId; i <= lastTrackId; i++) {
         var path =
           RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/' + i + '.mp3';
 
         const res = await RNFetchBlob.fs.exists(path);
         if (res) {
-          console.log('read from cache');
           await RNFetchBlob.fs.readFile(path).then((uri) => {
             track[j] = {
               id: i.toString(),
@@ -224,7 +216,6 @@ async function checkForLoad() {
         await fetch(API_PATH + trackId).then((data) => {
           let fileSize = data.headers.get('Content-Length');
           let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
-          console.log('total size 1-', totalSize);
           dispatch(updateLoadedSize(totalSize));
           state = {...state, loadedMusicSize: totalSize};
         });
@@ -232,19 +223,17 @@ async function checkForLoad() {
       }
     });
   } catch (e) {
-    console.log(e);
+    return e;
   }
 }
 
 function isPressed() {
-  console.log('isPressed called');
   state = {
     ...state,
     pressed: true,
   };
 
   if (!state.audioLoaded) {
-    console.log('loadAudio called from isPressed');
     let interval = setInterval(() => {
       if (state.firstTrackId) {
         clearInterval(interval);
@@ -257,7 +246,6 @@ function isPressed() {
     TrackPlayer.skip(state.trackId.toString());
     let interval = setInterval(async () => {
       if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
-        console.log('skipped from isPressed');
         TrackPlayer.play();
         clearInterval(interval);
         state = {
@@ -265,7 +253,6 @@ function isPressed() {
           isPlaying: true,
           pressed: false,
         };
-        console.log('set isPlaying from isPressed');
       }
     }, 250);
   }
@@ -275,7 +262,6 @@ function isPressed() {
 }
 
 function isAlbumImageChanged(move) {
-  console.log('isAlbumImageChanged called');
   state = {
     ...state,
     audioLoaded: false,
@@ -286,7 +272,6 @@ function isAlbumImageChanged(move) {
   if (move) {
     dispatch(needMoveToNextAlbum(false));
     setTimeout(() => {
-      console.log('loadAudio called from album changed');
       loadAudio(true, false);
     }, 1000);
   }
@@ -310,7 +295,6 @@ const componentMounted = async () => {
     ...state,
     loadedMusicSize: size,
   };
-  console.log(state);
 };
 
 export const Player = () => {

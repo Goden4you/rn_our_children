@@ -39,7 +39,6 @@ async function onTrackPressed(trackId, albumIdProps) {
     albumIdProps !== statement.albumId ||
     statement.currentTracksIds !== statement.openedTracksIds
   ) {
-    console.log('on track pressed called');
     statement = {
       ...statement,
       albumId: albumIdProps,
@@ -83,7 +82,6 @@ function needMoveToNextAlbum() {
       albumId = albumsIds[6];
       break;
     case parseInt(albumsIds[6], 10):
-      console.log(7);
       return;
     default:
       break;
@@ -130,7 +128,6 @@ export const AlbumScreen = ({navigation, route}) => {
         currentTracksIds: currentAlbum.tracksIds,
         openedTracksIds: tracksIds,
       };
-      console.log('use effect from AlbumScreen called');
       dispatch(openAlbumScreen(albumDescProps, albumIdProps));
     }
     setInterval(() => {
@@ -145,13 +142,6 @@ export const AlbumScreen = ({navigation, route}) => {
     setTimeout(() => {
       setIsReady(true);
     }, time);
-
-    return async function cleanUp() {
-      // await AsyncStorage.setItem(
-      //   'album_image',
-      //   JSON.stringify(statement.albumImage),
-      // );
-    };
   }, [
     isReady,
     albumDescProps,

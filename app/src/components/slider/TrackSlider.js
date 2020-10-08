@@ -24,7 +24,7 @@ const handleTrackPosition = async (value) => {
       });
     }
   } catch (e) {
-    console.log('Error from handleTrackPosition()', e);
+    return e;
   }
 };
 

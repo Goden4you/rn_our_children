@@ -28,7 +28,6 @@ const handlePlayPause = async () => {
 };
 
 const handlePreviousTrack = async () => {
-  console.log('audio loaded? -', state.audioLoaded);
   if (state.audioLoaded) {
     let {trackId} = state;
     if (JSON.parse(trackId) - 1 >= state.firstTrackId) {
@@ -87,13 +86,11 @@ const handleNextTrack = () => {
             audioLoaded: true,
             isPlaying: true,
           };
-          console.log('trackId from handleNext - ', trackId);
           dispatch(handlePrevNext(trackId));
         });
       } else {
         TrackPlayer.stop();
         dispatch(needMoveToNextAlbum(true));
-        console.log('move to next album prop true set');
         trackId = parseInt(trackId, 10) + 2;
 
         state = {
@@ -182,7 +179,6 @@ const styles = StyleSheet.create({
   },
   control: {
     margin: 10,
-    // width: '10%',
   },
   controlImage: {
     width: 25,

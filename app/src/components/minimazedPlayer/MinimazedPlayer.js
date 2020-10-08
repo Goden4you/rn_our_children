@@ -21,7 +21,7 @@ export const MinimazedPlayer = () => {
               ? {
                   uri: currentAlbumImage,
                 }
-              : require('../../../../images/osya/none/ndCopy.png') // TODO
+              : require('../../../../images/osya/none/ndCopy.png')
           }
         />
         <FileInfo />
