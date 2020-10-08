@@ -29,11 +29,7 @@ import {
   updatePressed,
   needMoveToNextAlbum,
 } from '../store/actions/player';
-import {
-  albumChanged,
-  toggleAlbum,
-  updateAlbumImage,
-} from '../store/actions/albums';
+import {albumChanged} from '../store/actions/albums';
 import store from '../store';
 import {makeLoadedTracksDir} from '../utils/utils';
 
@@ -396,7 +392,7 @@ export const Player = () => {
         gestureDirection="vertical">
         <View style={styles.container}>
           <TouchableOpacity
-            style={{paddingBottom: 30}}
+            style={styles.closeBtn}
             onPress={() => {
               state = {
                 ...state,
@@ -438,4 +434,5 @@ const styles = StyleSheet.create({
     width: '80%',
     height: '50%',
   },
+  closeBtn: {paddingBottom: 30},
 });

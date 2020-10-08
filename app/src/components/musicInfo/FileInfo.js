@@ -50,10 +50,10 @@ const styles = StyleSheet.create({
     fontFamily: 'HouschkaPro-Medium',
   },
   largeTextMinimazed: {
-    fontSize: 18,
+    fontSize: 16,
   },
   smallTextMinimazed: {
-    fontSize: 14,
+    fontSize: 12,
     color: 'rgb(147, 149, 152)',
   },
   largeText: {
