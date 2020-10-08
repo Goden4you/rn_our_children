@@ -10,7 +10,6 @@ import {
   Dimensions,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
 import {
   albumChanged,
   openAlbumScreen,
