@@ -6,6 +6,7 @@ import {
   OPEN_ALBUM,
   UPDATE_ALBUM_IMAGE,
   OPEN_ALBUM_SCREEN,
+  ALL_SONGS_DATA,
 } from '../types';
 
 const initialState = {
@@ -18,6 +19,12 @@ const initialState = {
   isAlbumChanged: false,
   veryFirstTrackId: 0,
   veryLastTrackId: 0,
+  allSongsCount: 0,
+  allTracksTitles: [],
+  allTracksAuthors: [],
+  allTracksIds: [],
+  allTracksDuration: [],
+  allAlbumsIds: [],
 };
 
 export const albumsReducer = (state = initialState, action) => {
@@ -49,6 +56,15 @@ export const albumsReducer = (state = initialState, action) => {
         ...state,
         veryFirstTrackId: action.first,
         veryLastTrackId: action.last,
+      });
+    case ALL_SONGS_DATA:
+      return (state = {
+        ...state,
+        allSongsCount: action.allSongsCount,
+        allTracksTitles: action.allTracksTitles,
+        allTracksAuthors: action.allTracksAuthors,
+        allTracksIds: action.allTracksIds,
+        allTracksDuration: action.allTracksDuration,
       });
     default:
       return state;

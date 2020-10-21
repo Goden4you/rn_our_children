@@ -9,6 +9,7 @@ import {
   Dimensions,
 } from 'react-native';
 import {useSelector} from 'react-redux';
+import SplashScreen from 'react-native-splash-screen';
 
 var osyaSrc = [
   require('../../../images/osya/1/osya1.png'),
@@ -22,6 +23,7 @@ var osyaSrc = [
 
 export const Albums = ({navigation}) => {
   const allAlbums = useSelector((state) => state.albums.allAlbums);
+  SplashScreen.hide();
   if (allAlbums.albumsPhotos) {
     return (
       <View style={styles.container}>

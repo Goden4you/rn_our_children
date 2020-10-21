@@ -48,6 +48,16 @@ export const takeCurAlbumData = async (id) => {
   return data;
 };
 
+export const takeAllSongsData = async () => {
+  let path = fs.dirs.CacheDir + '/all_songs_data/';
+  let res = await fs.exists(path);
+  if (!res) {
+    return;
+  }
+  let data = await fs.readFile(path);
+  return data;
+};
+
 export const makeCurAlbumDirectory = async (id) => {
   const res = await fs.exists(fs.dirs.CacheDir + '/albums/');
   if (!res) {
@@ -77,6 +87,13 @@ export const putAlbumsPhotos = async (photos) => {
 export const putCurAlbumData = async (data, id) => {
   await fs.writeFile(
     fs.dirs.CacheDir + '/cur_album_data/' + id,
+    JSON.stringify(data),
+  );
+};
+
+export const putAllSongsData = async (data) => {
+  await fs.writeFile(
+    fs.dirs.CacheDir + '/all_songs_data/',
     JSON.stringify(data),
   );
 };

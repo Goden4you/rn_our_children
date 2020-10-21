@@ -6,6 +6,7 @@ import {
   OPEN_ALBUM,
   UPDATE_ALBUM_IMAGE,
   OPEN_ALBUM_SCREEN,
+  ALL_SONGS_DATA,
 } from '../types';
 
 export const loadAlbums = (
@@ -104,5 +105,16 @@ export const firstLastTrackId = (first, last) => {
     type: VERY_FIRST_LAST_TRACK,
     first,
     last,
+  };
+};
+
+export const allSongsData = () => {
+  return {
+    type: ALL_SONGS_DATA,
+    allSongsCount: 0,
+    allTracksTitles: [],
+    allTracksAuthors: [],
+    allTracksIds: [],
+    allTracksDuration: [],
   };
 };
