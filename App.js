@@ -10,10 +10,10 @@ function App() {
   return (
     <Provider store={store}>
       <View style={styles.container}>
-        <AppNavigation />
-        <View style={styles.player}>
+        {/* <View style={styles.player}>
           <Player />
-        </View>
+        </View> */}
+        <AppNavigation />
       </View>
     </Provider>
   );
