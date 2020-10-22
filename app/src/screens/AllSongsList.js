@@ -1,14 +1,20 @@
-import React from 'react';
+import React, {useEffect} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {allSongsData} from '../store/actions/albums';
 
 export const AllSongsList = () => {
-  const allTracksIds = null;
-  const allTracksTitles = [];
-  const allTracksAuthors = [];
-  const allTracksDuration = [];
+  // const dispatch = useDispatch();
+  // dispatch(allSongsData());
+  const {
+    allTracksIds,
+    allTracksTitles,
+    allTracksAuthors,
+    allTracksDuration,
+  } = useSelector((state) => state.albums);
 
   const SongsList = () => {
-    return allTracksIds !== null ? (
+    return allTracksIds ? (
       <View>
         {allTracksIds.map((value) => {
           let index = allTracksIds.indexOf(value);
@@ -33,7 +39,7 @@ export const AllSongsList = () => {
         })}
       </View>
     ) : (
-      <View>
+      <View style={styles.loading}>
         <Text>Идет загрузка</Text>
       </View>
     );
@@ -81,5 +87,9 @@ const styles = StyleSheet.create({
   songDuration: {
     fontSize: 16,
     fontFamily: 'HouschkaPro-Medium',
+  },
+  loading: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

@@ -49,6 +49,7 @@ class Api {
   }
 
   static getListOfAlbumsSongs(id) {
+    console.log('id from api -', id);
     return Api.getAlbumsSongs(`/${id}`);
   }
 }

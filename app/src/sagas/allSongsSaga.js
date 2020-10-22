@@ -2,6 +2,7 @@ import {call, put, select, takeEvery} from 'redux-saga/effects';
 import Api from '../api';
 import {allSongsCount, albumsIds} from '../store/selectors';
 import {takeAllSongsData, putAllSongsData} from '../utils/utils';
+import {ALL_SONGS_DATA} from '../store/types';
 
 function* fetchAllSongs(albumId) {
   try {
@@ -13,8 +14,10 @@ function* fetchAllSongs(albumId) {
     if (!data) {
       data = [];
       for (let i = ids[0]; i < ids[6]; i++) {
+        console.log('for called');
         const response = yield call(Api.getListOfAlbumsSongs, albumId);
         data += response.data;
+        console.log('data for ', [i], ' - ', data);
       }
 
       yield call(putAllSongsData, data);
@@ -49,4 +52,8 @@ function* fetchAllSongs(albumId) {
   } catch (e) {
     console.log(e);
   }
+}
+
+export function* watchListScreen() {
+  yield takeEvery(ALL_SONGS_DATA, fetchAllSongs);
 }
