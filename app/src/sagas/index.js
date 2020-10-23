@@ -1,5 +1,6 @@
 import {all, fork} from 'redux-saga/effects';
 import {fetchAlbumsData} from './albumsSaga';
+import {watchListScreen} from './allSongsSaga';
 import {watchCurrentAlbum, watchOpenedAlbum} from './currentAlbumSaga';
 
 const rootSagas = function* root() {
@@ -7,6 +8,7 @@ const rootSagas = function* root() {
     fork(fetchAlbumsData),
     fork(watchCurrentAlbum),
     fork(watchOpenedAlbum),
+    fork(watchListScreen),
   ]);
 };
 

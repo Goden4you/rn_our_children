@@ -109,18 +109,18 @@ export const firstLastTrackId = (first, last) => {
 };
 
 export const allSongsData = (
-  allSongsCount,
   allTracksTitles,
   allTracksAuthors,
   allTracksIds,
   allTracksDuration,
+  allTracksDurationMillis,
 ) => {
   return {
     type: ALL_SONGS_DATA,
-    allSongsCount,
     allTracksTitles,
     allTracksAuthors,
     allTracksIds,
     allTracksDuration,
+    allTracksDurationMillis,
   };
 };

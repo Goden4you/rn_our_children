@@ -1,28 +1,31 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import Api from '../api';
-import {allSongsCount, albumsIds} from '../store/selectors';
+import {albumsIds} from '../store/selectors';
+import {allSongsData} from '../store/actions/albums';
 import {takeAllSongsData, putAllSongsData} from '../utils/utils';
 import {ALL_SONGS_DATA} from '../store/types';
 
-function* fetchAllSongs(albumId) {
+function* fetchAllSongs() {
   try {
-    const songsCount = yield select(allSongsCount);
+    console.log('fetchAllSongs called');
     const ids = yield select(albumsIds);
 
     let data = yield call(takeAllSongsData);
+    let index = 0;
+    const albumsCount = 7;
 
     if (!data) {
       data = [];
-      for (let i = ids[0]; i < ids[6]; i++) {
-        console.log('for called');
-        const response = yield call(Api.getListOfAlbumsSongs, albumId);
-        data += response.data;
-        console.log('data for ', [i], ' - ', data);
+      for (let i = ids[0]; i <= ids[6]; i++) {
+        const response = yield call(Api.getListOfAlbumsSongs, i);
+        data[index] = response.data;
+        index++;
       }
 
       yield call(putAllSongsData, data);
     } else {
       data = JSON.parse(data);
+      console.log('data - ', data);
     }
 
     let tracksTitles = [];
@@ -30,25 +33,29 @@ function* fetchAllSongs(albumId) {
     let tracksDuration = [];
     let tracksIds = [];
     let tracksDurationMillis = [];
-    for (let i = 0; i < songsCount; i++) {
-      tracksTitles[i] = data[i].title;
+
+    let j = 0;
+    for (let i = 0; i < albumsCount; i++) {
+      console.log('data', [i], ' = ', [data[i]]);
+      data[i].forEach((trackData) => {
+        tracksTitles[j] = trackData.title;
+        tracksAuthors[j] = trackData.author;
+        tracksDuration[j] = trackData.duration;
+        tracksIds[j] = trackData.songFileId;
+        tracksDurationMillis[j] = trackData.durationInMilliseconds;
+        j++;
+      });
     }
 
-    for (let i = 0; i < songsCount; i++) {
-      tracksAuthors[i] = data[i].author;
-    }
-
-    for (let i = 0; i < songsCount; i++) {
-      tracksDuration[i] = data[i].duration;
-    }
-
-    for (let i = 0; i < songsCount; i++) {
-      tracksIds[i] = data[i].songFileId;
-    }
-
-    for (let i = 0; i < songsCount; i++) {
-      tracksDurationMillis[i] = data[i].durationInMilliseconds;
-    }
+    yield put(
+      allSongsData(
+        tracksTitles,
+        tracksAuthors,
+        tracksIds,
+        tracksDuration,
+        tracksDurationMillis,
+      ),
+    );
   } catch (e) {
     console.log(e);
   }

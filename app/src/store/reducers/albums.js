@@ -19,7 +19,6 @@ const initialState = {
   isAlbumChanged: false,
   veryFirstTrackId: 0,
   veryLastTrackId: 0,
-  allSongsCount: 0,
   allTracksTitles: [],
   allTracksAuthors: [],
   allTracksIds: [],
@@ -65,6 +64,7 @@ export const albumsReducer = (state = initialState, action) => {
         allTracksAuthors: action.allTracksAuthors,
         allTracksIds: action.allTracksIds,
         allTracksDuration: action.allTracksDuration,
+        allTracksDurationMillis: action.allTracksDurationMillis,
       });
     default:
       return state;

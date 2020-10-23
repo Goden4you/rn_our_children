@@ -1,17 +1,26 @@
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+
 import {allSongsData} from '../store/actions/albums';
+import store from '../store';
 
 export const AllSongsList = () => {
-  // const dispatch = useDispatch();
-  // dispatch(allSongsData());
+  const dispatch = useDispatch();
+  useEffect(() => {
+    console.log('use effect from list songs called');
+    dispatch(allSongsData());
+    const unsubscribe = store.subscribe(() => store.getState());
+    unsubscribe();
+  }, [dispatch]);
+
   const {
     allTracksIds,
     allTracksTitles,
     allTracksAuthors,
     allTracksDuration,
   } = useSelector((state) => state.albums);
+  console.log('allTracksIds from list screen -', allTracksIds);
 
   const SongsList = () => {
     return allTracksIds ? (

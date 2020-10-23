@@ -10,7 +10,6 @@ import {
   Dimensions,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import AsyncStorage from '@react-native-community/async-storage';
 import {
   albumChanged,
   openAlbumScreen,
@@ -146,13 +145,6 @@ export const AlbumScreen = ({navigation, route}) => {
     setTimeout(() => {
       setIsReady(true);
     }, time);
-
-    return async function cleanUp() {
-      // await AsyncStorage.setItem(
-      //   'album_image',
-      //   JSON.stringify(statement.albumImage),
-      // );
-    };
   }, [
     isReady,
     albumDescProps,
