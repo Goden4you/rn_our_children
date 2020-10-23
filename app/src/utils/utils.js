@@ -1,3 +1,4 @@
+import {useState} from 'react';
 import RNFetchBlob from 'rn-fetch-blob';
 
 let fs = RNFetchBlob.fs;
@@ -14,6 +15,15 @@ export const calcSongsDesc = (data) => {
     }
   }
   return albumsDesc;
+};
+
+export const songsDescToInt = (desc) => {
+  let songsCount = [];
+  for (let i = 0; i < 7; i++) {
+    songsCount[i] = desc.toString().substring(0, 2);
+    songsCount[i] = parseInt(songsCount[i], 10);
+  }
+  return songsCount;
 };
 
 export const takeAlbumsPhotos = async () => {

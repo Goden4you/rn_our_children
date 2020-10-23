@@ -9,3 +9,5 @@ export const isAlbumChanged = (state) => state.albums.isAlbumChanged;
 export const allSongsDesc = (state) => state.albums.allAlbums.albumsDesc;
 
 export const albumsIds = (state) => state.albums.allAlbums.albumsIds;
+
+export const allTracksIds = (state) => state.albums.allTracksIds;

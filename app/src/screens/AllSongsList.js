@@ -1,15 +1,23 @@
 import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from 'react-native';
 
 import {allSongsData} from '../store/actions/albums';
 import store from '../store';
+import {putAlbumsPhotos, songsDescToInt} from '../utils/utils';
 
 export const AllSongsList = () => {
   const dispatch = useDispatch();
   useEffect(() => {
-    console.log('use effect from list songs called');
     dispatch(allSongsData());
+    console.log('use effect called');
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
   }, [dispatch]);
@@ -20,13 +28,27 @@ export const AllSongsList = () => {
     allTracksAuthors,
     allTracksDuration,
   } = useSelector((state) => state.albums);
-  console.log('allTracksIds from list screen -', allTracksIds);
+  let {albumsPhotos, albumsDesc} = useSelector(
+    (state) => state.albums.allAlbums,
+  );
+  const songsCount = songsDescToInt(albumsDesc);
+  let countIndex = 0;
+  let prevCount = 0;
+  let photo;
 
   const SongsList = () => {
     return allTracksIds ? (
-      <View>
+      <ScrollView>
         {allTracksIds.map((value) => {
           let index = allTracksIds.indexOf(value);
+          if (songsCount[countIndex] + prevCount <= index) {
+            photo = albumsPhotos[countIndex];
+          } else {
+            console.log('so - ', songsCount[countIndex]);
+            prevCount = index - 1;
+            photo = albumsPhotos[countIndex];
+            countIndex++;
+          }
           return (
             <TouchableOpacity
               style={styles.wrapper}
@@ -34,6 +56,7 @@ export const AllSongsList = () => {
               onPress={() => {
                 console.log('track pressed');
               }}>
+              <Image source={{uri: photo}} style={styles.photo} />
               <View style={styles.songInfo}>
                 <Text style={styles.songTitle}>{allTracksTitles[index]}</Text>
                 <Text style={styles.songAuthor}>{allTracksAuthors[index]}</Text>
@@ -46,7 +69,7 @@ export const AllSongsList = () => {
             </TouchableOpacity>
           );
         })}
-      </View>
+      </ScrollView>
     ) : (
       <View style={styles.loading}>
         <Text>Идет загрузка</Text>
@@ -77,13 +100,13 @@ const styles = StyleSheet.create({
   },
   wrapper: {
     paddingVertical: 13,
+    paddingHorizontal: 10,
     height: 'auto',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    borderWidth: 2,
   },
-  songInfo: {width: '80%'},
+  songInfo: {width: '70%'},
   songTitle: {
     fontSize: 24,
     fontFamily: 'HouschkaPro-Medium',
@@ -100,5 +123,7 @@ const styles = StyleSheet.create({
   loading: {
     justifyContent: 'center',
     alignItems: 'center',
+    height: '100%',
   },
+  photo: {width: 50, height: 50},
 });
