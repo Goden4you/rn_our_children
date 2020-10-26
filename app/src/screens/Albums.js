@@ -88,7 +88,11 @@ export const Albums = ({navigation}) => {
       </View>
     );
   } else {
-    return <View />;
+    return (
+      <View style={styles.loading}>
+        <Text>Идет загрузка</Text>
+      </View>
+    );
   }
 };
 
@@ -124,5 +128,10 @@ const styles = StyleSheet.create({
   },
   albumDesc: {
     fontSize: 22,
+  },
+  loading: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
   },
 });

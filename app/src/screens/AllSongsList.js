@@ -11,13 +11,12 @@ import {
 
 import {allSongsData} from '../store/actions/albums';
 import store from '../store';
-import {putAlbumsPhotos, songsDescToInt} from '../utils/utils';
+import {songsDescToInt} from '../utils/utils';
 
 export const AllSongsList = () => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(allSongsData());
-    console.log('use effect called');
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
   }, [dispatch]);
@@ -41,13 +40,16 @@ export const AllSongsList = () => {
       <ScrollView>
         {allTracksIds.map((value) => {
           let index = allTracksIds.indexOf(value);
-          if (songsCount[countIndex] + prevCount <= index) {
+          if (songsCount[countIndex] + prevCount > index) {
             photo = albumsPhotos[countIndex];
           } else {
-            console.log('so - ', songsCount[countIndex]);
-            prevCount = index - 1;
-            photo = albumsPhotos[countIndex];
+            prevCount = index;
             countIndex++;
+            photo = albumsPhotos[countIndex];
+            // console.log('songs count - ', songsCount);
+            // console.log('count index - ', countIndex);
+            // console.log('prev count - ', songsCount[countIndex] + prevCount);
+            // console.log('index - ', index);
           }
           return (
             <TouchableOpacity

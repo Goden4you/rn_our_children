@@ -156,7 +156,7 @@ export const AlbumScreen = ({navigation, route}) => {
     currentAlbum,
   ]);
 
-  if (isReady) {
+  if (tracksIds) {
     return (
       <View style={styles.container}>
         <ScrollView
