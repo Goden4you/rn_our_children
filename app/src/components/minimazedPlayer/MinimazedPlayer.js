@@ -33,39 +33,26 @@ export const MinimazedPlayer = () => {
 
 const styles = StyleSheet.create({
   containerMinimazed: {
-    height: 80,
+    height: 60,
     width: '100%',
     backgroundColor: '#fff',
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    padding: 10,
+    padding: 5,
     bottom: 0,
     borderTopColor: 'rgb(244,121,40)',
     borderTopWidth: 1,
   },
   imageAndInfo: {
     flexDirection: 'row',
-    width: '65%',
+    width: '60%',
     height: '100%',
     alignItems: 'center',
   },
   albumCoverMinimazed: {
-    height: 60,
-    width: 60,
+    height: '100%',
+    width: '20%',
     resizeMode: 'contain',
-  },
-  controls: {
-    flexDirection: 'row',
-  },
-  controlMinimazed: {
-    margin: 5,
-    width: 25,
-  },
-  sliderDurationMinimazed: {
-    display: 'none',
-  },
-  sliderWrapMinimazed: {
-    display: 'none',
   },
 });

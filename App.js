@@ -10,10 +10,10 @@ function App() {
   return (
     <Provider store={store}>
       <View style={styles.container}>
-        {/* <View style={styles.player}>
-          <Player />
-        </View> */}
         <AppNavigation />
+        <View style={styles.player}>
+          <Player />
+        </View>
       </View>
     </Provider>
   );
@@ -25,8 +25,11 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   player: {
-    height: 80,
+    height: 60,
     backgroundColor: '#000',
+    position: 'absolute',
+    bottom: 50,
+    zIndex: 9999,
   },
 });
 

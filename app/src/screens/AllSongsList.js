@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from 'react-native';
 
 import {allSongsData} from '../store/actions/albums';
@@ -89,10 +90,12 @@ export const AllSongsList = () => {
   );
 };
 
+var phoneHeight = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
   mainWrap: {
     width: '100%',
-    height: '100%',
+    height: phoneHeight - 135,
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',

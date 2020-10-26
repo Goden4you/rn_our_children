@@ -103,7 +103,7 @@ const styles = StyleSheet.create({
     paddingVertical: 25,
     marginLeft: 25,
     marginRight: 30,
-    height: phoneHeight - 160,
+    height: phoneHeight - 185,
   },
   albumImageWrap: {
     width: 200,

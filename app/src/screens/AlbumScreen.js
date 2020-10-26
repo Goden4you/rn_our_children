@@ -238,7 +238,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   container: {
-    height: phoneHeight - 180,
+    height: phoneHeight - 215,
   },
   albumWrap: {
     padding: 25,

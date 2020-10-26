@@ -179,14 +179,14 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    width: '43%',
   },
   control: {
-    margin: 10,
-    // width: '10%',
+    padding: '4%',
+    width: '23%',
   },
   controlImage: {
-    width: 25,
-    height: 25,
+    width: '100%',
     resizeMode: 'contain',
   },
 });
