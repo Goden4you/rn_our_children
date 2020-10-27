@@ -13,6 +13,7 @@ import TrackPlayer from 'react-native-track-player';
 import AsyncStorage from '@react-native-community/async-storage';
 import SplashScreen from 'react-native-splash-screen';
 import RNFetchBlob from 'rn-fetch-blob';
+
 import {MinimazedPlayer} from './minimazedPlayer/MinimazedPlayer';
 import {FileInfo} from './musicInfo/FileInfo';
 import {TrackSlider} from './slider/TrackSlider';

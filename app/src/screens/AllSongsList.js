@@ -13,6 +13,11 @@ import {
 import {allSongsData} from '../store/actions/albums';
 import store from '../store';
 import {songsDescToInt} from '../utils/utils';
+import {onTrackPressed} from '../utils/utils';
+
+let statement = {
+  tapAlbumId: 0,
+};
 
 export const AllSongsList = () => {
   const dispatch = useDispatch();
@@ -27,14 +32,16 @@ export const AllSongsList = () => {
     allTracksTitles,
     allTracksAuthors,
     allTracksDuration,
+    albumId,
   } = useSelector((state) => state.albums);
-  let {albumsPhotos, albumsDesc} = useSelector(
+  const {albumsPhotos, albumsDesc, albumsTitles} = useSelector(
     (state) => state.albums.allAlbums,
   );
   const songsCount = songsDescToInt(albumsDesc);
+
   let countIndex = 0;
   let prevCount = 0;
-  let photo;
+  let photo, album;
 
   const SongsList = () => {
     return allTracksIds ? (
@@ -43,26 +50,41 @@ export const AllSongsList = () => {
           let index = allTracksIds.indexOf(value);
           if (songsCount[countIndex] + prevCount > index) {
             photo = albumsPhotos[countIndex];
+            album = albumsTitles[countIndex];
           } else {
             prevCount = index;
             countIndex++;
             photo = albumsPhotos[countIndex];
-            // console.log('songs count - ', songsCount);
-            // console.log('count index - ', countIndex);
-            // console.log('prev count - ', songsCount[countIndex] + prevCount);
-            // console.log('index - ', index);
+            album = albumsTitles[countIndex];
           }
           return (
             <TouchableOpacity
               style={styles.wrapper}
               key={value}
               onPress={() => {
-                console.log('track pressed');
+                const result = onTrackPressed(
+                  value,
+                  albumId,
+                  statement.curAlbumId,
+                  photo,
+                  dispatch,
+                  null,
+                  null,
+                );
+                statement = {
+                  ...statement,
+                  curAlbumId: result,
+                };
               }}>
               <Image source={{uri: photo}} style={styles.photo} />
-              <View style={styles.songInfo}>
+              <View style={styles.songInfoWrap}>
                 <Text style={styles.songTitle}>{allTracksTitles[index]}</Text>
-                <Text style={styles.songAuthor}>{allTracksAuthors[index]}</Text>
+                <View style={styles.songInfo}>
+                  <Text style={styles.songAuthor}>
+                    {allTracksAuthors[index] + ' | '}
+                  </Text>
+                  <Text style={styles.songAuthor}>{album}</Text>
+                </View>
               </View>
               <View>
                 <Text style={styles.songDuration}>
@@ -75,7 +97,7 @@ export const AllSongsList = () => {
       </ScrollView>
     ) : (
       <View style={styles.loading}>
-        <Text>Идет загрузка</Text>
+        <Text>Пожалуйста, подождите...</Text>
       </View>
     );
   };
@@ -111,18 +133,21 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  songInfo: {width: '70%'},
+  songInfoWrap: {width: '70%'},
+  songInfo: {
+    flexDirection: 'row',
+  },
   songTitle: {
-    fontSize: 24,
+    fontSize: 22,
     fontFamily: 'HouschkaPro-Medium',
   },
   songAuthor: {
-    fontSize: 20,
+    fontSize: 18,
     color: 'rgb(147, 149, 152)',
     fontFamily: 'HouschkaPro-Medium',
   },
   songDuration: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'HouschkaPro-Medium',
   },
   loading: {

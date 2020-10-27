@@ -90,7 +90,7 @@ export const Albums = ({navigation}) => {
   } else {
     return (
       <View style={styles.loading}>
-        <Text>Идет загрузка</Text>
+        <Text>Пожалуйста, подождите...</Text>
       </View>
     );
   }

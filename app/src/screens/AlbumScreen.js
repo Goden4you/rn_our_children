@@ -15,8 +15,8 @@ import {
   openAlbumScreen,
   updateAlbumImage,
 } from '../store/actions/albums';
-import {updatePressed, updateTrackId} from '../store/actions/player';
 import store from '../store';
+import {onTrackPressed} from '../utils/utils';
 
 var phoneHeight = Dimensions.get('window').height;
 var statement = {
@@ -28,28 +28,6 @@ var statement = {
 };
 
 var dispatch;
-
-async function putTrackIdInStore(value) {
-  dispatch(updatePressed(true));
-  dispatch(updateTrackId(value));
-}
-
-async function onTrackPressed(trackId, albumIdProps) {
-  if (
-    albumIdProps !== statement.albumId ||
-    statement.currentTracksIds !== statement.openedTracksIds
-  ) {
-    console.log('on track pressed called');
-    statement = {
-      ...statement,
-      albumId: albumIdProps,
-    };
-    dispatch(updateAlbumImage(statement.albumImage));
-    dispatch(albumChanged(true));
-  }
-
-  putTrackIdInStore(trackId);
-}
 
 function needMoveToNextAlbum() {
   let albumId = statement.albumId;
@@ -108,8 +86,6 @@ export const AlbumScreen = ({navigation, route}) => {
   } = route.params;
 
   dispatch = useDispatch();
-
-  const [isReady, setIsReady] = useState(false);
   const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
     (state) => state.albums.openedAlbum,
   );
@@ -138,15 +114,7 @@ export const AlbumScreen = ({navigation, route}) => {
         needMoveToNextAlbum();
       }
     }, 500);
-    let time;
-
-    tracksIds ? (time = 500) : (time = 1500);
-
-    setTimeout(() => {
-      setIsReady(true);
-    }, time);
   }, [
-    isReady,
     albumDescProps,
     albumImageProps,
     albumsPhotosProps,
@@ -203,7 +171,19 @@ export const AlbumScreen = ({navigation, route}) => {
                     style={styles.wrapper}
                     key={value}
                     onPress={() => {
-                      onTrackPressed(value, albumIdProps);
+                      const result = onTrackPressed(
+                        value,
+                        albumIdProps,
+                        statement.albumId,
+                        albumImageProps,
+                        dispatch,
+                        currentAlbum.tracksIds,
+                        tracksIds,
+                      );
+                      statement = {
+                        ...statement,
+                        albumId: result,
+                      };
                     }}>
                     <View style={styles.songInfo}>
                       <Text style={styles.songTitle}>

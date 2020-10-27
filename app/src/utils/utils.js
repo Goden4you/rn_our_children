@@ -1,4 +1,9 @@
+import React from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
+
+import {updateAlbumImage, albumChanged} from '../store/actions/albums';
+import {updatePressed, updateTrackId} from '../store/actions/player';
 
 let fs = RNFetchBlob.fs;
 
@@ -105,4 +110,26 @@ export const putAllSongsData = async (data) => {
     fs.dirs.CacheDir + '/all_songs_data/',
     JSON.stringify(data),
   );
+};
+
+export const onTrackPressed = async (
+  trackId,
+  albumIdProps,
+  albumId,
+  albumImage,
+  dispatch,
+  curTracksIds,
+  opTracksIds,
+) => {
+  if (albumIdProps !== albumId || curTracksIds !== opTracksIds) {
+    console.log('on track pressed called');
+    albumId = albumIdProps;
+    dispatch(updateAlbumImage(albumImage));
+    dispatch(albumChanged(true));
+  }
+
+  dispatch(updatePressed(true));
+  dispatch(updateTrackId(trackId));
+
+  return albumId;
 };
