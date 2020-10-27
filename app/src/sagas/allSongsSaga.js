@@ -54,6 +54,7 @@ function* fetchAllSongs() {
             tracksIds,
             tracksDuration,
             tracksDurationMillis,
+            data,
           ),
         );
   } catch (e) {

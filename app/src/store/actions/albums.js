@@ -114,6 +114,7 @@ export const allSongsData = (
   allTracksIds,
   allTracksDuration,
   allTracksDurationMillis,
+  allData,
 ) => {
   return {
     type: ALL_SONGS_DATA,
@@ -122,5 +123,6 @@ export const allSongsData = (
     allTracksIds,
     allTracksDuration,
     allTracksDurationMillis,
+    allData,
   };
 };

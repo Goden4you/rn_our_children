@@ -24,6 +24,7 @@ const initialState = {
   allTracksIds: [],
   allTracksDuration: [],
   allAlbumsIds: [],
+  allData: [],
 };
 
 export const albumsReducer = (state = initialState, action) => {
@@ -65,6 +66,7 @@ export const albumsReducer = (state = initialState, action) => {
         allTracksIds: action.allTracksIds,
         allTracksDuration: action.allTracksDuration,
         allTracksDurationMillis: action.allTracksDurationMillis,
+        allData: action.allData,
       });
     default:
       return state;
