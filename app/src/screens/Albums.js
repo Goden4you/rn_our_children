@@ -96,14 +96,15 @@ export const Albums = ({navigation}) => {
   }
 };
 
-var phoneHeight = Dimensions.get('window').height;
+let phoneHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 25,
-    marginLeft: 25,
-    marginRight: 30,
+    paddingLeft: 25,
+    paddingRight: 30,
     height: phoneHeight - 185,
+    backgroundColor: '#fff',
   },
   albumImageWrap: {
     width: 200,
@@ -133,5 +134,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
+    backgroundColor: '#fff',
   },
 });

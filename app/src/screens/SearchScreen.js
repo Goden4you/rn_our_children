@@ -6,12 +6,13 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
+  Dimensions,
 } from 'react-native';
 import {SearchBar, Button} from 'react-native-elements';
 import {useDispatch, useSelector} from 'react-redux';
 
 import {allSongsData} from '../store/actions/albums';
-import {onTrackPressed, takeAllSongsData} from '../utils/utils';
+import {onTrackPressed} from '../utils/utils';
 
 export const SearchScreen = () => {
   const [search, setSearch] = useState('');
@@ -19,55 +20,43 @@ export const SearchScreen = () => {
   const dispatch = useDispatch();
 
   const {allTracksTitles, allData} = useSelector((state) => state.albums);
+  const {albumsTitles, albumsIds, albumsPhotos} = useSelector(
+    (state) => state.albums.allAlbums,
+  );
 
   allTracksTitles ? null : dispatch(allSongsData());
 
   const updateSearch = (value) => {
     console.log('search - ', value);
 
-    let flag = false;
-    let i = 0;
+    const albumsCount = 7;
     let res = [];
+    let photos = [];
+    let titles = [];
+    let j = 0;
 
-    while (!flag) {
-      res = allData[i].filter(
+    for (let i = 0; i < albumsCount; i++) {
+      let trackData = allData[i].filter(
         ({title, author}) =>
           title.toLowerCase().includes(value.toLowerCase()) ||
           author.toLowerCase().includes(value.toLowerCase()),
       );
-      console.log('res -', res);
-      if (res.toString() !== '' || i === 6) {
-        console.log('find', i);
-        flag = true;
-      } else {
-        i++;
+      if (trackData.toString() !== '') {
+        res[j] = trackData;
+        let index = albumsIds.indexOf(trackData[0].albumId);
+        console.log('HERE', trackData[0].albumId);
+        titles[i] = albumsTitles[index];
+        photos[i] = albumsPhotos[index];
+        j++;
       }
     }
-
-    // const some = allData.filter((album) => {
-    //   let res = album.filter(
-    //     ({title, author}) =>
-    //       title.toLowerCase().includes(value.toLowerCase()) ||
-    //       author.toLowerCase().includes(value.toLowerCase()),
-    //   );
-    //   console.log('album 0 ', res);
-    // if (res) {
-    //   return res;
-    // }
-    // });
-    // const title = allTracksTitles.filter((elem) =>
-    //   elem.toLowerCase().includes(value.toLowerCase()),
-    // );
-    // const author = allTracksAuthors.filter((elem) =>
-    //   elem.toLowerCase().includes(value.toLowerCase()),
-    // );
     setSearch(value);
-    setSearchRes(res);
+    value !== '' ? setSearchRes([res, titles, photos]) : setSearchRes([]);
   };
 
   const ResOrLast = () => {
     return search !== '' ? (
-      <View>
+      <View style={styles.resSearch}>
         <Text style={styles.resOrLast}>Результаты</Text>
       </View>
     ) : (
@@ -83,43 +72,44 @@ export const SearchScreen = () => {
   };
 
   const SearchTracks = () => {
-    return searchRes ? (
-      <ScrollView>
-        {searchRes.map((track) => {
-          return (
-            <TouchableOpacity
-              style={styles.wrapper}
-              onPress={() => {
-                // const result = onTrackPressed(
-                //   value,
-                //   albumId,
-                //   statement.curAlbumId,
-                //   photo,
-                //   dispatch,
-                //   null,
-                //   null,
-                // );
-                // statement = {
-                //   ...statement,
-                //   curAlbumId: result,
-                // };
-                console.log('track pressed');
-              }}>
-              {/* <Image source={{uri: photo}} style={styles.photo} /> */}
-              <View style={styles.songInfoWrap}>
-                <Text style={styles.songTitle}>{track.title}</Text>
-                <Text style={styles.songAuthor}>
-                  {track.author + ' | 2019'}
-                </Text>
-              </View>
-              <View>
-                <Text style={styles.songDuration}>{track.duration}</Text>
-              </View>
-            </TouchableOpacity>
-          );
+    let prevAlbumId = 0;
+    let index = -1;
+    return searchRes.toString() !== '' ? (
+      <ScrollView style={styles.scrollWrap}>
+        {searchRes[0].map((tracksData) => {
+          return tracksData.map((track) => {
+            if (prevAlbumId !== track.albumId) {
+              index++;
+              prevAlbumId = track.albumId;
+            }
+            return (
+              <TouchableOpacity
+                style={styles.wrapper}
+                key={track.id}
+                onPress={() => {
+                  console.log('track pressed');
+                }}>
+                <Image
+                  source={{uri: searchRes[2][index]}}
+                  style={styles.photo}
+                />
+                <View style={styles.songInfoWrap}>
+                  <Text style={styles.songTitle}>{track.title}</Text>
+                  <Text style={styles.songAuthor}>
+                    {track.author + ' | ' + searchRes[1][index]}
+                  </Text>
+                </View>
+                <View>
+                  <Text style={styles.songDuration}>{track.duration}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          });
         })}
       </ScrollView>
-    ) : null;
+    ) : (
+      <View style={styles.scrollWrap} />
+    );
   };
 
   return (
@@ -134,13 +124,18 @@ export const SearchScreen = () => {
         showLoading={true}
         containerStyle={styles.searchWrap}
         inputContainerStyle={styles.input}
-        onClear={() => setSearch('')}
+        onClear={() => {
+          setSearch('');
+          setSearchRes([]);
+        }}
       />
       <ResOrLast />
       <SearchTracks />
     </View>
   );
 };
+
+let phoneHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   mainWrap: {
@@ -202,5 +197,16 @@ const styles = StyleSheet.create({
   btnTitle: {
     color: '#f47928',
     fontFamily: 'HouschkaPro-Medium',
+  },
+  photo: {
+    width: 50,
+    height: 50,
+  },
+  resSearch: {
+    paddingLeft: 10,
+  },
+  scrollWrap: {
+    height: phoneHeight - 307,
+    backgroundColor: '#fff',
   },
 });

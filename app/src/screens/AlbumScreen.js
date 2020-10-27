@@ -207,7 +207,7 @@ export const AlbumScreen = ({navigation, route}) => {
       </View>
     );
   } else {
-    return <View />;
+    return <View style={styles.container} />;
   }
 };
 
@@ -219,6 +219,7 @@ const styles = StyleSheet.create({
   },
   container: {
     height: phoneHeight - 215,
+    backgroundColor: '#fff',
   },
   albumWrap: {
     padding: 25,

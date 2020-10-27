@@ -45,7 +45,7 @@ export const AllSongsList = () => {
 
   const SongsList = () => {
     return allTracksIds ? (
-      <ScrollView>
+      <ScrollView style={styles.scrollWrap}>
         {allTracksIds.map((value) => {
           let index = allTracksIds.indexOf(value);
           if (songsCount[countIndex] + prevCount > index) {
@@ -81,9 +81,8 @@ export const AllSongsList = () => {
                 <Text style={styles.songTitle}>{allTracksTitles[index]}</Text>
                 <View style={styles.songInfo}>
                   <Text style={styles.songAuthor}>
-                    {allTracksAuthors[index] + ' | '}
+                    {allTracksAuthors[index] + ' | ' + album}
                   </Text>
-                  <Text style={styles.songAuthor}>{album}</Text>
                 </View>
               </View>
               <View>
@@ -117,7 +116,7 @@ var phoneHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
   mainWrap: {
     width: '100%',
-    height: phoneHeight - 135,
+    height: phoneHeight - 132,
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',
@@ -154,6 +153,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     height: '100%',
+    backgroundColor: '#fff',
   },
   photo: {width: 50, height: 50},
+  scrollWrap: {
+    backgroundColor: '#fff',
+  },
 });
