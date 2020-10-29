@@ -7,6 +7,7 @@ import {
   UPDATE_ALBUM_IMAGE,
   OPEN_ALBUM_SCREEN,
   ALL_SONGS_DATA,
+  LAST_INPUTS,
 } from '../types';
 
 const initialState = {
@@ -25,6 +26,7 @@ const initialState = {
   allTracksDuration: [],
   allAlbumsIds: [],
   allData: [],
+  lastInputs: [],
 };
 
 export const albumsReducer = (state = initialState, action) => {
@@ -67,6 +69,11 @@ export const albumsReducer = (state = initialState, action) => {
         allTracksDuration: action.allTracksDuration,
         allTracksDurationMillis: action.allTracksDurationMillis,
         allData: action.allData,
+      });
+    case LAST_INPUTS:
+      return (state = {
+        ...state,
+        lastInputs: action.inputs,
       });
     default:
       return state;

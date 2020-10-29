@@ -7,6 +7,7 @@ import {
   UPDATE_ALBUM_IMAGE,
   OPEN_ALBUM_SCREEN,
   ALL_SONGS_DATA,
+  LAST_INPUTS,
 } from '../types';
 
 export const loadAlbums = (
@@ -124,5 +125,12 @@ export const allSongsData = (
     allTracksDuration,
     allTracksDurationMillis,
     allData,
+  };
+};
+
+export const lastInput = (input) => {
+  return {
+    type: LAST_INPUTS,
+    input,
   };
 };

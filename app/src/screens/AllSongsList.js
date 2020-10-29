@@ -14,12 +14,13 @@ import {allSongsData} from '../store/actions/albums';
 import store from '../store';
 import {songsDescToInt} from '../utils/utils';
 import {onTrackPressed} from '../utils/utils';
+import {GoToSettings} from '../navigation/goSettings';
 
 let statement = {
   tapAlbumId: 0,
 };
 
-export const AllSongsList = () => {
+export const AllSongsList = ({navigation}) => {
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(allSongsData());
@@ -62,6 +63,7 @@ export const AllSongsList = () => {
               style={styles.wrapper}
               key={value}
               onPress={() => {
+                console.log('photo2 -', countIndex);
                 const result = onTrackPressed(
                   value,
                   albumId,
@@ -104,7 +106,8 @@ export const AllSongsList = () => {
   return (
     <View style={styles.mainWrap}>
       <View style={styles.header}>
-        <Text>Все песни</Text>
+        <Text style={styles.headerText}>Все песни</Text>
+        <GoToSettings navigation={navigation} />
       </View>
       <SongsList />
     </View>
@@ -121,8 +124,15 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: 'rgb(109,207,246)',
     height: 80,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  headerText: {
+    fontSize: 22,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginRight: '22%',
   },
   wrapper: {
     paddingVertical: 13,

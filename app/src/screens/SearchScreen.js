@@ -10,13 +10,19 @@ import {
 } from 'react-native';
 import {SearchBar, Button} from 'react-native-elements';
 import {useDispatch, useSelector} from 'react-redux';
+import {GoToSettings} from '../navigation/goSettings';
 
 import {allSongsData} from '../store/actions/albums';
-import {onTrackPressed} from '../utils/utils';
+import {
+  onTrackPressed,
+  putLastSearches,
+  takeLastSearches,
+} from '../utils/utils';
 
-export const SearchScreen = () => {
+export const SearchScreen = ({navigation}) => {
   const [search, setSearch] = useState('');
   const [searchRes, setSearchRes] = useState([]);
+  const [inputs, setInputs] = useState([]);
   const dispatch = useDispatch();
 
   const {allTracksTitles, allData} = useSelector((state) => state.albums);
@@ -24,11 +30,24 @@ export const SearchScreen = () => {
     (state) => state.albums.allAlbums,
   );
 
-  allTracksTitles ? null : dispatch(allSongsData());
+  const takeInputs = async () => {
+    let response = await takeLastSearches();
+
+    if (response) {
+      console.log('inputs in cache - ', JSON.parse(response));
+      setInputs(JSON.parse(response));
+    }
+  };
+
+  if (inputs.toString() === '') {
+    takeInputs();
+  }
+
+  useEffect(() => {
+    allTracksTitles ? null : dispatch(allSongsData());
+  }, [allTracksTitles, dispatch]);
 
   const updateSearch = (value) => {
-    console.log('search - ', value);
-
     const albumsCount = 7;
     let res = [];
     let photos = [];
@@ -44,7 +63,6 @@ export const SearchScreen = () => {
       if (trackData.toString() !== '') {
         res[j] = trackData;
         let index = albumsIds.indexOf(trackData[0].albumId);
-        console.log('HERE', trackData[0].albumId);
         titles[i] = albumsTitles[index];
         photos[i] = albumsPhotos[index];
         j++;
@@ -87,7 +105,15 @@ export const SearchScreen = () => {
                 style={styles.wrapper}
                 key={track.id}
                 onPress={() => {
-                  console.log('track pressed');
+                  onTrackPressed(
+                    track.songFileId,
+                    track.albumId,
+                    null,
+                    searchRes[2][index],
+                    dispatch,
+                    null,
+                    null,
+                  );
                 }}>
                 <Image
                   source={{uri: searchRes[2][index]}}
@@ -108,16 +134,44 @@ export const SearchScreen = () => {
         })}
       </ScrollView>
     ) : (
-      <View style={styles.scrollWrap} />
+      <ScrollView style={styles.scrollWrap}>
+        {inputs.toString() !== ''
+          ? inputs.map((input) => {
+              return (
+                <TouchableOpacity
+                  style={styles.wrapper}
+                  onPress={() => updateSearch(input)}
+                  key={inputs.indexOf(input)}>
+                  <Text style={styles.lastSearchText}>{input}</Text>
+                </TouchableOpacity>
+              );
+            })
+          : null}
+      </ScrollView>
     );
+  };
+
+  const saveLastInput = (value) => {
+    console.log('value -', value);
+    let length = inputs.length;
+    let allInputs = inputs;
+    allInputs[length] = value;
+    let uniqInputs = allInputs.filter((item, pos) => {
+      return allInputs.indexOf(item) === pos;
+    });
+    console.log('all inputs', uniqInputs);
+    setInputs(uniqInputs);
+    // dispatch(inputs);
   };
 
   return (
     <View style={styles.mainWrap}>
       <View style={styles.header}>
-        <Text>Поиск</Text>
+        <Text style={styles.headerText}>Поиск</Text>
+        <GoToSettings navigation={navigation} />
       </View>
       <SearchBar
+        platform="android"
         placeholder="Название"
         onChangeText={(value) => updateSearch(value)}
         value={search}
@@ -125,8 +179,13 @@ export const SearchScreen = () => {
         containerStyle={styles.searchWrap}
         inputContainerStyle={styles.input}
         onClear={() => {
+          console.log('on clear pressed');
+          putLastSearches(inputs);
           setSearch('');
           setSearchRes([]);
+        }}
+        onBlur={() => {
+          saveLastInput(search);
         }}
       />
       <ResOrLast />
@@ -148,6 +207,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    borderBottomWidth: 1,
+    borderColor: '#e5e5e5',
   },
   songInfoWrap: {width: '70%'},
   songTitle: {
@@ -166,13 +227,21 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: 'rgb(109,207,246)',
     height: 80,
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
     alignItems: 'center',
+  },
+  headerText: {
+    fontSize: 22,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginRight: '27%',
   },
   searchWrap: {
     backgroundColor: null,
     borderBottomWidth: 0,
     borderTopWidth: 0,
+    paddingHorizontal: 10,
   },
   input: {
     backgroundColor: null,
@@ -185,6 +254,13 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 10,
+    paddingBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e5e5',
+  },
+  lastSearchText: {
+    color: '#f47928',
+    fontSize: 16,
   },
   resOrLast: {
     fontSize: 20,
@@ -204,6 +280,9 @@ const styles = StyleSheet.create({
   },
   resSearch: {
     paddingLeft: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: '#e5e5e5',
+    paddingBottom: 10,
   },
   scrollWrap: {
     height: phoneHeight - 307,

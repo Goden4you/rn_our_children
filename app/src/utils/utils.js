@@ -2,7 +2,11 @@ import React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
 
-import {updateAlbumImage, albumChanged} from '../store/actions/albums';
+import {
+  updateAlbumImage,
+  albumChanged,
+  openAlbumScreen,
+} from '../store/actions/albums';
 import {updatePressed, updateTrackId} from '../store/actions/player';
 
 let fs = RNFetchBlob.fs;
@@ -72,6 +76,18 @@ export const takeAllSongsData = async () => {
   return data;
 };
 
+export const takeLastSearches = async () => {
+  let path = fs.dirs.CacheDir + '/last_searches/';
+  let res = await fs.exists(path);
+  if (!res) {
+    console.log('nothing exist');
+    return;
+  }
+  let data = await fs.readFile(path);
+  console.log('something exist - ', data);
+  return data;
+};
+
 export const makeCurAlbumDirectory = async (id) => {
   const res = await fs.exists(fs.dirs.CacheDir + '/albums/');
   if (!res) {
@@ -112,6 +128,13 @@ export const putAllSongsData = async (data) => {
   );
 };
 
+export const putLastSearches = async (searches) => {
+  await fs.writeFile(
+    fs.dirs.CacheDir + '/last_searches/',
+    JSON.stringify(searches),
+  );
+};
+
 export const onTrackPressed = async (
   trackId,
   albumIdProps,
@@ -124,6 +147,7 @@ export const onTrackPressed = async (
   if (albumIdProps !== albumId || curTracksIds !== opTracksIds) {
     console.log('on track pressed called');
     albumId = albumIdProps;
+    dispatch(openAlbumScreen(19, albumIdProps));
     dispatch(updateAlbumImage(albumImage));
     dispatch(albumChanged(true));
   }

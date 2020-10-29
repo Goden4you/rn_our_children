@@ -1,7 +1,6 @@
 import React from 'react';
 import {TouchableOpacity, Image} from 'react-native';
 
-// back button
 export const Back = ({navigation}) => {
   return (
     <TouchableOpacity

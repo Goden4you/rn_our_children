@@ -99,6 +99,7 @@ export const AlbumScreen = ({navigation, route}) => {
       unsubscribe();
       statement = {
         ...statement,
+        // prevAlbumImage: statement.albumImage,
         albumImage: albumImageProps,
         albumsPhotos: albumsPhotosProps,
         albumDesc: albumDescProps,
@@ -207,7 +208,11 @@ export const AlbumScreen = ({navigation, route}) => {
       </View>
     );
   } else {
-    return <View style={styles.container} />;
+    return (
+      <View style={styles.loading}>
+        <Text>Пожалуйста, подождите...</Text>
+      </View>
+    );
   }
 };
 
@@ -263,5 +268,11 @@ const styles = StyleSheet.create({
   songDuration: {
     fontSize: 16,
     fontFamily: 'HouschkaPro-Medium',
+  },
+  loading: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    backgroundColor: '#fff',
   },
 });

@@ -19,3 +19,4 @@ export const UPDATE_PRESSED = 'UPDATE_PRESSED';
 export const MOVE_TO_NEXT_ALBUM = 'MOVE_TO_NEXT_ALBUM';
 
 export const ALL_SONGS_DATA = 'ALL_SONGS_DATA';
+export const LAST_INPUTS = 'LAST_INPUTS';
