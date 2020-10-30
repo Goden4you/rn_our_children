@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  Platform,
 } from 'react-native';
 import {SearchBar, Button} from 'react-native-elements';
 import {useDispatch, useSelector} from 'react-redux';
@@ -180,7 +181,7 @@ export const SearchScreen = ({navigation}) => {
         <GoToSettings navigation={navigation} />
       </View>
       <SearchBar
-        platform="android"
+        platform={Platform.OS}
         placeholder="Название"
         onChangeText={(value) => updateSearch(value)}
         value={search}
