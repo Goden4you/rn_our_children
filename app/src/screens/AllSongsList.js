@@ -12,7 +12,6 @@ import {
 
 import {allSongsData} from '../store/actions/albums';
 import store from '../store';
-import {songsDescToInt} from '../utils/utils';
 import {onTrackPressed} from '../utils/utils';
 import {GoToSettings} from '../navigation/goSettings';
 
@@ -28,72 +27,63 @@ export const AllSongsList = ({navigation}) => {
     unsubscribe();
   }, [dispatch]);
 
-  const {
-    allTracksIds,
-    allTracksTitles,
-    allTracksAuthors,
-    allTracksDuration,
-    albumId,
-  } = useSelector((state) => state.albums);
-  const {albumsPhotos, albumsDesc, albumsTitles} = useSelector(
+  const {allData} = useSelector((state) => state.albums);
+  const {albumsPhotos, albumsTitles} = useSelector(
     (state) => state.albums.allAlbums,
   );
-  const songsCount = songsDescToInt(albumsDesc);
-
-  let countIndex = 0;
-  let prevCount = 0;
-  let photo, album;
 
   const SongsList = () => {
-    return allTracksIds ? (
+    let prevAlbumId = 0;
+    let firstAlbumId = 0;
+    return allData ? (
       <ScrollView style={styles.scrollWrap}>
-        {allTracksIds.map((value) => {
-          let index = allTracksIds.indexOf(value);
-          if (songsCount[countIndex] + prevCount > index) {
-            photo = albumsPhotos[countIndex];
-            album = albumsTitles[countIndex];
-          } else {
-            prevCount = index;
-            countIndex++;
-            photo = albumsPhotos[countIndex];
-            album = albumsTitles[countIndex];
-          }
-          return (
-            <TouchableOpacity
-              style={styles.wrapper}
-              key={value}
-              onPress={() => {
-                console.log('photo2 -', countIndex);
-                const result = onTrackPressed(
-                  value,
-                  albumId,
-                  statement.curAlbumId,
-                  photo,
-                  dispatch,
-                  null,
-                  null,
-                );
-                statement = {
-                  ...statement,
-                  curAlbumId: result,
-                };
-              }}>
-              <Image source={{uri: photo}} style={styles.photo} />
-              <View style={styles.songInfoWrap}>
-                <Text style={styles.songTitle}>{allTracksTitles[index]}</Text>
-                <View style={styles.songInfo}>
-                  <Text style={styles.songAuthor}>
-                    {allTracksAuthors[index] + ' | ' + album}
-                  </Text>
+        {allData.map((allTracks) => {
+          return allTracks.map((track) => {
+            if (prevAlbumId !== track.albumId) {
+              if (prevAlbumId === 0) {
+                firstAlbumId = track.albumId;
+              }
+              prevAlbumId = track.albumId;
+            }
+            return (
+              <TouchableOpacity
+                style={styles.wrapper}
+                key={track.id}
+                onPress={() => {
+                  const result = onTrackPressed(
+                    track.songFileId,
+                    track.albumId,
+                    statement.curAlbumId,
+                    albumsPhotos[track.albumId - firstAlbumId],
+                    dispatch,
+                    null,
+                    null,
+                  );
+                  statement = {
+                    ...statement,
+                    curAlbumId: result,
+                  };
+                }}>
+                <Image
+                  source={{uri: albumsPhotos[track.albumId - firstAlbumId]}}
+                  style={styles.photo}
+                />
+                <View style={styles.songInfoWrap}>
+                  <Text style={styles.songTitle}>{track.title}</Text>
+                  <View style={styles.songInfo}>
+                    <Text style={styles.songAuthor}>
+                      {track.author +
+                        ' | ' +
+                        albumsTitles[track.albumId - firstAlbumId]}
+                    </Text>
+                  </View>
                 </View>
-              </View>
-              <View>
-                <Text style={styles.songDuration}>
-                  {allTracksDuration[index]}
-                </Text>
-              </View>
-            </TouchableOpacity>
-          );
+                <View>
+                  <Text style={styles.songDuration}>{track.duration}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          });
         })}
       </ScrollView>
     ) : (

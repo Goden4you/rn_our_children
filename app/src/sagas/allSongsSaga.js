@@ -1,6 +1,6 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import Api from '../api';
-import {albumsIds, allTracksIds} from '../store/selectors';
+import {albumsIds, allTracksData} from '../store/selectors';
 import {allSongsData} from '../store/actions/albums';
 import {takeAllSongsData, putAllSongsData} from '../utils/utils';
 import {ALL_SONGS_DATA} from '../store/types';
@@ -12,7 +12,6 @@ function* fetchAllSongs() {
 
     let data = yield call(takeAllSongsData);
     let index = 0;
-    const albumsCount = 7;
 
     if (!data) {
       data = [];
@@ -27,36 +26,8 @@ function* fetchAllSongs() {
       data = JSON.parse(data);
     }
 
-    let tracksTitles = [];
-    let tracksAuthors = [];
-    let tracksDuration = [];
-    let tracksIds = [];
-    let tracksDurationMillis = [];
-
-    let j = 0;
-    for (let i = 0; i < albumsCount; i++) {
-      data[i].forEach((trackData) => {
-        tracksTitles[j] = trackData.title;
-        tracksAuthors[j] = trackData.author;
-        tracksDuration[j] = trackData.duration;
-        tracksIds[j] = trackData.songFileId;
-        tracksDurationMillis[j] = trackData.durationInMilliseconds;
-        j++;
-      });
-    }
-    let needUpdate = yield select(allTracksIds);
-    needUpdate
-      ? null
-      : yield put(
-          allSongsData(
-            tracksTitles,
-            tracksAuthors,
-            tracksIds,
-            tracksDuration,
-            tracksDurationMillis,
-            data,
-          ),
-        );
+    let needUpdate = yield select(allTracksData);
+    needUpdate ? null : yield put(allSongsData(data));
   } catch (e) {
     console.log(e);
   }

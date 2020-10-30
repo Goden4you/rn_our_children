@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   ScrollView,
@@ -99,7 +99,6 @@ export const AlbumScreen = ({navigation, route}) => {
       unsubscribe();
       statement = {
         ...statement,
-        // prevAlbumImage: statement.albumImage,
         albumImage: albumImageProps,
         albumsPhotos: albumsPhotosProps,
         albumDesc: albumDescProps,

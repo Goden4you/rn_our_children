@@ -109,21 +109,9 @@ export const firstLastTrackId = (first, last) => {
   };
 };
 
-export const allSongsData = (
-  allTracksTitles,
-  allTracksAuthors,
-  allTracksIds,
-  allTracksDuration,
-  allTracksDurationMillis,
-  allData,
-) => {
+export const allSongsData = (allData) => {
   return {
     type: ALL_SONGS_DATA,
-    allTracksTitles,
-    allTracksAuthors,
-    allTracksIds,
-    allTracksDuration,
-    allTracksDurationMillis,
     allData,
   };
 };

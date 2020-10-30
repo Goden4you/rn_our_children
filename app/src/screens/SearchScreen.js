@@ -16,6 +16,7 @@ import {allSongsData} from '../store/actions/albums';
 import {
   onTrackPressed,
   putLastSearches,
+  removeLastSearches,
   takeLastSearches,
 } from '../utils/utils';
 
@@ -24,8 +25,9 @@ export const SearchScreen = ({navigation}) => {
   const [searchRes, setSearchRes] = useState([]);
   const [inputs, setInputs] = useState([]);
   const dispatch = useDispatch();
+  const [albumId, setPrevAlbumId] = useState();
 
-  const {allTracksTitles, allData} = useSelector((state) => state.albums);
+  const {allData} = useSelector((state) => state.albums);
   const {albumsTitles, albumsIds, albumsPhotos} = useSelector(
     (state) => state.albums.allAlbums,
   );
@@ -44,8 +46,8 @@ export const SearchScreen = ({navigation}) => {
   }
 
   useEffect(() => {
-    allTracksTitles ? null : dispatch(allSongsData());
-  }, [allTracksTitles, dispatch]);
+    allData ? null : dispatch(allSongsData());
+  }, [allData, dispatch]);
 
   const updateSearch = (value) => {
     const albumsCount = 7;
@@ -84,6 +86,10 @@ export const SearchScreen = ({navigation}) => {
           title="Очистить"
           buttonStyle={styles.btn}
           titleStyle={styles.btnTitle}
+          onPress={() => {
+            removeLastSearches();
+            setInputs([]);
+          }}
         />
       </View>
     );
@@ -92,11 +98,15 @@ export const SearchScreen = ({navigation}) => {
   const SearchTracks = () => {
     let prevAlbumId = 0;
     let index = -1;
+    let firstAlbumId = 0;
     return searchRes.toString() !== '' ? (
       <ScrollView style={styles.scrollWrap}>
         {searchRes[0].map((tracksData) => {
           return tracksData.map((track) => {
             if (prevAlbumId !== track.albumId) {
+              if (prevAlbumId === 0) {
+                firstAlbumId = track.albumId;
+              }
               index++;
               prevAlbumId = track.albumId;
             }
@@ -105,15 +115,17 @@ export const SearchScreen = ({navigation}) => {
                 style={styles.wrapper}
                 key={track.id}
                 onPress={() => {
-                  onTrackPressed(
+                  console.log('proverka -', track.albumId - firstAlbumId);
+                  const resAlbumId = onTrackPressed(
                     track.songFileId,
                     track.albumId,
-                    null,
-                    searchRes[2][index],
+                    albumId,
+                    searchRes[2][track.albumId - firstAlbumId],
                     dispatch,
                     null,
                     null,
                   );
+                  setPrevAlbumId(resAlbumId);
                 }}>
                 <Image
                   source={{uri: searchRes[2][index]}}
@@ -152,16 +164,16 @@ export const SearchScreen = ({navigation}) => {
   };
 
   const saveLastInput = (value) => {
-    console.log('value -', value);
-    let length = inputs.length;
-    let allInputs = inputs;
-    allInputs[length] = value;
-    let uniqInputs = allInputs.filter((item, pos) => {
-      return allInputs.indexOf(item) === pos;
-    });
-    console.log('all inputs', uniqInputs);
-    setInputs(uniqInputs);
-    // dispatch(inputs);
+    if (value !== '') {
+      let length = inputs.length;
+      let allInputs = inputs;
+      allInputs[length] = value;
+      let uniqInputs = allInputs.filter((item, pos) => {
+        return allInputs.indexOf(item) === pos;
+      });
+      console.log('all inputs', uniqInputs);
+      setInputs(uniqInputs);
+    }
   };
 
   return (

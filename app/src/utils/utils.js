@@ -1,4 +1,5 @@
 import React from 'react';
+import {Platform} from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
 
@@ -35,7 +36,10 @@ export const songsDescToInt = (desc) => {
 };
 
 export const takeAlbumsPhotos = async () => {
-  let path = fs.dirs.CacheDir + '/albums_photos/';
+  let path =
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/albums_photos/'
+      : fs.dirs.DocumentDir + '/albums_photos/';
   let allPhotosPath = await fs.exists(path);
   if (!allPhotosPath) {
     return;
@@ -47,6 +51,7 @@ export const takeAlbumsPhotos = async () => {
 
 export const takeAlbumsData = async () => {
   let path = fs.dirs.CacheDir + '/albums_data/';
+  console.log('path - ', path);
   let res = await fs.exists(path);
   if (!res) {
     return;
@@ -109,7 +114,7 @@ export const putAlbumsData = async (data) => {
 
 export const putAlbumsPhotos = async (photos) => {
   await fs.writeFile(
-    fs.dirs.CacheDir + '/albums_photos/',
+    fs.dirs.DocumentDir + '/albums_photos/',
     JSON.stringify(photos),
   );
 };
@@ -135,7 +140,7 @@ export const putLastSearches = async (searches) => {
   );
 };
 
-export const onTrackPressed = async (
+export const onTrackPressed = (
   trackId,
   albumIdProps,
   albumId,
@@ -145,7 +150,7 @@ export const onTrackPressed = async (
   opTracksIds,
 ) => {
   if (albumIdProps !== albumId || curTracksIds !== opTracksIds) {
-    console.log('on track pressed called');
+    console.log('on track pressed called', albumIdProps, albumId);
     albumId = albumIdProps;
     dispatch(openAlbumScreen(19, albumIdProps));
     dispatch(updateAlbumImage(albumImage));
@@ -155,5 +160,10 @@ export const onTrackPressed = async (
   dispatch(updatePressed(true));
   dispatch(updateTrackId(trackId));
 
+  console.log('albumId now -', albumId);
   return albumId;
+};
+
+export const removeLastSearches = async () => {
+  await fs.unlink(fs.dirs.CacheDir + '/last_searches/');
 };

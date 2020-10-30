@@ -20,10 +20,6 @@ const initialState = {
   isAlbumChanged: false,
   veryFirstTrackId: 0,
   veryLastTrackId: 0,
-  allTracksTitles: [],
-  allTracksAuthors: [],
-  allTracksIds: [],
-  allTracksDuration: [],
   allAlbumsIds: [],
   allData: [],
   lastInputs: [],
@@ -62,12 +58,6 @@ export const albumsReducer = (state = initialState, action) => {
     case ALL_SONGS_DATA:
       return (state = {
         ...state,
-        allSongsCount: action.allSongsCount,
-        allTracksTitles: action.allTracksTitles,
-        allTracksAuthors: action.allTracksAuthors,
-        allTracksIds: action.allTracksIds,
-        allTracksDuration: action.allTracksDuration,
-        allTracksDurationMillis: action.allTracksDurationMillis,
         allData: action.allData,
       });
     case LAST_INPUTS:

@@ -251,7 +251,7 @@ function isPressed() {
         clearInterval(interval);
         setTimeout(() => {
           loadAudio(true, false);
-        }, 1500);
+        }, 1000);
       }
     }, 250);
   } else {
