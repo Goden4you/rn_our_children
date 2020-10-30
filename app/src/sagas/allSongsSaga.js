@@ -7,7 +7,6 @@ import {ALL_SONGS_DATA} from '../store/types';
 
 function* fetchAllSongs() {
   try {
-    console.log('fetchAllSongs called');
     const ids = yield select(albumsIds);
 
     let data = yield call(takeAllSongsData);

@@ -36,7 +36,6 @@ export const SearchScreen = ({navigation}) => {
     let response = await takeLastSearches();
 
     if (response) {
-      console.log('inputs in cache - ', JSON.parse(response));
       setInputs(JSON.parse(response));
     }
   };
@@ -115,7 +114,6 @@ export const SearchScreen = ({navigation}) => {
                 style={styles.wrapper}
                 key={track.id}
                 onPress={() => {
-                  console.log('proverka -', track.albumId - firstAlbumId);
                   const resAlbumId = onTrackPressed(
                     track.songFileId,
                     track.albumId,
@@ -171,7 +169,6 @@ export const SearchScreen = ({navigation}) => {
       let uniqInputs = allInputs.filter((item, pos) => {
         return allInputs.indexOf(item) === pos;
       });
-      console.log('all inputs', uniqInputs);
       setInputs(uniqInputs);
     }
   };
@@ -191,7 +188,6 @@ export const SearchScreen = ({navigation}) => {
         containerStyle={styles.searchWrap}
         inputContainerStyle={styles.input}
         onClear={() => {
-          console.log('on clear pressed');
           putLastSearches(inputs);
           setSearch('');
           setSearchRes([]);

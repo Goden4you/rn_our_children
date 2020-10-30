@@ -64,7 +64,6 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       ),
     );
     if (currentAlbum && albumChanged) {
-      console.log('data put in currentAlbum');
       yield put(
         albumsActions.toggleAlbum(
           tracksTitles,

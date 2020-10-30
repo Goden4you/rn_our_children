@@ -1,6 +1,4 @@
-import React from 'react';
 import {Platform} from 'react-native';
-import {useDispatch, useSelector} from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
 
 import {
@@ -51,7 +49,6 @@ export const takeAlbumsPhotos = async () => {
 
 export const takeAlbumsData = async () => {
   let path = fs.dirs.CacheDir + '/albums_data/';
-  console.log('path - ', path);
   let res = await fs.exists(path);
   if (!res) {
     return;
@@ -85,18 +82,15 @@ export const takeLastSearches = async () => {
   let path = fs.dirs.CacheDir + '/last_searches/';
   let res = await fs.exists(path);
   if (!res) {
-    console.log('nothing exist');
     return;
   }
   let data = await fs.readFile(path);
-  console.log('something exist - ', data);
   return data;
 };
 
 export const makeCurAlbumDirectory = async (id) => {
   const res = await fs.exists(fs.dirs.CacheDir + '/albums/');
   if (!res) {
-    console.log('dir created for album', id);
     await fs.mkdir(fs.dirs.CacheDir + '/albums/');
   }
 };
@@ -150,7 +144,6 @@ export const onTrackPressed = (
   opTracksIds,
 ) => {
   if (albumIdProps !== albumId || curTracksIds !== opTracksIds) {
-    console.log('on track pressed called', albumIdProps, albumId);
     albumId = albumIdProps;
     dispatch(openAlbumScreen(19, albumIdProps));
     dispatch(updateAlbumImage(albumImage));
@@ -160,7 +153,6 @@ export const onTrackPressed = (
   dispatch(updatePressed(true));
   dispatch(updateTrackId(trackId));
 
-  console.log('albumId now -', albumId);
   return albumId;
 };
 

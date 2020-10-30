@@ -61,7 +61,6 @@ function needMoveToNextAlbum() {
       albumId = albumsIds[6];
       break;
     case parseInt(albumsIds[6], 10):
-      console.log(7);
       return;
     default:
       break;
@@ -106,7 +105,6 @@ export const AlbumScreen = ({navigation, route}) => {
         currentTracksIds: currentAlbum.tracksIds,
         openedTracksIds: tracksIds,
       };
-      console.log('use effect from AlbumScreen called');
       dispatch(openAlbumScreen(albumDescProps, albumIdProps));
     }
     setInterval(() => {

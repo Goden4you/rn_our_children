@@ -25,7 +25,6 @@ export const AppSettings = () => {
     ...state,
     loadedMusic: size,
   };
-  console.log('loadedSize -', size);
 
   dispatch = useDispatch();
 
