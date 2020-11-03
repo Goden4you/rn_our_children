@@ -11,8 +11,9 @@ import {
 } from 'react-native';
 import {SearchBar, Button} from 'react-native-elements';
 import {useDispatch, useSelector} from 'react-redux';
-import {GoToSettings} from '../navigation/goSettings';
+import Highlighter from 'react-native-highlight-words';
 
+import {GoToSettings} from '../navigation/goSettings';
 import {allSongsData} from '../store/actions/albums';
 import {
   onTrackPressed,
@@ -131,10 +132,18 @@ export const SearchScreen = ({navigation}) => {
                   style={styles.photo}
                 />
                 <View style={styles.songInfoWrap}>
-                  <Text style={styles.songTitle}>{track.title}</Text>
-                  <Text style={styles.songAuthor}>
-                    {track.author + ' | ' + searchRes[1][index]}
-                  </Text>
+                  <Highlighter
+                    highlightStyle={styles.hlStyle}
+                    style={styles.songTitle}
+                    searchWords={[search]}
+                    textToHighlight={track.title}
+                  />
+                  <Highlighter
+                    highlightStyle={styles.hlStyle}
+                    style={styles.songAuthor}
+                    searchWords={[search]}
+                    textToHighlight={track.author + ' | ' + searchRes[1][index]}
+                  />
                 </View>
                 <View>
                   <Text style={styles.songDuration}>{track.duration}</Text>
@@ -296,5 +305,8 @@ const styles = StyleSheet.create({
   scrollWrap: {
     height: phoneHeight - 307,
     backgroundColor: '#fff',
+  },
+  hlStyle: {
+    color: '#f47928',
   },
 });
