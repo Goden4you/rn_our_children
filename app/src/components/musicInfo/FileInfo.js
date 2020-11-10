@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {useSelector} from 'react-redux';
 
 export const FileInfo = () => {
@@ -10,6 +10,7 @@ export const FileInfo = () => {
   return tracksTitles ? (
     <View style={minimazed ? styles.trackInfoMinimazed : styles.trackInfo}>
       <Text
+        numberOfLines={1}
         style={
           minimazed
             ? [styles.largeTextMinimazed, styles.trackInfoTextMinimazed]
@@ -18,6 +19,7 @@ export const FileInfo = () => {
         {tracksTitles[trackId - firstTrackId]}
       </Text>
       <Text
+        numberOfLines={minimazed ? 1 : 2}
         style={
           minimazed
             ? [styles.smallTextMinimazed, styles.trackInfoTextMinimazed]
@@ -28,6 +30,8 @@ export const FileInfo = () => {
     </View>
   ) : null;
 };
+
+let phoneWidth = Dimensions.get('window').width;
 
 const styles = StyleSheet.create({
   trackInfoMinimazed: {
@@ -50,10 +54,10 @@ const styles = StyleSheet.create({
     fontFamily: 'HouschkaPro-Medium',
   },
   largeTextMinimazed: {
-    fontSize: 16,
+    fontSize: 0.05 * phoneWidth,
   },
   smallTextMinimazed: {
-    fontSize: 12,
+    fontSize: 0.04 * phoneWidth,
     color: 'rgb(147, 149, 152)',
   },
   largeText: {
