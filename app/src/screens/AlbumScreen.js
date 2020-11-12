@@ -220,7 +220,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   container: {
-    height: phoneHeight - 215,
+    height: '87%',
     backgroundColor: '#fff',
   },
   albumWrap: {

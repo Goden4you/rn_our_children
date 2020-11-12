@@ -14,7 +14,7 @@ import {AppSettings} from '../screens/AppSettings';
 import {AlbumScreen} from '../screens/AlbumScreen';
 import {AllSongsList} from '../screens/AllSongsList';
 import {SearchScreen} from '../screens/SearchScreen';
-import {Image, StyleSheet} from 'react-native';
+import {Dimensions, Image, StyleSheet} from 'react-native';
 
 const MainStack = createStackNavigator();
 const TabStack = createBottomTabNavigator();
@@ -123,10 +123,12 @@ export const AppNavigation = () => {
   );
 };
 
+let phoneWidth = Dimensions.get('window').width;
+
 const styles = StyleSheet.create({
   bottomIcons: {
     resizeMode: 'contain',
-    width: '20%',
+    width: 0.06 * phoneWidth,
     height: '100%',
   },
 });

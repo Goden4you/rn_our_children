@@ -65,9 +65,12 @@ export const SearchScreen = ({navigation}) => {
       );
       if (trackData.toString() !== '') {
         res[j] = trackData;
+        console.log('track data -', trackData);
         let index = albumsIds.indexOf(trackData[0].albumId);
+        console.log('index - ', index);
         titles[i] = albumsTitles[index];
         photos[i] = albumsPhotos[index];
+        console.log('photos-', photos);
         j++;
       }
     }
