@@ -8,7 +8,7 @@ export const Back = ({navigation}) => {
       onPress={
         () =>
           // route
-          navigation.navigate('SearchScreen')
+          navigation.goBack()
         // : navigation.goBack()
       }>
       <Image

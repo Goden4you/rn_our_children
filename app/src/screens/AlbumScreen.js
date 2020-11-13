@@ -10,6 +10,8 @@ import {
   Dimensions,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
+import Orientation from 'react-native-orientation';
+
 import {
   albumChanged,
   openAlbumScreen,
@@ -25,6 +27,7 @@ var statement = {
   albumImage: null,
   albumDesc: '',
   albumsPhotos: [],
+  orientation: 'PORTRAIT',
 };
 
 var dispatch;
@@ -74,6 +77,19 @@ function needMoveToNextAlbum() {
   dispatch(albumChanged(true));
 }
 
+const onOrientationChanged = () => {
+  Orientation.getOrientation((err, orientation) => {
+    if (err) {
+      console.log(err);
+    }
+    console.log(orientation);
+    statement = {
+      ...statement,
+      orientation,
+    };
+  });
+};
+
 export const AlbumScreen = ({navigation, route}) => {
   const {
     albumTitleProps,
@@ -96,6 +112,7 @@ export const AlbumScreen = ({navigation, route}) => {
     if (albumImageProps !== statement.albumImage) {
       const unsubscribe = store.subscribe(() => store.getState());
       unsubscribe();
+      Orientation.addOrientationListener(onOrientationChanged);
       statement = {
         ...statement,
         albumImage: albumImageProps,
@@ -124,7 +141,7 @@ export const AlbumScreen = ({navigation, route}) => {
 
   if (tracksIds) {
     return (
-      <View style={styles.container}>
+      <View>
         <ScrollView
           onScroll={(event) =>
             event.nativeEvent.contentOffset.y > 170
@@ -143,7 +160,8 @@ export const AlbumScreen = ({navigation, route}) => {
                   headerTitle: '',
                 })
           }
-          scrollEventThrottle={16}>
+          scrollEventThrottle={16}
+          style={styles.container}>
           <ImageBackground
             source={require('../../../images/blur/drawable-mdpi/layer_1.png')}
             style={styles.backgroundImage}>
@@ -220,7 +238,10 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   container: {
-    height: '87%',
+    height:
+      statement.orientation === 'PORTRAIT'
+        ? 0.64 * phoneHeight
+        : 0.05 * phoneHeight,
     backgroundColor: '#fff',
   },
   albumWrap: {

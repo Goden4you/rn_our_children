@@ -1,12 +1,17 @@
 import {Platform} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
+import TrackPlayer from 'react-native-track-player';
 
 import {
   updateAlbumImage,
   albumChanged,
   openAlbumScreen,
 } from '../store/actions/albums';
-import {updatePressed, updateTrackId} from '../store/actions/player';
+import {
+  updatePressed,
+  updateTrackId,
+  isTrackPlaying,
+} from '../store/actions/player';
 
 let fs = RNFetchBlob.fs;
 
@@ -158,4 +163,11 @@ export const onTrackPressed = (
 
 export const removeLastSearches = async () => {
   await fs.unlink(fs.dirs.CacheDir + '/last_searches/');
+};
+
+export const handlePlayPause = async (audioLoaded, isPlaying, dispatch) => {
+  if (audioLoaded) {
+    isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
+    dispatch(isTrackPlaying(!isPlaying));
+  }
 };

@@ -282,8 +282,8 @@ function isAlbumImageChanged(move) {
     audioLoaded: false,
     needUpdate2: false,
   };
-  dispatch(albumChanged(false));
   TrackPlayer.reset();
+  dispatch(albumChanged(false));
   if (move) {
     dispatch(needMoveToNextAlbum(false));
     setTimeout(() => {
@@ -392,27 +392,29 @@ export const Player = () => {
         gestureEnabled={true}
         gestureDirection="vertical">
         <View style={styles.container}>
-          <TouchableOpacity
-            style={styles.closeBtn}
-            onPress={() => {
-              state = {
-                ...state,
-                minimazed: true,
-              };
-              dispatch(isMinimazed(true));
-            }}>
-            <Image source={require('../../../images/icons/hide/hide.png')} />
-          </TouchableOpacity>
-          <Image
-            style={styles.albumCover}
-            source={
-              state.trackPlayerInit
-                ? {
-                    uri: state.albumImage,
-                  }
-                : require('../../../images/splash_phone/drawable-mdpi/vector_smart_object.png')
-            }
-          />
+          <View style={styles.imgBtnWrap}>
+            <TouchableOpacity
+              style={styles.closeBtn}
+              onPress={() => {
+                state = {
+                  ...state,
+                  minimazed: true,
+                };
+                dispatch(isMinimazed(true));
+              }}>
+              <Image source={require('../../../images/icons/hide/hide.png')} />
+            </TouchableOpacity>
+            <Image
+              style={styles.albumCover}
+              source={
+                state.trackPlayerInit
+                  ? {
+                      uri: state.albumImage,
+                    }
+                  : require('../../../images/splash_phone/drawable-mdpi/vector_smart_object.png')
+              }
+            />
+          </View>
           <TrackSlider />
           <FileInfo />
           <ControlsButtons />
@@ -433,7 +435,14 @@ const styles = StyleSheet.create({
   },
   albumCover: {
     width: '80%',
-    height: '50%',
+    height: '80%',
   },
   closeBtn: {paddingBottom: 30},
+  imgBtnWrap: {
+    top: 10,
+    width: '100%',
+    height: '60%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });

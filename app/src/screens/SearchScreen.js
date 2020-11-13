@@ -60,20 +60,25 @@ export const SearchScreen = ({navigation}) => {
     for (let i = 0; i < albumsCount; i++) {
       let trackData = allData[i].filter(
         ({title, author}) =>
-          title.toLowerCase().includes(value.toLowerCase()) ||
+          title
+            .toLowerCase()
+            .includes(value.toLowerCase().replace(/ё/g, 'е')) ||
           author.toLowerCase().includes(value.toLowerCase()),
       );
       if (trackData.toString() !== '') {
         res[j] = trackData;
-        console.log('track data -', trackData);
         let index = albumsIds.indexOf(trackData[0].albumId);
-        console.log('index - ', index);
         titles[i] = albumsTitles[index];
         photos[i] = albumsPhotos[index];
-        console.log('photos-', photos);
         j++;
       }
     }
+    photos = photos.filter((x) => {
+      return x !== undefined;
+    });
+    titles = titles.filter((x) => {
+      return x !== undefined;
+    });
     setSearch(value);
     value !== '' ? setSearchRes([res, titles, photos]) : setSearchRes([]);
   };
@@ -190,7 +195,7 @@ export const SearchScreen = ({navigation}) => {
     <View style={styles.mainWrap}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Поиск</Text>
-        <GoToSettings navigation={navigation} />
+        <GoToSettings navigation={navigation} name={'SearchScreen'} />
       </View>
       <SearchBar
         platform={Platform.OS}
