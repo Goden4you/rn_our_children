@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -77,20 +77,25 @@ function needMoveToNextAlbum() {
   dispatch(albumChanged(true));
 }
 
+let cforceUpdate;
+
 const onOrientationChanged = () => {
   Orientation.getOrientation((err, orientation) => {
     if (err) {
       console.log(err);
     }
-    console.log(orientation);
     statement = {
       ...statement,
       orientation,
     };
   });
+  setTimeout(() => {
+    cforceUpdate();
+  }, 250);
 };
 
 export const AlbumScreen = ({navigation, route}) => {
+  const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
   const {
     albumTitleProps,
     albumDescProps,
@@ -101,6 +106,8 @@ export const AlbumScreen = ({navigation, route}) => {
   } = route.params;
 
   dispatch = useDispatch();
+  cforceUpdate = forceUpdate;
+
   const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
     (state) => state.albums.openedAlbum,
   );
@@ -161,7 +168,11 @@ export const AlbumScreen = ({navigation, route}) => {
                 })
           }
           scrollEventThrottle={16}
-          style={styles.container}>
+          style={
+            statement.orientation === 'PORTRAIT'
+              ? styles.containerPortrait
+              : styles.containerLandscape
+          }>
           <ImageBackground
             source={require('../../../images/blur/drawable-mdpi/layer_1.png')}
             style={styles.backgroundImage}>
@@ -237,11 +248,12 @@ const styles = StyleSheet.create({
   backgroundImage: {
     resizeMode: 'cover',
   },
-  container: {
-    height:
-      statement.orientation === 'PORTRAIT'
-        ? 0.64 * phoneHeight
-        : 0.05 * phoneHeight,
+  containerPortrait: {
+    height: 0.64 * phoneHeight,
+    backgroundColor: '#fff',
+  },
+  containerLandscape: {
+    height: 0.25 * phoneHeight,
     backgroundColor: '#fff',
   },
   albumWrap: {

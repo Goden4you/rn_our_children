@@ -21,16 +21,17 @@ let statement = {
 
 export const AllSongsList = ({navigation}) => {
   const dispatch = useDispatch();
-  useEffect(() => {
-    dispatch(allSongsData());
-    const unsubscribe = store.subscribe(() => store.getState());
-    unsubscribe();
-  }, [dispatch]);
 
   const {allData} = useSelector((state) => state.albums);
   const {albumsPhotos, albumsTitles} = useSelector(
     (state) => state.albums.allAlbums,
   );
+
+  useEffect(() => {
+    allData.toString() === '' ? dispatch(allSongsData()) : null;
+    const unsubscribe = store.subscribe(() => store.getState());
+    unsubscribe();
+  }, [allData, dispatch]);
 
   const SongsList = () => {
     let prevAlbumId = 0;

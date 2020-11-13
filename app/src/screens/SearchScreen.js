@@ -8,6 +8,7 @@ import {
   Image,
   Dimensions,
   Platform,
+  Alert,
 } from 'react-native';
 import {SearchBar, Button} from 'react-native-elements';
 import {useDispatch, useSelector} from 'react-redux';
@@ -46,41 +47,53 @@ export const SearchScreen = ({navigation}) => {
     takeInputs();
   }
 
-  useEffect(() => {
-    allData ? null : dispatch(allSongsData());
-  }, [allData, dispatch]);
-
   const updateSearch = (value) => {
-    const albumsCount = 7;
-    let res = [];
-    let photos = [];
-    let titles = [];
-    let j = 0;
+    // console.log('allData -', allData !== '');
+    if (allData.toString() !== '') {
+      const albumsCount = 7;
+      let res = [];
+      let photos = [];
+      let titles = [];
+      let j = 0;
 
-    for (let i = 0; i < albumsCount; i++) {
-      let trackData = allData[i].filter(
-        ({title, author}) =>
-          title
-            .toLowerCase()
-            .includes(value.toLowerCase().replace(/ё/g, 'е')) ||
-          author.toLowerCase().includes(value.toLowerCase()),
-      );
-      if (trackData.toString() !== '') {
-        res[j] = trackData;
-        let index = albumsIds.indexOf(trackData[0].albumId);
-        titles[i] = albumsTitles[index];
-        photos[i] = albumsPhotos[index];
-        j++;
+      for (let i = 0; i < albumsCount; i++) {
+        let trackData = allData[i].filter(
+          ({title, author}) =>
+            title
+              .toLowerCase()
+              .includes(value.toLowerCase().replace(/ё/g, 'е')) ||
+            author.toLowerCase().includes(value.toLowerCase()),
+        );
+        if (trackData.toString() !== '') {
+          res[j] = trackData;
+          let index = albumsIds.indexOf(trackData[0].albumId);
+          titles[i] = albumsTitles[index];
+          photos[i] = albumsPhotos[index];
+          j++;
+        }
       }
+      photos = photos.filter((x) => {
+        return x !== undefined;
+      });
+      titles = titles.filter((x) => {
+        return x !== undefined;
+      });
+      setSearch(value);
+      value !== '' ? setSearchRes([res, titles, photos]) : setSearchRes([]);
+    } else {
+      Alert.alert(
+        'Данные загружаются',
+        'Пожалуйста, подождите...',
+        [
+          {
+            text: 'Ок',
+          },
+        ],
+        {cancelable: false},
+      );
+      setSearch('');
+      dispatch(allSongsData());
     }
-    photos = photos.filter((x) => {
-      return x !== undefined;
-    });
-    titles = titles.filter((x) => {
-      return x !== undefined;
-    });
-    setSearch(value);
-    value !== '' ? setSearchRes([res, titles, photos]) : setSearchRes([]);
   };
 
   const ResOrLast = () => {
