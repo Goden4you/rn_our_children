@@ -52,7 +52,7 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
     let firstTrackId = data[0].songFileId;
     let lastTrackId = data[songsCount - 1].songFileId;
 
-    if (!albumChanged) {
+    if (!currentAlbum) {
       yield put(
         albumsActions.openAlbum(
           tracksTitles,

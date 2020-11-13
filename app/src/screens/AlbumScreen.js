@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer, useState} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import {
   View,
   ScrollView,
@@ -73,8 +73,7 @@ function needMoveToNextAlbum() {
     albumImage: statement.albumsPhotos[albumId - parseInt(albumsIds[0], 10)],
   };
   dispatch(updateAlbumImage(statement.albumImage));
-  dispatch(openAlbumScreen(albumDesc, albumId));
-  dispatch(albumChanged(true));
+  dispatch(albumChanged(true, albumDesc, albumId));
 }
 
 let cforceUpdate;

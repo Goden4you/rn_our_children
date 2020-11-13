@@ -48,7 +48,14 @@ export const albumsReducer = (state = initialState, action) => {
     case UPDATE_ALBUM_IMAGE:
       return (state = {...state, currentAlbumImage: action.image});
     case ALBUM_CHANGED:
-      return (state = {...state, isAlbumChanged: action.isAlbumChanged});
+      return !action.songsCount
+        ? (state = {...state, isAlbumChanged: action.isAlbumChanged})
+        : (state = {
+            ...state,
+            isAlbumChanged: action.isAlbumChanged,
+            songsCount: action.songsCount,
+            albumId: action.albumId,
+          });
     case VERY_FIRST_LAST_TRACK:
       return (state = {
         ...state,

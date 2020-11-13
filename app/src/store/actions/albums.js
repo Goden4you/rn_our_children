@@ -94,11 +94,23 @@ export const openAlbumScreen = (desc, albumId) => {
   };
 };
 
-export const albumChanged = (bool) => {
-  return {
-    type: ALBUM_CHANGED,
-    isAlbumChanged: bool,
-  };
+export const albumChanged = (bool, desc, albumId) => {
+  console.log('desc -', desc);
+  if (desc) {
+    let songsCount = desc.toString().substring(0, 2);
+    songsCount = parseInt(songsCount, 10);
+    return {
+      type: ALBUM_CHANGED,
+      isAlbumChanged: bool,
+      songsCount,
+      albumId,
+    };
+  } else {
+    return {
+      type: ALBUM_CHANGED,
+      isAlbumChanged: bool,
+    };
+  }
 };
 
 export const firstLastTrackId = (first, last) => {
