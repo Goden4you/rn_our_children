@@ -164,10 +164,3 @@ export const onTrackPressed = (
 export const removeLastSearches = async () => {
   await fs.unlink(fs.dirs.CacheDir + '/last_searches/');
 };
-
-export const handlePlayPause = async (audioLoaded, isPlaying, dispatch) => {
-  if (audioLoaded) {
-    isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
-    dispatch(isTrackPlaying(!isPlaying));
-  }
-};

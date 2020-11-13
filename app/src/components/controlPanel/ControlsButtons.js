@@ -8,27 +8,18 @@ import {
   isQueueEnded,
   needMoveToNextAlbum,
 } from '../../store/actions/player';
-import {handlePlayPause} from '../../utils/utils';
 
 var state = {};
 var dispatch;
 
-// const handlePlayPause = async () => {
-//   if (state.audioLoaded) {
-//     const {isPlaying} = state;
+export const handlePlayPause = async () => {
+  if (state.audioLoaded) {
+    state.isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
+    dispatch(isTrackPlaying(!state.isPlaying));
+  }
+};
 
-//     isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
-
-//     state = {
-//       ...state,
-//       isPlaying: !isPlaying,
-//     };
-
-//     dispatch(isTrackPlaying(!isPlaying));
-//   }
-// };
-
-const handlePreviousTrack = async () => {
+export const handlePreviousTrack = async () => {
   console.log('audio loaded? -', state.audioLoaded);
   if (state.audioLoaded) {
     let {trackId} = state;
@@ -57,7 +48,7 @@ const handlePreviousTrack = async () => {
   }
 };
 
-const handleNextTrack = () => {
+export const handleNextTrack = async () => {
   if (state.audioLoaded) {
     let {trackId, lastTrackId, veryLastTrackId, veryFirstTrackId} = state;
 
@@ -152,9 +143,7 @@ export const ControlsButtons = () => {
           style={styles.controlImage}
         />
       </TouchableOpacity>
-      <TouchableOpacity
-        style={styles.control}
-        onPress={() => handlePlayPause(audioLoaded, isPlaying, dispatch)}>
+      <TouchableOpacity style={styles.control} onPress={handlePlayPause}>
         {state.isPlaying ? (
           <Image
             source={require('../../../../images/icons/playerControl/pauseHit/pauseHitCopy.png')}

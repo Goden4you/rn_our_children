@@ -28,10 +28,10 @@ export const AllSongsList = ({navigation}) => {
   );
 
   useEffect(() => {
-    allData.toString() === '' ? dispatch(allSongsData()) : null;
+    dispatch(allSongsData());
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
-  }, [allData, dispatch]);
+  }, [dispatch]);
 
   const SongsList = () => {
     let prevAlbumId = 0;
