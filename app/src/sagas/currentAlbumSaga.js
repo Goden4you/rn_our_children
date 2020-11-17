@@ -11,6 +11,7 @@ import {putCurAlbumData, takeCurAlbumData} from '../utils/utils';
 
 function* fetchCurrentAlbumSaga(currentAlbum) {
   try {
+    yield put(albumsActions.isAlbumDataLoading(true));
     const albumChanged = yield select(isAlbumChanged);
     const songsCount = yield select(albumSongsCount);
     const albumId = yield select(openedAlbumId);
@@ -66,6 +67,7 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       );
     }
     if (currentAlbum && albumChanged) {
+      console.log('data put, ', currentAlbum, albumChanged);
       yield put(
         albumsActions.toggleAlbum(
           tracksTitles,
@@ -78,6 +80,7 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
         ),
       );
     }
+    yield put(albumsActions.isAlbumDataLoading(false));
   } catch (e) {
     console.log(e);
   }

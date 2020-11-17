@@ -1,69 +1,100 @@
 import React, {useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {View, Text, StyleSheet, TouchableOpacity, Modal} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
 import AsyncStorage from '@react-native-community/async-storage';
 import {updateLoadedSize} from '../store/actions/player';
+import {Back} from '../navigation/goBack';
+import store from '../store';
 
-var state = {
+var statement = {
   loadedMusic: 0,
   deleted: false,
 };
 var dispatch;
 
 async function deleteLoadedMusic() {
-  if (state.loadedMusic !== 0) {
+  if (statement.loadedMusic !== 0) {
     RNFetchBlob.fs.unlink(RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/');
     dispatch(updateLoadedSize(0));
   }
 }
 
 export const AppSettings = () => {
-  const {loadedSize} = useSelector((statement) => statement.player);
+  const {loadedSize} = useSelector((state) => state.player);
+  const {settingsVisibility} = useSelector((state) => state.albums);
   let size = (loadedSize / 1000000).toFixed(2);
-  state = {
-    ...state,
+  statement = {
+    ...statement,
     loadedMusic: size,
   };
 
   dispatch = useDispatch();
 
   useEffect(() => {
+    const unsubscribe = store.subscribe(() => store.getState());
+    unsubscribe();
     return async function cleanup() {
       await AsyncStorage.setItem('loaded_size', JSON.stringify(loadedSize));
     };
   });
 
   return (
-    <View>
-      <View style={styles.info}>
-        <Text style={styles.loadedMusic}>Загруженная музыка</Text>
-        <Text
-          style={{
-            ...styles.loadedMusic,
-            ...styles.sizeColor,
-          }}>
-          {size} Мб
-        </Text>
-      </View>
-      <View style={styles.btnWrap}>
-        <TouchableOpacity style={styles.btn} onPress={deleteLoadedMusic}>
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={settingsVisibility}
+      gestureEnabled={true}
+      gestureDirection="horizontal">
+      <View style={styles.container}>
+        <View style={styles.header}>
+          <Back isFromAlbum={false} />
+          <Text style={styles.headerText}>Настройки</Text>
+        </View>
+        <View style={styles.info}>
+          <Text style={styles.loadedMusic}>Загруженная музыка</Text>
           <Text
             style={{
               ...styles.loadedMusic,
-              ...styles.btnText,
+              ...styles.sizeColor,
             }}>
-            Удалить загрузки
+            {size} Мб
           </Text>
-        </TouchableOpacity>
+        </View>
+        <View style={styles.btnWrap}>
+          <TouchableOpacity style={styles.btn} onPress={deleteLoadedMusic}>
+            <Text
+              style={{
+                ...styles.loadedMusic,
+                ...styles.btnText,
+              }}>
+              Удалить загрузки
+            </Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </View>
+    </Modal>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 30,
+    backgroundColor: '#fff',
+    width: '100%',
+    height: '100%',
+  },
+  header: {
+    backgroundColor: 'rgb(109,207,246)',
+    height: 80,
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    alignItems: 'center',
+  },
+  headerText: {
+    fontSize: 22,
+    color: '#fff',
+    fontWeight: 'bold',
+    marginLeft: '17%',
   },
   info: {
     flexDirection: 'row',

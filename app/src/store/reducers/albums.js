@@ -8,7 +8,8 @@ import {
   OPEN_ALBUM_SCREEN,
   ALL_SONGS_DATA,
   LAST_INPUTS,
-  TRACKS_IDS_TO_NULL,
+  IS_SETTINGS_VISIBLE,
+  IS_ALBUM_LOADING,
 } from '../types';
 
 const initialState = {
@@ -24,6 +25,8 @@ const initialState = {
   allAlbumsIds: [],
   allData: [],
   lastInputs: [],
+  settingsVisibility: false,
+  isAlbumLoading: true,
 };
 
 export const albumsReducer = (state = initialState, action) => {
@@ -72,6 +75,16 @@ export const albumsReducer = (state = initialState, action) => {
       return (state = {
         ...state,
         lastInputs: action.inputs,
+      });
+    case IS_SETTINGS_VISIBLE:
+      return (state = {
+        ...state,
+        settingsVisibility: action.payload,
+      });
+    case IS_ALBUM_LOADING:
+      return (state = {
+        ...state,
+        isAlbumLoading: action.payload,
       });
     default:
       return state;

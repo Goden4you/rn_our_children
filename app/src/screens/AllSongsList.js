@@ -122,7 +122,7 @@ export const AllSongsList = ({navigation}) => {
       }>
       <View style={styles.header}>
         <Text style={styles.headerText}>Все песни</Text>
-        <GoToSettings navigation={navigation} name={'AllSongsList'} />
+        <GoToSettings />
       </View>
       <SongsList />
     </View>

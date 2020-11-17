@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer, useState} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import {
   View,
   ScrollView,
@@ -15,7 +15,6 @@ import Orientation from 'react-native-orientation';
 import {
   albumChanged,
   openAlbumScreen,
-  tracksToNull,
   updateAlbumImage,
 } from '../store/actions/albums';
 import store from '../store';
@@ -32,7 +31,7 @@ var statement = {
 
 var dispatch;
 
-function needMoveToNextAlbum() {
+function moveNextAlbum() {
   let albumId = statement.albumId;
   let albumDesc = statement.albumDesc;
   let albumsIds = statement.albumsIds;
@@ -76,26 +75,8 @@ function needMoveToNextAlbum() {
   dispatch(albumChanged(true, albumDesc, albumId));
 }
 
-let cforceUpdate;
-
-const onOrientationChanged = () => {
-  Orientation.getOrientation((err, orientation) => {
-    if (err) {
-      console.log(err);
-    }
-    statement = {
-      ...statement,
-      orientation,
-    };
-  });
-  setTimeout(() => {
-    cforceUpdate();
-  }, 250);
-};
-
 export const AlbumScreen = ({navigation, route}) => {
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
-  const [isReady, setIsReady] = useState(false);
   const {
     albumTitleProps,
     albumDescProps,
@@ -106,11 +87,26 @@ export const AlbumScreen = ({navigation, route}) => {
   } = route.params;
 
   dispatch = useDispatch();
-  cforceUpdate = forceUpdate;
+
+  const onOrientationChanged = () => {
+    Orientation.getOrientation((err, orientation) => {
+      if (err) {
+        console.log(err);
+      }
+      statement = {
+        ...statement,
+        orientation,
+      };
+    });
+    setTimeout(() => {
+      forceUpdate();
+    }, 250);
+  };
 
   const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
     (state) => state.albums.openedAlbum,
   );
+  const {isAlbumLoading} = useSelector((state) => state.albums);
   const currentAlbum = useSelector((state) => state.albums.currentAlbum);
   const {moveToNextAlbum} = useSelector((state) => state.player);
   statement = {...statement, moveToNextAlbum};
@@ -120,7 +116,6 @@ export const AlbumScreen = ({navigation, route}) => {
       dispatch(openAlbumScreen(albumDescProps, albumIdProps));
       const unsubscribe = store.subscribe(() => store.getState());
       unsubscribe();
-      setIsReady(false);
       Orientation.addOrientationListener(onOrientationChanged);
       setTimeout(() => {
         statement = {
@@ -132,12 +127,12 @@ export const AlbumScreen = ({navigation, route}) => {
           currentTracksIds: currentAlbum.tracksIds,
           openedTracksIds: tracksIds,
         };
-        setIsReady(true);
       }, 500);
     }
     setInterval(() => {
       if (statement.moveToNextAlbum) {
-        needMoveToNextAlbum();
+        console.log('called from album screen');
+        moveNextAlbum();
       }
     }, 500);
   }, [
@@ -150,7 +145,7 @@ export const AlbumScreen = ({navigation, route}) => {
     currentAlbum,
   ]);
 
-  if (isReady) {
+  if (!isAlbumLoading) {
     return (
       <View>
         <ScrollView

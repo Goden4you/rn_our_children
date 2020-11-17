@@ -208,7 +208,7 @@ export const SearchScreen = ({navigation}) => {
     <View style={styles.mainWrap}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Поиск</Text>
-        <GoToSettings navigation={navigation} name={'SearchScreen'} />
+        <GoToSettings />
       </View>
       <SearchBar
         platform={Platform.OS}

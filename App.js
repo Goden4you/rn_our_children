@@ -5,11 +5,13 @@ import {View, StyleSheet} from 'react-native';
 import {Player} from './app/src/components/Player';
 import {Provider} from 'react-redux';
 import store from './app/src/store';
+import {AppSettings} from './app/src/screens/AppSettings';
 
 function App() {
   return (
     <Provider store={store}>
       <View style={styles.container}>
+        <AppSettings />
         <AppNavigation />
         <View style={styles.player}>
           <Player />

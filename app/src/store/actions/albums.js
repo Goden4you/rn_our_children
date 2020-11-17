@@ -8,7 +8,8 @@ import {
   OPEN_ALBUM_SCREEN,
   ALL_SONGS_DATA,
   LAST_INPUTS,
-  TRACKS_IDS_TO_NULL,
+  IS_SETTINGS_VISIBLE,
+  IS_ALBUM_LOADING,
 } from '../types';
 
 export const loadAlbums = (
@@ -96,7 +97,6 @@ export const openAlbumScreen = (desc, albumId) => {
 };
 
 export const albumChanged = (bool, desc, albumId) => {
-  console.log('desc -', desc);
   if (desc) {
     let songsCount = desc.toString().substring(0, 2);
     songsCount = parseInt(songsCount, 10);
@@ -133,5 +133,19 @@ export const lastInput = (input) => {
   return {
     type: LAST_INPUTS,
     input,
+  };
+};
+
+export const isSettingsVisible = (bool) => {
+  return {
+    type: IS_SETTINGS_VISIBLE,
+    payload: bool,
+  };
+};
+
+export const isAlbumDataLoading = (bool) => {
+  return {
+    type: IS_ALBUM_LOADING,
+    payload: bool,
   };
 };

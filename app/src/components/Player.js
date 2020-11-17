@@ -72,16 +72,14 @@ async function setupPlayer() {
         isQueueEnded: true,
         needUpdate2: false,
       };
-      console.log('ended1 - ', state.isQueueEnded);
+
       TrackPlayer.reset();
       dispatch(isQueueEnded(true));
-      console.log('isQueueEnded from playback-queue-ended called');
     }
   });
 
   TrackPlayer.addEventListener('playback-track-changed', async () => {
     try {
-      console.log('ended2 - ', state.isQueueEnded);
       if (
         state.isPlaying &&
         !state.isQueueEnded &&

@@ -68,17 +68,8 @@ function AlbumsStackScreens() {
           headerRightContainerStyle: {
             paddingBottom: 5,
           },
-          headerLeft: () => <Back navigation={navigation} />,
+          headerLeft: () => <Back navigation={navigation} isFromAlbum={true} />,
           headerRight: () => <GoToSettings navigation={navigation} />,
-        })}
-      />
-
-      <MainStack.Screen
-        name="AppSettings"
-        component={AppSettings}
-        options={({navigation}) => ({
-          headerTitle: 'Настройки',
-          headerLeft: () => <Back navigation={navigation} />,
         })}
       />
     </MainStack.Navigator>
