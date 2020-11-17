@@ -7,6 +7,7 @@ import {
   Image,
   StyleSheet,
   ImageBackground,
+  Dimensions,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Orientation from 'react-native-orientation';
@@ -245,12 +246,14 @@ export const AlbumScreen = ({navigation, route}) => {
   }
 };
 
+let phoneHeight = Dimensions.get('screen').height;
+
 const styles = StyleSheet.create({
   backgroundImage: {
     resizeMode: 'cover',
   },
   containerPortrait: {
-    height: '89%',
+    height: phoneHeight - 255,
     backgroundColor: '#fff',
   },
   containerLandscape: {

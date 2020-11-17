@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useReducer} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   ScrollView,
@@ -14,12 +14,15 @@ import {allSongsData} from '../store/actions/albums';
 import store from '../store';
 import {onTrackPressed} from '../utils/utils';
 import {GoToSettings} from '../navigation/goSettings';
+import Orientation from 'react-native-orientation';
 
 let statement = {
   tapAlbumId: 0,
+  orientation: 'PORTRAIT',
 };
 
 export const AllSongsList = ({navigation}) => {
+  const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
   const dispatch = useDispatch();
 
   const {allData} = useSelector((state) => state.albums);
@@ -27,10 +30,26 @@ export const AllSongsList = ({navigation}) => {
     (state) => state.albums.allAlbums,
   );
 
+  const onOrientationChanged = () => {
+    Orientation.getOrientation((err, orientation) => {
+      if (err) {
+        console.log(err);
+      }
+      statement = {
+        ...statement,
+        orientation,
+      };
+    });
+    setTimeout(() => {
+      forceUpdate();
+    }, 250);
+  };
+
   useEffect(() => {
     dispatch(allSongsData());
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
+    Orientation.addOrientationListener(onOrientationChanged);
   }, [dispatch]);
 
   const SongsList = () => {
@@ -95,7 +114,12 @@ export const AllSongsList = ({navigation}) => {
   };
 
   return (
-    <View style={styles.mainWrap}>
+    <View
+      style={
+        statement.orientation === 'PORTRAIT'
+          ? styles.mainWrapPortrait
+          : styles.mainWrapLandscape
+      }>
       <View style={styles.header}>
         <Text style={styles.headerText}>Все песни</Text>
         <GoToSettings navigation={navigation} name={'AllSongsList'} />
@@ -105,10 +129,16 @@ export const AllSongsList = ({navigation}) => {
   );
 };
 
+let phoneHeight = Dimensions.get('screen').height;
+
 const styles = StyleSheet.create({
-  mainWrap: {
+  mainWrapPortrait: {
     width: '100%',
-    height: '90%',
+    height: phoneHeight - 175,
+  },
+  mainWrapLandscape: {
+    width: '100%',
+    height: '80%',
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',
