@@ -114,6 +114,7 @@ export const AppNavigation = () => {
           activeBackgroundColor: '#f59122',
           inactiveBackgroundColor: '#f47928',
           showLabel: false,
+          keyboardHidesTabBar: true,
         }}>
         <TabStack.Screen name="AlbumsStack" component={AlbumsStackScreens} />
         <TabStack.Screen name="AllSongsList" component={AllSongsList} />
@@ -123,12 +124,10 @@ export const AppNavigation = () => {
   );
 };
 
-let phoneWidth = Dimensions.get('window').width;
-
 const styles = StyleSheet.create({
   bottomIcons: {
     resizeMode: 'contain',
-    width: 0.06 * phoneWidth,
+    width: 25,
     height: '100%',
   },
 });

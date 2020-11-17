@@ -105,12 +105,10 @@ export const AllSongsList = ({navigation}) => {
   );
 };
 
-var phoneHeight = Dimensions.get('window').height;
-
 const styles = StyleSheet.create({
   mainWrap: {
     width: '100%',
-    height: phoneHeight - 132,
+    height: '90%',
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',

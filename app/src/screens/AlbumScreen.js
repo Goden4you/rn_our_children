@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import {
   View,
   ScrollView,
@@ -7,7 +7,6 @@ import {
   Image,
   StyleSheet,
   ImageBackground,
-  Dimensions,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Orientation from 'react-native-orientation';
@@ -15,12 +14,12 @@ import Orientation from 'react-native-orientation';
 import {
   albumChanged,
   openAlbumScreen,
+  tracksToNull,
   updateAlbumImage,
 } from '../store/actions/albums';
 import store from '../store';
 import {onTrackPressed} from '../utils/utils';
 
-var phoneHeight = Dimensions.get('window').height;
 var statement = {
   albumId: 0,
   albumsIds: [],
@@ -95,6 +94,7 @@ const onOrientationChanged = () => {
 
 export const AlbumScreen = ({navigation, route}) => {
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
+  const [isReady, setIsReady] = useState(false);
   const {
     albumTitleProps,
     albumDescProps,
@@ -116,19 +116,23 @@ export const AlbumScreen = ({navigation, route}) => {
 
   useEffect(() => {
     if (albumImageProps !== statement.albumImage) {
+      dispatch(openAlbumScreen(albumDescProps, albumIdProps));
       const unsubscribe = store.subscribe(() => store.getState());
       unsubscribe();
+      setIsReady(false);
       Orientation.addOrientationListener(onOrientationChanged);
-      statement = {
-        ...statement,
-        albumImage: albumImageProps,
-        albumsPhotos: albumsPhotosProps,
-        albumDesc: albumDescProps,
-        albumsIds: albumsIdsProps,
-        currentTracksIds: currentAlbum.tracksIds,
-        openedTracksIds: tracksIds,
-      };
-      dispatch(openAlbumScreen(albumDescProps, albumIdProps));
+      setTimeout(() => {
+        statement = {
+          ...statement,
+          albumImage: albumImageProps,
+          albumsPhotos: albumsPhotosProps,
+          albumDesc: albumDescProps,
+          albumsIds: albumsIdsProps,
+          currentTracksIds: currentAlbum.tracksIds,
+          openedTracksIds: tracksIds,
+        };
+        setIsReady(true);
+      }, 500);
     }
     setInterval(() => {
       if (statement.moveToNextAlbum) {
@@ -145,7 +149,7 @@ export const AlbumScreen = ({navigation, route}) => {
     currentAlbum,
   ]);
 
-  if (tracksIds) {
+  if (isReady) {
     return (
       <View>
         <ScrollView
@@ -241,18 +245,16 @@ export const AlbumScreen = ({navigation, route}) => {
   }
 };
 
-var phoneHeight = Dimensions.get('window').height;
-
 const styles = StyleSheet.create({
   backgroundImage: {
     resizeMode: 'cover',
   },
   containerPortrait: {
-    height: 0.64 * phoneHeight,
+    height: '89%',
     backgroundColor: '#fff',
   },
   containerLandscape: {
-    height: 0.25 * phoneHeight,
+    height: '76%',
     backgroundColor: '#fff',
   },
   albumWrap: {
