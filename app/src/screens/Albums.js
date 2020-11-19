@@ -57,8 +57,6 @@ export const Albums = ({navigation}) => {
                       albumDescProps: allAlbums.albumsDesc[index],
                       albumImageProps: allAlbums.albumsPhotos[index],
                       albumIdProps: allAlbums.albumsIds[index],
-                      albumsPhotosProps: allAlbums.albumsPhotos,
-                      albumsIdsProps: allAlbums.albumsIds,
                     });
                   }}>
                   <Image

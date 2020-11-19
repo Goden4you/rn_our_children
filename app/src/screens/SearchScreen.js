@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -143,8 +143,6 @@ export const SearchScreen = ({navigation}) => {
                     albumId,
                     searchRes[2][track.albumId - firstAlbumId],
                     dispatch,
-                    null,
-                    null,
                   );
                   setPrevAlbumId(resAlbumId);
                 }}>

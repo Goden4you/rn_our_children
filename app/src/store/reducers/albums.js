@@ -22,7 +22,6 @@ const initialState = {
   isAlbumChanged: false,
   veryFirstTrackId: 0,
   veryLastTrackId: 0,
-  allAlbumsIds: [],
   allData: [],
   lastInputs: [],
   settingsVisibility: false,

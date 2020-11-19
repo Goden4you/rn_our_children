@@ -10,6 +10,7 @@ import {
   QUEUE_ENDED,
   UPDATE_PRESSED,
   MOVE_TO_NEXT_ALBUM,
+  UPDATE_ALBUM_ID_AND_DESC,
 } from '../types';
 
 const initialState = {
@@ -24,6 +25,8 @@ const initialState = {
   pressed: false,
   queueEnded: false,
   moveToNextAlbum: false,
+  curAlbumId: 0,
+  curAlbumDesc: null,
 };
 
 export const playerReducer = (state = initialState, action) => {
@@ -34,6 +37,12 @@ export const playerReducer = (state = initialState, action) => {
         audioLoaded: action.audioLoaded,
         isPlaying: action.isPlaying,
         trackPlayerInit: action.trackPlayerInit,
+      });
+    case UPDATE_ALBUM_ID_AND_DESC:
+      return (state = {
+        ...state,
+        curAlbumId: action.albumId,
+        curAlbumDesc: action.albumDesc,
       });
     case UPDATE_TRACK_ID:
       return (state = {...state, trackId: action.payload});

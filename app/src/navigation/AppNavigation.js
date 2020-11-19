@@ -10,11 +10,10 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {Back} from './goBack';
 import {GoToSettings} from './goSettings';
 import {Albums} from '../screens/Albums';
-import {AppSettings} from '../screens/AppSettings';
 import {AlbumScreen} from '../screens/AlbumScreen';
 import {AllSongsList} from '../screens/AllSongsList';
 import {SearchScreen} from '../screens/SearchScreen';
-import {Dimensions, Image, StyleSheet} from 'react-native';
+import {Image, StyleSheet} from 'react-native';
 
 const MainStack = createStackNavigator();
 const TabStack = createBottomTabNavigator();
@@ -105,7 +104,6 @@ export const AppNavigation = () => {
           activeBackgroundColor: '#f59122',
           inactiveBackgroundColor: '#f47928',
           showLabel: false,
-          keyboardHidesTabBar: true,
         }}>
         <TabStack.Screen name="AlbumsStack" component={AlbumsStackScreens} />
         <TabStack.Screen name="AllSongsList" component={AllSongsList} />

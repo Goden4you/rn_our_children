@@ -73,10 +73,12 @@ export const openAlbum = (
     firstTrackId,
     lastTrackId,
   };
-  return {
-    type: OPEN_ALBUM,
-    payload: albumTracks,
-  };
+  return tracksIds
+    ? {
+        type: OPEN_ALBUM,
+        payload: albumTracks,
+      }
+    : null;
 };
 
 export const updateAlbumImage = (image) => {

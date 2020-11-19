@@ -8,6 +8,7 @@ import {
   isQueueEnded,
   needMoveToNextAlbum,
 } from '../../store/actions/player';
+import {albumChanged, updateAlbumImage} from '../../store/actions/albums';
 
 var state = {};
 var dispatch;
@@ -95,12 +96,56 @@ export const handleNextTrack = async () => {
           formattedCurrentTime: '00:00',
           pressed: false,
         };
-
         dispatch(handlePrevNext(trackId));
+        moveNextAlbum();
       }
     }
   }
 };
+
+function moveNextAlbum() {
+  let albumId = state.curAlbumId;
+  let albumDesc = state.curAlbumDesc;
+  let albumsIds = state.allAlbumsIds;
+
+  // albumDesc = albumDesc.toString().substring(0, 2);
+  // albumDesc = parseInt(albumDesc, 10);
+
+  switch (albumId) {
+    case parseInt(albumsIds[0], 10):
+      albumId = albumsIds[1];
+      break;
+    case parseInt(albumsIds[1], 10):
+      albumDesc += 3;
+      albumId = albumsIds[2];
+      break;
+    case parseInt(albumsIds[2], 10):
+      albumDesc += 2;
+      albumId = albumsIds[3];
+      break;
+    case parseInt(albumsIds[3], 10):
+      albumDesc -= 4;
+      albumId = albumsIds[4];
+      break;
+    case parseInt(albumsIds[4], 10):
+      albumId = albumsIds[5];
+      break;
+    case parseInt(albumsIds[5], 10):
+      albumDesc += 4;
+      albumId = albumsIds[6];
+      break;
+    case parseInt(albumsIds[6], 10):
+      return;
+    default:
+      break;
+  }
+  state = {
+    ...state,
+    albumImage: state.albumsPhotos[albumId - parseInt(albumsIds[0], 10)],
+  };
+  dispatch(updateAlbumImage(state.albumImage));
+  dispatch(albumChanged(true, albumDesc, albumId));
+}
 
 export const ControlsButtons = () => {
   dispatch = useDispatch();
@@ -114,13 +159,18 @@ export const ControlsButtons = () => {
     }, 500);
   }, []);
 
-  const {audioLoaded, isPlaying, trackId, queueEnded} = useSelector(
-    (statement) => statement.player,
-  );
+  const {
+    audioLoaded,
+    isPlaying,
+    trackId,
+    queueEnded,
+    curAlbumId,
+    curAlbumDesc,
+  } = useSelector((statement) => statement.player);
   const {firstTrackId, lastTrackId, albumImage} = useSelector(
     (statement) => statement.albums.currentAlbum,
   );
-  const {veryFirstTrackId, veryLastTrackId} = useSelector(
+  const {veryFirstTrackId, veryLastTrackId, allAlbums} = useSelector(
     (statement) => statement.albums,
   );
   state = {
@@ -134,6 +184,10 @@ export const ControlsButtons = () => {
     veryFirstTrackId,
     veryLastTrackId,
     queueEnded,
+    curAlbumId,
+    curAlbumDesc,
+    allAlbumsIds: allAlbums.albumsIds,
+    albumsPhotos: allAlbums.albumsPhotos,
   };
   return (
     <View style={styles.controls}>

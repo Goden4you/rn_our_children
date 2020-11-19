@@ -17,16 +17,16 @@ import {GoToSettings} from '../navigation/goSettings';
 import Orientation from 'react-native-orientation';
 
 let statement = {
-  tapAlbumId: 0,
   orientation: 'PORTRAIT',
 };
 
-export const AllSongsList = ({navigation}) => {
+export const AllSongsList = () => {
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
   const dispatch = useDispatch();
 
   const {allData} = useSelector((state) => state.albums);
-  const {albumsPhotos, albumsTitles} = useSelector(
+  const {curAlbumId} = useSelector((state) => state.player);
+  const {albumsPhotos, albumsTitles, albumsDesc} = useSelector(
     (state) => state.albums.allAlbums,
   );
 
@@ -55,7 +55,7 @@ export const AllSongsList = ({navigation}) => {
   const SongsList = () => {
     let prevAlbumId = 0;
     let firstAlbumId = 0;
-    return allData ? (
+    return allData && albumsPhotos ? (
       <ScrollView style={styles.scrollWrap}>
         {allData.map((allTracks) => {
           return allTracks.map((track) => {
@@ -70,19 +70,17 @@ export const AllSongsList = ({navigation}) => {
                 style={styles.wrapper}
                 key={track.id}
                 onPress={() => {
-                  const result = onTrackPressed(
-                    track.songFileId,
-                    track.albumId,
-                    statement.curAlbumId,
-                    albumsPhotos[track.albumId - firstAlbumId],
+                  let desc = albumsDesc[track.albumId - firstAlbumId];
+                  desc = desc.toString().substring(0, 2);
+                  desc = parseInt(desc, 10);
+                  onTrackPressed({
+                    trackId: track.songFileId,
+                    albumIdProps: track.albumId,
+                    curAlbumId,
+                    albumImage: albumsPhotos[track.albumId - firstAlbumId],
+                    songsCount: desc,
                     dispatch,
-                    null,
-                    null,
-                  );
-                  statement = {
-                    ...statement,
-                    curAlbumId: result,
-                  };
+                  });
                 }}>
                 <Image
                   source={{uri: albumsPhotos[track.albumId - firstAlbumId]}}

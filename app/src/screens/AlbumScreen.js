@@ -12,68 +12,16 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import Orientation from 'react-native-orientation';
 
-import {
-  albumChanged,
-  openAlbumScreen,
-  updateAlbumImage,
-} from '../store/actions/albums';
+import {openAlbumScreen} from '../store/actions/albums';
 import store from '../store';
 import {onTrackPressed} from '../utils/utils';
 
 var statement = {
-  albumId: 0,
-  albumsIds: [],
   albumImage: null,
-  albumDesc: '',
-  albumsPhotos: [],
   orientation: 'PORTRAIT',
 };
 
 var dispatch;
-
-function moveNextAlbum() {
-  let albumId = statement.albumId;
-  let albumDesc = statement.albumDesc;
-  let albumsIds = statement.albumsIds;
-
-  albumDesc = albumDesc.toString().substring(0, 2);
-  albumDesc = parseInt(albumDesc, 10);
-
-  switch (albumId) {
-    case parseInt(albumsIds[0], 10):
-      albumId = albumsIds[1];
-      break;
-    case parseInt(albumsIds[1], 10):
-      albumDesc += 3;
-      albumId = albumsIds[2];
-      break;
-    case parseInt(albumsIds[2], 10):
-      albumDesc += 2;
-      albumId = albumsIds[3];
-      break;
-    case parseInt(albumsIds[3], 10):
-      albumDesc -= 4;
-      albumId = albumsIds[4];
-      break;
-    case parseInt(albumsIds[4], 10):
-      albumId = albumsIds[5];
-      break;
-    case parseInt(albumsIds[5], 10):
-      albumDesc += 4;
-      albumId = albumsIds[6];
-      break;
-    case parseInt(albumsIds[6], 10):
-      return;
-    default:
-      break;
-  }
-  statement = {
-    ...statement,
-    albumImage: statement.albumsPhotos[albumId - parseInt(albumsIds[0], 10)],
-  };
-  dispatch(updateAlbumImage(statement.albumImage));
-  dispatch(albumChanged(true, albumDesc, albumId));
-}
 
 export const AlbumScreen = ({navigation, route}) => {
   const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -82,8 +30,6 @@ export const AlbumScreen = ({navigation, route}) => {
     albumDescProps,
     albumImageProps,
     albumIdProps,
-    albumsPhotosProps,
-    albumsIdsProps,
   } = route.params;
 
   dispatch = useDispatch();
@@ -106,9 +52,8 @@ export const AlbumScreen = ({navigation, route}) => {
   const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
     (state) => state.albums.openedAlbum,
   );
-  const {isAlbumLoading} = useSelector((state) => state.albums);
-  const currentAlbum = useSelector((state) => state.albums.currentAlbum);
-  const {moveToNextAlbum} = useSelector((state) => state.player);
+  const {isAlbumLoading, songsCount} = useSelector((state) => state.albums);
+  const {moveToNextAlbum, curAlbumId} = useSelector((state) => state.player);
   statement = {...statement, moveToNextAlbum};
 
   useEffect(() => {
@@ -117,33 +62,12 @@ export const AlbumScreen = ({navigation, route}) => {
       const unsubscribe = store.subscribe(() => store.getState());
       unsubscribe();
       Orientation.addOrientationListener(onOrientationChanged);
-      setTimeout(() => {
-        statement = {
-          ...statement,
-          albumImage: albumImageProps,
-          albumsPhotos: albumsPhotosProps,
-          albumDesc: albumDescProps,
-          albumsIds: albumsIdsProps,
-          currentTracksIds: currentAlbum.tracksIds,
-          openedTracksIds: tracksIds,
-        };
-      }, 500);
+      statement = {
+        ...statement,
+        albumImage: albumImageProps,
+      };
     }
-    setInterval(() => {
-      if (statement.moveToNextAlbum) {
-        console.log('called from album screen');
-        moveNextAlbum();
-      }
-    }, 500);
-  }, [
-    albumDescProps,
-    albumImageProps,
-    albumsPhotosProps,
-    albumIdProps,
-    albumsIdsProps,
-    tracksIds,
-    currentAlbum,
-  ]);
+  }, [albumImageProps, albumIdProps, albumDescProps]);
 
   if (!isAlbumLoading) {
     return (
@@ -197,19 +121,14 @@ export const AlbumScreen = ({navigation, route}) => {
                     style={styles.wrapper}
                     key={value}
                     onPress={() => {
-                      const result = onTrackPressed(
-                        value,
+                      onTrackPressed({
+                        trackId: value,
                         albumIdProps,
-                        statement.albumId,
-                        albumImageProps,
+                        curAlbumId,
+                        albumImage: albumImageProps,
+                        songsCount,
                         dispatch,
-                        currentAlbum.tracksIds,
-                        tracksIds,
-                      );
-                      statement = {
-                        ...statement,
-                        albumId: result,
-                      };
+                      });
                     }}>
                     <View style={styles.songInfo}>
                       <Text style={styles.songTitle}>

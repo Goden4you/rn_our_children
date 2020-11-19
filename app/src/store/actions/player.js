@@ -11,6 +11,7 @@ import {
   QUEUE_ENDED,
   UPDATE_PRESSED,
   MOVE_TO_NEXT_ALBUM,
+  UPDATE_ALBUM_ID_AND_DESC,
 } from '../types';
 
 export const loadTrack = (pressed, isPlaying) => {
@@ -19,6 +20,14 @@ export const loadTrack = (pressed, isPlaying) => {
     audioLoaded: true,
     isPlaying: pressed ? true : isPlaying,
     trackPlayerInit: true,
+  };
+};
+
+export const updateAlbumIdAndDesc = (albumId, albumDesc) => {
+  return {
+    type: UPDATE_ALBUM_ID_AND_DESC,
+    albumId,
+    albumDesc,
   };
 };
 

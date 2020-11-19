@@ -1,17 +1,8 @@
 import {Platform} from 'react-native';
 import RNFetchBlob from 'rn-fetch-blob';
-import TrackPlayer from 'react-native-track-player';
 
-import {
-  updateAlbumImage,
-  albumChanged,
-  openAlbumScreen,
-} from '../store/actions/albums';
-import {
-  updatePressed,
-  updateTrackId,
-  isTrackPlaying,
-} from '../store/actions/player';
+import {updateAlbumImage, albumChanged} from '../store/actions/albums';
+import {updatePressed, updateTrackId} from '../store/actions/player';
 
 let fs = RNFetchBlob.fs;
 
@@ -139,26 +130,22 @@ export const putLastSearches = async (searches) => {
   );
 };
 
-export const onTrackPressed = (
+export const onTrackPressed = ({
   trackId,
   albumIdProps,
-  albumId,
+  curAlbumId,
   albumImage,
+  songsCount,
   dispatch,
-  curTracksIds,
-  opTracksIds,
-) => {
-  if (albumIdProps !== albumId || curTracksIds !== opTracksIds) {
-    albumId = albumIdProps;
-    dispatch(openAlbumScreen(19, albumIdProps));
+}) => {
+  if (albumIdProps !== curAlbumId) {
+    console.log('songsCount from utils -', songsCount);
     dispatch(updateAlbumImage(albumImage));
-    dispatch(albumChanged(true));
+    dispatch(albumChanged(true, songsCount, albumIdProps));
   }
 
   dispatch(updatePressed(true));
   dispatch(updateTrackId(trackId));
-
-  return albumId;
 };
 
 export const removeLastSearches = async () => {

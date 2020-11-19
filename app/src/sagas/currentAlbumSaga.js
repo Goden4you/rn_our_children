@@ -1,5 +1,6 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import * as albumsActions from '../store/actions/albums';
+import {updateAlbumIdAndDesc} from '../store/actions/player';
 import {
   albumSongsCount,
   openedAlbumId,
@@ -11,8 +12,12 @@ import {putCurAlbumData, takeCurAlbumData} from '../utils/utils';
 
 function* fetchCurrentAlbumSaga(currentAlbum) {
   try {
-    yield put(albumsActions.isAlbumDataLoading(true));
     const albumChanged = yield select(isAlbumChanged);
+    if (!currentAlbum) {
+      console.log('is currentAlbum ? -', currentAlbum);
+      yield put(albumsActions.isAlbumDataLoading(true));
+    }
+
     const songsCount = yield select(albumSongsCount);
     const albumId = yield select(openedAlbumId);
 
@@ -67,7 +72,6 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       );
     }
     if (currentAlbum && albumChanged) {
-      console.log('data put, ', currentAlbum, albumChanged);
       yield put(
         albumsActions.toggleAlbum(
           tracksTitles,
@@ -79,6 +83,7 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
           lastTrackId,
         ),
       );
+      yield put(updateAlbumIdAndDesc(albumId, songsCount));
     }
     yield put(albumsActions.isAlbumDataLoading(false));
   } catch (e) {
