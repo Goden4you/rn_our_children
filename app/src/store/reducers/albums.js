@@ -10,6 +10,7 @@ import {
   LAST_INPUTS,
   IS_SETTINGS_VISIBLE,
   IS_ALBUM_LOADING,
+  FETCH_ALL_SONGS_DATA,
 } from '../types';
 
 const initialState = {
@@ -20,6 +21,7 @@ const initialState = {
   songsCount: 0,
   albumId: 0,
   isAlbumChanged: false,
+  calledFromPlayer: false,
   veryFirstTrackId: 0,
   veryLastTrackId: 0,
   allData: [],
@@ -52,12 +54,17 @@ export const albumsReducer = (state = initialState, action) => {
       return (state = {...state, currentAlbumImage: action.image});
     case ALBUM_CHANGED:
       return !action.songsCount
-        ? (state = {...state, isAlbumChanged: action.isAlbumChanged})
+        ? (state = {
+            ...state,
+            isAlbumChanged: action.isAlbumChanged,
+            calledFromPlayer: action.calledFromPlayer,
+          })
         : (state = {
             ...state,
             isAlbumChanged: action.isAlbumChanged,
             songsCount: action.songsCount,
             albumId: action.albumId,
+            calledFromPlayer: action.calledFromPlayer,
           });
     case VERY_FIRST_LAST_TRACK:
       return (state = {
@@ -70,6 +77,8 @@ export const albumsReducer = (state = initialState, action) => {
         ...state,
         allData: action.allData,
       });
+    case FETCH_ALL_SONGS_DATA:
+      return state;
     case LAST_INPUTS:
       return (state = {
         ...state,

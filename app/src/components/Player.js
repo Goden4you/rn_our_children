@@ -72,7 +72,6 @@ async function setupPlayer() {
         isQueueEnded: true,
         needUpdate2: false,
       };
-
       TrackPlayer.reset();
       dispatch(isQueueEnded(true));
     }
@@ -175,6 +174,10 @@ async function loadAudio(currentTrack, firstStart) {
 
       if (currentTrack) {
         TrackPlayer.skip(trackId.toString());
+        TrackPlayer.updateMetadataForTrack(trackId.toString(), {
+          artist: tracksAuthors[trackId - firstTrackId].toString(),
+          title: tracksTitles[trackId - firstTrackId].toString(),
+        });
         if (!firstStart) {
           TrackPlayer.play();
         }
@@ -245,20 +248,22 @@ function isPressed() {
   if (!state.audioLoaded) {
     console.log('loadAudio called from isPressed');
     let interval = setInterval(() => {
-      if (state.firstTrackId) {
+      if (
+        !state.isAlbumLoading &&
+        state.trackId >= state.firstTrackId &&
+        state.trackId <= state.lastTrackId
+      ) {
         clearInterval(interval);
-        setTimeout(() => {
-          loadAudio(true, false);
-        }, 1000);
+        loadAudio(true, false);
       }
     }, 250);
   } else {
     TrackPlayer.skip(state.trackId.toString());
     let interval = setInterval(async () => {
       if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
+        clearInterval(interval);
         console.log('skipped from isPressed');
         TrackPlayer.play();
-        clearInterval(interval);
         state = {
           ...state,
           isPlaying: true,
@@ -323,12 +328,21 @@ export const Player = () => {
     firstTrackId,
     lastTrackId,
   } = useSelector((statement) => statement.albums.currentAlbum);
-  const {currentAlbumImage, isAlbumChanged} = useSelector(
-    (statement) => statement.albums,
+  const currentAlbumImage = useSelector(
+    (statement) => statement.albums.currentAlbumImage,
   );
-  const {trackId, minimazed, moveToNextAlbum, pressed} = useSelector(
-    (statement) => statement.player,
+  const isAlbumChanged = useSelector(
+    (statement) => statement.albums.isAlbumChanged,
   );
+  const isAlbumLoading = useSelector(
+    (statement) => statement.albums.isAlbumLoading,
+  );
+  const trackId = useSelector((statement) => statement.player.trackId);
+  const minimazed = useSelector((statement) => statement.player.minimazed);
+  const moveToNextAlbum = useSelector(
+    (statement) => statement.player.moveToNextAlbum,
+  );
+  const pressed = useSelector((statement) => statement.player.pressed);
 
   state = {
     ...state,
@@ -344,6 +358,7 @@ export const Player = () => {
     isAlbumChanged,
     moveToNextAlbum,
     pressed,
+    isAlbumLoading,
   };
 
   useEffect(() => {

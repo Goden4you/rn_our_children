@@ -12,7 +12,7 @@ import {
 import {useDispatch, useSelector} from 'react-redux';
 import Orientation from 'react-native-orientation';
 
-import {openAlbumScreen} from '../store/actions/albums';
+import {isAlbumDataLoading, openAlbumScreen} from '../store/actions/albums';
 import store from '../store';
 import {onTrackPressed} from '../utils/utils';
 
@@ -52,8 +52,10 @@ export const AlbumScreen = ({navigation, route}) => {
   const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
     (state) => state.albums.openedAlbum,
   );
-  const {isAlbumLoading, songsCount} = useSelector((state) => state.albums);
-  const {moveToNextAlbum, curAlbumId} = useSelector((state) => state.player);
+  const isAlbumLoading = useSelector((state) => state.albums.isAlbumLoading);
+  const songsCount = useSelector((state) => state.albums.songsCount);
+  const moveToNextAlbum = useSelector((state) => state.player.moveToNextAlbum);
+  const curAlbumId = useSelector((state) => state.player.curAlbumId);
   statement = {...statement, moveToNextAlbum};
 
   useEffect(() => {
@@ -66,10 +68,13 @@ export const AlbumScreen = ({navigation, route}) => {
         ...statement,
         albumImage: albumImageProps,
       };
+    } else {
+      dispatch(isAlbumDataLoading(false));
     }
   }, [albumImageProps, albumIdProps, albumDescProps]);
 
   if (!isAlbumLoading) {
+    console.log('album screen updated');
     return (
       <View>
         <ScrollView
@@ -121,6 +126,7 @@ export const AlbumScreen = ({navigation, route}) => {
                     style={styles.wrapper}
                     key={value}
                     onPress={() => {
+                      console.log('from album, ', typeof albumIdProps);
                       onTrackPressed({
                         trackId: value,
                         albumIdProps,

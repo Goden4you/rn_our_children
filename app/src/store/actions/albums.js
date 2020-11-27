@@ -10,6 +10,7 @@ import {
   LAST_INPUTS,
   IS_SETTINGS_VISIBLE,
   IS_ALBUM_LOADING,
+  FETCH_ALL_SONGS_DATA,
 } from '../types';
 
 export const loadAlbums = (
@@ -98,20 +99,22 @@ export const openAlbumScreen = (desc, albumId) => {
   };
 };
 
-export const albumChanged = (bool, desc, albumId) => {
+export const albumChanged = (changed, desc, albumId) => {
   if (desc) {
     let songsCount = desc.toString().substring(0, 2);
     songsCount = parseInt(songsCount, 10);
     return {
       type: ALBUM_CHANGED,
-      isAlbumChanged: bool,
+      isAlbumChanged: changed,
       songsCount,
       albumId,
+      calledFromPlayer: false,
     };
   } else {
     return {
       type: ALBUM_CHANGED,
-      isAlbumChanged: bool,
+      isAlbumChanged: changed,
+      calledFromPlayer: false,
     };
   }
 };
@@ -121,6 +124,12 @@ export const firstLastTrackId = (first, last) => {
     type: VERY_FIRST_LAST_TRACK,
     first,
     last,
+  };
+};
+
+export const fetchAllSongsData = () => {
+  return {
+    type: FETCH_ALL_SONGS_DATA,
   };
 };
 

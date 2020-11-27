@@ -108,9 +108,6 @@ function moveNextAlbum() {
   let albumDesc = state.curAlbumDesc;
   let albumsIds = state.allAlbumsIds;
 
-  // albumDesc = albumDesc.toString().substring(0, 2);
-  // albumDesc = parseInt(albumDesc, 10);
-
   switch (albumId) {
     case parseInt(albumsIds[0], 10):
       albumId = albumsIds[1];

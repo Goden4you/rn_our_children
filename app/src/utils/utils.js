@@ -139,13 +139,13 @@ export const onTrackPressed = ({
   dispatch,
 }) => {
   if (albumIdProps !== curAlbumId) {
-    console.log('songsCount from utils -', songsCount);
-    dispatch(updateAlbumImage(albumImage));
     dispatch(albumChanged(true, songsCount, albumIdProps));
+    dispatch(updateAlbumImage(albumImage));
   }
 
   dispatch(updatePressed(true));
   dispatch(updateTrackId(trackId));
+  return albumIdProps;
 };
 
 export const removeLastSearches = async () => {

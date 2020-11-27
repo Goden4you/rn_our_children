@@ -15,7 +15,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import Highlighter from 'react-native-highlight-words';
 
 import {GoToSettings} from '../navigation/goSettings';
-import {allSongsData} from '../store/actions/albums';
+import {fetchAllSongsData} from '../store/actions/albums';
 import {
   onTrackPressed,
   putLastSearches,
@@ -28,12 +28,12 @@ export const SearchScreen = ({navigation}) => {
   const [searchRes, setSearchRes] = useState([]);
   const [inputs, setInputs] = useState([]);
   const dispatch = useDispatch();
-  const [albumId, setPrevAlbumId] = useState();
 
-  const {allData} = useSelector((state) => state.albums);
-  const {albumsTitles, albumsIds, albumsPhotos} = useSelector(
+  const allData = useSelector((state) => state.albums.allData);
+  const {albumsTitles, albumsIds, albumsPhotos, albumsDesc} = useSelector(
     (state) => state.albums.allAlbums,
   );
+  const curAlbumId = useSelector((state) => state.player.curAlbumId);
 
   const takeInputs = async () => {
     let response = await takeLastSearches();
@@ -92,7 +92,7 @@ export const SearchScreen = ({navigation}) => {
         {cancelable: false},
       );
       setSearch('');
-      dispatch(allSongsData());
+      dispatch(fetchAllSongsData());
     }
   };
 
@@ -137,14 +137,17 @@ export const SearchScreen = ({navigation}) => {
                 style={styles.wrapper}
                 key={track.id}
                 onPress={() => {
-                  const resAlbumId = onTrackPressed(
-                    track.songFileId,
-                    track.albumId,
-                    albumId,
-                    searchRes[2][track.albumId - firstAlbumId],
+                  let desc = albumsDesc[track.albumId - firstAlbumId];
+                  desc = desc.toString().substring(0, 2);
+                  desc = parseInt(desc, 10);
+                  onTrackPressed({
+                    trackId: track.songFileId,
+                    albumIdProps: track.albumId,
+                    curAlbumId,
+                    albumImage: searchRes[2][track.albumId - firstAlbumId],
+                    songsCount: desc,
                     dispatch,
-                  );
-                  setPrevAlbumId(resAlbumId);
+                  });
                 }}>
                 <Image
                   source={{uri: searchRes[2][index]}}

@@ -1,6 +1,7 @@
 import {createStore, combineReducers, applyMiddleware} from 'redux';
 import {albumsReducer} from './reducers/albums';
 import {playerReducer} from './reducers/player';
+import {composeWithDevTools} from 'redux-devtools-extension';
 import createSagaMiddleware from 'redux-saga';
 import rootSagas from '../sagas';
 
@@ -13,7 +14,10 @@ const rootReducer = combineReducers({
   player: playerReducer,
 });
 
-const store = createStore(rootReducer, applyMiddleware(...middlewares));
+const store = createStore(
+  rootReducer,
+  composeWithDevTools(applyMiddleware(...middlewares)),
+);
 
 sagaMiddleware.run(rootSagas);
 

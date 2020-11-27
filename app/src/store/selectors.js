@@ -11,3 +11,5 @@ export const allSongsDesc = (state) => state.albums.allAlbums.albumsDesc;
 export const albumsIds = (state) => state.albums.allAlbums.albumsIds;
 
 export const allTracksData = (state) => state.albums.allData;
+
+export const isCalledFromPlayer = (state) => state.albums.calledFromPlayer;

@@ -8,8 +8,9 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import SplashScreen from 'react-native-splash-screen';
+import {isAlbumDataLoading} from '../store/actions/albums';
 
 var osyaSrc = [
   require('../../../images/osya/1/osya1.png'),
@@ -23,6 +24,7 @@ var osyaSrc = [
 
 export const Albums = ({navigation}) => {
   const allAlbums = useSelector((state) => state.albums.allAlbums);
+  const dispatch = useDispatch();
   SplashScreen.hide();
   if (allAlbums.albumsPhotos) {
     return (
@@ -52,6 +54,7 @@ export const Albums = ({navigation}) => {
                 <TouchableOpacity
                   style={styles.albumImageWrap}
                   onPress={() => {
+                    dispatch(isAlbumDataLoading(true));
                     navigation.navigate('AlbumScreen', {
                       albumTitleProps: allAlbums.albumsTitles[index],
                       albumDescProps: allAlbums.albumsDesc[index],

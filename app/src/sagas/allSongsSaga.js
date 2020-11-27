@@ -3,7 +3,7 @@ import Api from '../api';
 import {albumsIds, allTracksData} from '../store/selectors';
 import {allSongsData} from '../store/actions/albums';
 import {takeAllSongsData, putAllSongsData} from '../utils/utils';
-import {ALL_SONGS_DATA} from '../store/types';
+import {FETCH_ALL_SONGS_DATA} from '../store/types';
 
 function* fetchAllSongs() {
   try {
@@ -27,12 +27,13 @@ function* fetchAllSongs() {
     }
 
     let needUpdate = yield select(allTracksData);
-    needUpdate ? null : yield put(allSongsData(data));
+    console.log('needUpdate ? ', needUpdate);
+    needUpdate.toString() !== '' ? null : yield put(allSongsData(data));
   } catch (e) {
     console.log(e);
   }
 }
 
 export function* watchListScreen() {
-  yield takeEvery(ALL_SONGS_DATA, fetchAllSongs);
+  yield takeEvery(FETCH_ALL_SONGS_DATA, fetchAllSongs);
 }
