@@ -104,6 +104,7 @@ export const AppNavigation = () => {
           activeBackgroundColor: '#f59122',
           inactiveBackgroundColor: '#f47928',
           showLabel: false,
+          keyboardHidesTabBar: true,
         }}>
         <TabStack.Screen name="AlbumsStack" component={AlbumsStackScreens} />
         <TabStack.Screen name="AllSongsList" component={AllSongsList} />
@@ -117,6 +118,6 @@ const styles = StyleSheet.create({
   bottomIcons: {
     resizeMode: 'contain',
     width: 25,
-    height: '100%',
+    // height: '100%',
   },
 });

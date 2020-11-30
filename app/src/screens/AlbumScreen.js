@@ -43,10 +43,8 @@ export const AlbumScreen = ({navigation, route}) => {
         ...statement,
         orientation,
       };
-    });
-    setTimeout(() => {
       forceUpdate();
-    }, 250);
+    });
   };
 
   const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
@@ -173,7 +171,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   containerPortrait: {
-    height: phoneHeight - 255,
+    height: phoneHeight - 260,
     backgroundColor: '#fff',
   },
   containerLandscape: {

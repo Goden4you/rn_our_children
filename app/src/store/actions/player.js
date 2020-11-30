@@ -12,6 +12,7 @@ import {
   UPDATE_PRESSED,
   MOVE_TO_NEXT_ALBUM,
   UPDATE_ALBUM_ID_AND_DESC,
+  HIDE_PLAYER,
 } from '../types';
 
 export const loadTrack = (pressed, isPlaying) => {
@@ -63,6 +64,13 @@ export const isMinimazed = (bool) => {
   return {
     type: IS_MINIMAZED,
     minimazed: bool,
+  };
+};
+
+export const hidePlayer = (bool) => {
+  return {
+    type: HIDE_PLAYER,
+    hidden: bool,
   };
 };
 

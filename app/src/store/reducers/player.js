@@ -11,6 +11,7 @@ import {
   UPDATE_PRESSED,
   MOVE_TO_NEXT_ALBUM,
   UPDATE_ALBUM_ID_AND_DESC,
+  HIDE_PLAYER,
 } from '../types';
 
 const initialState = {
@@ -27,6 +28,7 @@ const initialState = {
   moveToNextAlbum: false,
   curAlbumId: 0,
   curAlbumDesc: null,
+  hidden: false,
 };
 
 export const playerReducer = (state = initialState, action) => {
@@ -58,6 +60,8 @@ export const playerReducer = (state = initialState, action) => {
       return (state = {...state, isPlaying: action.isPlaying});
     case IS_MINIMAZED:
       return (state = {...state, minimazed: action.minimazed});
+    case HIDE_PLAYER:
+      return (state = {...state, hidden: action.hidden});
     case UPDATE_TIME:
       return (state = {...state, currentTime: action.currentTime});
     case HANDLE_PREV_NEXT:

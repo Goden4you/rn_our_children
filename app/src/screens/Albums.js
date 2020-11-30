@@ -97,12 +97,14 @@ export const Albums = ({navigation}) => {
   }
 };
 
+let phoneHeight = Dimensions.get('screen').height;
+
 const styles = StyleSheet.create({
   container: {
     paddingVertical: 25,
     paddingLeft: 25,
     paddingRight: 30,
-    height: '90%',
+    height: phoneHeight - 250,
     backgroundColor: '#fff',
   },
   albumImageWrap: {

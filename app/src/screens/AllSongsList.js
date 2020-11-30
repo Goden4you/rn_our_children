@@ -38,10 +38,8 @@ export const AllSongsList = () => {
         ...statement,
         orientation,
       };
-    });
-    setTimeout(() => {
       forceUpdate();
-    }, 250);
+    });
   };
 
   useEffect(() => {
@@ -134,11 +132,11 @@ let phoneHeight = Dimensions.get('screen').height;
 const styles = StyleSheet.create({
   mainWrapPortrait: {
     width: '100%',
-    height: phoneHeight - 175,
+    height: phoneHeight - 180,
   },
   mainWrapLandscape: {
     width: '100%',
-    height: '80%',
+    height: '82%',
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',

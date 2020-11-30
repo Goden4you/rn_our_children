@@ -7,10 +7,12 @@ import {isMinimazed} from '../../store/actions/player';
 
 export const MinimazedPlayer = () => {
   const {currentAlbumImage} = useSelector((state) => state.albums);
-  const {trackPlayerInit, minimazed} = useSelector((state) => state.player);
+  const {trackPlayerInit, minimazed, hidden} = useSelector(
+    (state) => state.player,
+  );
   const dispatch = useDispatch();
   return minimazed ? (
-    <View style={styles.containerMinimazed}>
+    <View style={hidden ? styles.hidden : styles.containerMinimazed}>
       <TouchableOpacity
         style={styles.imageAndInfo}
         onPress={() => (trackPlayerInit ? dispatch(isMinimazed(false)) : null)}>
@@ -33,7 +35,7 @@ export const MinimazedPlayer = () => {
 
 const styles = StyleSheet.create({
   containerMinimazed: {
-    height: 60,
+    height: '100%',
     width: '100%',
     backgroundColor: '#fff',
     flexDirection: 'row',
@@ -54,5 +56,8 @@ const styles = StyleSheet.create({
     height: '100%',
     width: '20%',
     resizeMode: 'contain',
+  },
+  hidden: {
+    display: 'none',
   },
 });
