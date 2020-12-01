@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer} from 'react';
+import React, {useEffect} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   ScrollView,
@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
+  Platform,
 } from 'react-native';
 
 import {fetchAllSongsData} from '../store/actions/albums';
@@ -15,36 +16,19 @@ import {onTrackPressed} from '../utils/utils';
 import {GoToSettings} from '../navigation/goSettings';
 import Orientation from 'react-native-orientation';
 
-let statement = {
-  orientation: 'PORTRAIT',
-};
-
 export const AllSongsList = () => {
-  const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
   const dispatch = useDispatch();
+  Orientation.unlockAllOrientations();
 
   const allData = useSelector((state) => state.albums.allData);
   const curAlbumId = useSelector((state) => state.player.curAlbumId);
+  const orientation = useSelector((state) => state.general.orientation);
   const {albumsPhotos, albumsTitles, albumsDesc} = useSelector(
     (state) => state.albums.allAlbums,
   );
 
-  const onOrientationChanged = () => {
-    Orientation.getOrientation((err, orientation) => {
-      if (err) {
-        console.log(err);
-      }
-      statement = {
-        ...statement,
-        orientation,
-      };
-      forceUpdate();
-    });
-  };
-
   useEffect(() => {
     dispatch(fetchAllSongsData());
-    Orientation.addOrientationListener(onOrientationChanged);
   }, [dispatch]);
 
   const SongsList = () => {
@@ -114,7 +98,7 @@ export const AllSongsList = () => {
   return (
     <View
       style={
-        statement.orientation === 'PORTRAIT'
+        orientation === 'PORTRAIT'
           ? styles.mainWrapPortrait
           : styles.mainWrapLandscape
       }>
@@ -132,11 +116,11 @@ let phoneHeight = Dimensions.get('screen').height;
 const styles = StyleSheet.create({
   mainWrapPortrait: {
     width: '100%',
-    height: phoneHeight - 180,
+    height: Platform.OS === 'android' ? phoneHeight - 180 : '92%',
   },
   mainWrapLandscape: {
     width: '100%',
-    height: '82%',
+    height: '83%',
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',

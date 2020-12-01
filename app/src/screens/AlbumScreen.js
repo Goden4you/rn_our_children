@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer} from 'react';
+import React, {useEffect} from 'react';
 import {
   View,
   ScrollView,
@@ -8,6 +8,7 @@ import {
   StyleSheet,
   ImageBackground,
   Dimensions,
+  Platform,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import Orientation from 'react-native-orientation';
@@ -16,15 +17,13 @@ import {isAlbumDataLoading, openAlbumScreen} from '../store/actions/albums';
 import store from '../store';
 import {onTrackPressed} from '../utils/utils';
 
-var statement = {
-  albumImage: null,
-  orientation: 'PORTRAIT',
-};
-
 var dispatch;
 
+let statement = {
+  albumImage: null,
+};
+
 export const AlbumScreen = ({navigation, route}) => {
-  const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
   const {
     albumTitleProps,
     albumDescProps,
@@ -34,34 +33,20 @@ export const AlbumScreen = ({navigation, route}) => {
 
   dispatch = useDispatch();
 
-  const onOrientationChanged = () => {
-    Orientation.getOrientation((err, orientation) => {
-      if (err) {
-        console.log(err);
-      }
-      statement = {
-        ...statement,
-        orientation,
-      };
-      forceUpdate();
-    });
-  };
-
   const {tracksIds, tracksTitles, tracksAuthors, tracksDuration} = useSelector(
     (state) => state.albums.openedAlbum,
   );
   const isAlbumLoading = useSelector((state) => state.albums.isAlbumLoading);
   const songsCount = useSelector((state) => state.albums.songsCount);
-  const moveToNextAlbum = useSelector((state) => state.player.moveToNextAlbum);
   const curAlbumId = useSelector((state) => state.player.curAlbumId);
-  statement = {...statement, moveToNextAlbum};
+  const orientation = useSelector((state) => state.general.orientation);
 
   useEffect(() => {
     if (albumImageProps !== statement.albumImage) {
       dispatch(openAlbumScreen(albumDescProps, albumIdProps));
       const unsubscribe = store.subscribe(() => store.getState());
       unsubscribe();
-      Orientation.addOrientationListener(onOrientationChanged);
+
       statement = {
         ...statement,
         albumImage: albumImageProps,
@@ -69,6 +54,7 @@ export const AlbumScreen = ({navigation, route}) => {
     } else {
       dispatch(isAlbumDataLoading(false));
     }
+    Orientation.unlockAllOrientations();
   }, [albumImageProps, albumIdProps, albumDescProps]);
 
   if (!isAlbumLoading) {
@@ -95,7 +81,7 @@ export const AlbumScreen = ({navigation, route}) => {
           }
           scrollEventThrottle={16}
           style={
-            statement.orientation === 'PORTRAIT'
+            orientation === 'PORTRAIT'
               ? styles.containerPortrait
               : styles.containerLandscape
           }>
@@ -171,7 +157,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   containerPortrait: {
-    height: phoneHeight - 260,
+    height: Platform.OS === 'android' ? phoneHeight - 260 : '90%',
     backgroundColor: '#fff',
   },
   containerLandscape: {

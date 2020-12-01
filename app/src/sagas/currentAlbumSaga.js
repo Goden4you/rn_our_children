@@ -50,7 +50,6 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       let lastTrackId = data[songsCount - 1].songFileId;
 
       if (!currentAlbum) {
-        console.log('album open now');
         yield put(
           albumsActions.openAlbum(
             tracksTitles,

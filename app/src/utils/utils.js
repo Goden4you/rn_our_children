@@ -1,7 +1,9 @@
 import {Platform} from 'react-native';
+import Orientation from 'react-native-orientation';
 import RNFetchBlob from 'rn-fetch-blob';
 
 import {updateAlbumImage, albumChanged} from '../store/actions/albums';
+import {orientationChanged} from '../store/actions/general';
 import {updatePressed, updateTrackId} from '../store/actions/player';
 
 let fs = RNFetchBlob.fs;
@@ -33,7 +35,7 @@ export const takeAlbumsPhotos = async () => {
   let path =
     Platform.OS === 'android'
       ? fs.dirs.CacheDir + '/albums_photos/'
-      : fs.dirs.DocumentDir + '/albums_photos/';
+      : fs.dirs.CacheDir + '/albums_photos';
   let allPhotosPath = await fs.exists(path);
   if (!allPhotosPath) {
     return;
@@ -44,7 +46,10 @@ export const takeAlbumsPhotos = async () => {
 };
 
 export const takeAlbumsData = async () => {
-  let path = fs.dirs.CacheDir + '/albums_data/';
+  let path =
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/albums_data/'
+      : fs.dirs.CacheDir + '/albums_data';
   let res = await fs.exists(path);
   if (!res) {
     return;
@@ -65,7 +70,10 @@ export const takeCurAlbumData = async (id) => {
 };
 
 export const takeAllSongsData = async () => {
-  let path = fs.dirs.CacheDir + '/all_songs_data/';
+  let path =
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/all_songs_data/'
+      : fs.dirs.CacheDir + '/all_songs_data';
   let res = await fs.exists(path);
   if (!res) {
     return;
@@ -75,7 +83,10 @@ export const takeAllSongsData = async () => {
 };
 
 export const takeLastSearches = async () => {
-  let path = fs.dirs.CacheDir + '/last_searches/';
+  let path =
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/last_searches/'
+      : fs.dirs.CacheDir + '/last_searches';
   let res = await fs.exists(path);
   if (!res) {
     return;
@@ -85,26 +96,49 @@ export const takeLastSearches = async () => {
 };
 
 export const makeCurAlbumDirectory = async (id) => {
-  const res = await fs.exists(fs.dirs.CacheDir + '/albums/');
+  const res = await fs.exists(
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/albums/'
+      : fs.dirs.CacheDir + '/albums',
+  );
   if (!res) {
-    await fs.mkdir(fs.dirs.CacheDir + '/albums/');
+    await fs.mkdir(
+      Platform.OS === 'android'
+        ? fs.dirs.CacheDir + '/albums/'
+        : fs.dirs.CacheDir + '/albums',
+    );
   }
 };
 
 export const makeLoadedTracksDir = async () => {
-  const res = await fs.exists(fs.dirs.CacheDir + '/loaded_tracks/');
+  const res = await fs.exists(
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/loaded_tracks/'
+      : fs.dirs.CacheDir + '/loaded_tracks',
+  );
   if (!res) {
-    await fs.mkdir(fs.dirs.CacheDir + '/loaded_tracks/');
+    await fs.mkdir(
+      Platform.OS === 'android'
+        ? fs.dirs.CacheDir + '/loaded_tracks/'
+        : fs.dirs.CacheDir + '/loaded_tracks',
+    );
   }
 };
 
 export const putAlbumsData = async (data) => {
-  await fs.writeFile(fs.dirs.CacheDir + '/albums_data/', JSON.stringify(data));
+  await fs.writeFile(
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/albums_data/'
+      : fs.dirs.CacheDir + '/albums_data',
+    JSON.stringify(data),
+  );
 };
 
 export const putAlbumsPhotos = async (photos) => {
   await fs.writeFile(
-    fs.dirs.DocumentDir + '/albums_photos/',
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/albums_photos/'
+      : fs.dirs.CacheDir + '/albums_photos',
     JSON.stringify(photos),
   );
 };
@@ -118,14 +152,18 @@ export const putCurAlbumData = async (data, id) => {
 
 export const putAllSongsData = async (data) => {
   await fs.writeFile(
-    fs.dirs.CacheDir + '/all_songs_data/',
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/all_songs_data/'
+      : fs.dirs.CacheDir + '/all_songs_data',
     JSON.stringify(data),
   );
 };
 
 export const putLastSearches = async (searches) => {
   await fs.writeFile(
-    fs.dirs.CacheDir + '/last_searches/',
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/last_searches/'
+      : fs.dirs.CacheDir + '/last_searches',
     JSON.stringify(searches),
   );
 };
@@ -149,5 +187,18 @@ export const onTrackPressed = ({
 };
 
 export const removeLastSearches = async () => {
-  await fs.unlink(fs.dirs.CacheDir + '/last_searches/');
+  await fs.unlink(
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/last_searches/'
+      : fs.dirs.CacheDir + '/last_searches',
+  );
+};
+
+export const onOrientationChanged = (dispatch) => {
+  Orientation.getOrientation((err, orien) => {
+    if (err) {
+      console.log(err);
+    }
+    dispatch(orientationChanged(orien));
+  });
 };

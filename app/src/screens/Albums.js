@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {
   ScrollView,
   View,
@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Dimensions,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 import SplashScreen from 'react-native-splash-screen';
 import {isAlbumDataLoading} from '../store/actions/albums';
+import Orientation from 'react-native-orientation';
+import {onOrientationChanged} from '../utils/utils';
 
 var osyaSrc = [
   require('../../../images/osya/1/osya1.png'),
@@ -24,11 +25,27 @@ var osyaSrc = [
 
 export const Albums = ({navigation}) => {
   const allAlbums = useSelector((state) => state.albums.allAlbums);
+  const orientation = useSelector((state) => state.general.orientation);
   const dispatch = useDispatch();
-  SplashScreen.hide();
+
+  useEffect(() => {
+    SplashScreen.hide();
+    // Orientation.addOrientationListener(() => onOrientationChanged(dispatch));
+    Orientation.lockToPortrait();
+
+    return function cleanUp() {
+      Orientation.removeOrientationListener(onOrientationChanged);
+    };
+  }, [dispatch]);
+
   if (allAlbums.albumsPhotos) {
     return (
-      <View style={styles.container}>
+      <View
+        style={
+          orientation === 'PORTRAIT'
+            ? styles.containerPortrait
+            : styles.containerLandscape
+        }>
         <ScrollView
           showsVerticalScrollIndicator={false}
           onScroll={(event) =>
@@ -97,14 +114,19 @@ export const Albums = ({navigation}) => {
   }
 };
 
-let phoneHeight = Dimensions.get('screen').height;
-
 const styles = StyleSheet.create({
-  container: {
+  containerPortrait: {
     paddingVertical: 25,
     paddingLeft: 25,
     paddingRight: 30,
-    height: phoneHeight - 250,
+    height: '92%',
+    backgroundColor: '#fff',
+  },
+  containerLandscape: {
+    paddingVertical: 25,
+    paddingLeft: 25,
+    paddingRight: 30,
+    height: '80%',
     backgroundColor: '#fff',
   },
   albumImageWrap: {

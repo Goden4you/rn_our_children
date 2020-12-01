@@ -101,9 +101,11 @@ async function setupPlayer() {
             clearInterval(interval);
             TrackPlayer.play();
           } else if (
-            (await TrackPlayer.getState()) === TrackPlayer.STATE_PLAYING
+            (await TrackPlayer.getState()) === TrackPlayer.STATE_PLAYING ||
+            TrackPlayer.STATE_PAUSED
           ) {
             clearInterval(interval);
+            TrackPlayer.play();
           }
         }, 500);
       }
@@ -260,7 +262,10 @@ function isPressed() {
   } else {
     TrackPlayer.skip(state.trackId.toString());
     let interval = setInterval(async () => {
-      if ((await TrackPlayer.getState()) === TrackPlayer.STATE_READY) {
+      if (
+        (await TrackPlayer.getState()) === TrackPlayer.STATE_READY ||
+        TrackPlayer.STATE_PAUSED
+      ) {
         clearInterval(interval);
         console.log('skipped from isPressed');
         TrackPlayer.play();

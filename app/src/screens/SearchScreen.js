@@ -26,11 +26,9 @@ import Orientation from 'react-native-orientation';
 import {hidePlayer} from '../store/actions/player';
 
 export const SearchScreen = () => {
-  const [ignored, forceUpdate] = useReducer((x) => x + 1, 0);
   const [search, setSearch] = useState('');
   const [searchRes, setSearchRes] = useState([]);
   const [inputs, setInputs] = useState([]);
-  const [orientation, setOrientation] = useState('PORTRAIT');
   const dispatch = useDispatch();
 
   const allData = useSelector((state) => state.albums.allData);
@@ -50,20 +48,6 @@ export const SearchScreen = () => {
   if (inputs.toString() === '') {
     takeInputs();
   }
-
-  useEffect(() => {
-    Orientation.addOrientationListener(onOrientationChanged);
-  });
-
-  const onOrientationChanged = () => {
-    Orientation.getOrientation((err, orient) => {
-      if (err) {
-        console.log(err);
-      }
-      setOrientation(orient);
-      forceUpdate();
-    });
-  };
 
   const updateSearch = (value) => {
     // console.log('allData -', allData !== '');
@@ -139,14 +123,8 @@ export const SearchScreen = () => {
     let prevAlbumId = 0;
     let index = -1;
     let firstAlbumId = 0;
-    console.log('orientation - ', orientation);
     return searchRes.toString() !== '' ? (
-      <ScrollView
-        style={
-          orientation === 'PORTRAIT'
-            ? styles.scrollWrapPortrait
-            : styles.scrollWrapLandscape
-        }>
+      <ScrollView style={styles.scrollWrap}>
         {searchRes[0].map((tracksData) => {
           return tracksData.map((track) => {
             if (prevAlbumId !== track.albumId) {
@@ -237,10 +215,11 @@ export const SearchScreen = () => {
       </View>
       <SearchBar
         platform={Platform.OS}
+        showCancel={true}
+        cancelButtonProps={{color: '#f47928'}}
         placeholder="Название"
         onChangeText={(value) => updateSearch(value)}
         value={search}
-        showLoading={true}
         containerStyle={styles.searchWrap}
         inputContainerStyle={styles.input}
         onClear={() => {
@@ -267,7 +246,7 @@ let phoneHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
   mainWrap: {
     backgroundColor: '#fff',
-    height: '100%',
+    // height: '95%',
   },
   wrapper: {
     paddingVertical: 13,
@@ -353,12 +332,8 @@ const styles = StyleSheet.create({
     borderBottomColor: '#e5e5e5',
     paddingBottom: 10,
   },
-  scrollWrapPortrait: {
-    height: phoneHeight - 310,
-    backgroundColor: '#fff',
-  },
-  scrollWrapLandscape: {
-    height: phoneHeight - 170,
+  scrollWrap: {
+    height: phoneHeight - 290,
     backgroundColor: '#fff',
   },
   hlStyle: {
