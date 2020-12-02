@@ -71,7 +71,7 @@ export const playerReducer = (state = initialState, action) => {
         formattedCurrentTime: action.formattedCurrentTime,
         trackId: action.trackId,
         pressed: action.pressed,
-        audioLoaded: action.audioLoaded,
+        // audioLoaded: action.audioLoaded,
         isPlaying: action.isPlaying,
       });
     case QUEUE_ENDED:

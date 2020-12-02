@@ -25,27 +25,16 @@ var osyaSrc = [
 
 export const Albums = ({navigation}) => {
   const allAlbums = useSelector((state) => state.albums.allAlbums);
-  const orientation = useSelector((state) => state.general.orientation);
   const dispatch = useDispatch();
 
   useEffect(() => {
     SplashScreen.hide();
-    // Orientation.addOrientationListener(() => onOrientationChanged(dispatch));
     Orientation.lockToPortrait();
-
-    return function cleanUp() {
-      Orientation.removeOrientationListener(onOrientationChanged);
-    };
   }, [dispatch]);
 
   if (allAlbums.albumsPhotos) {
     return (
-      <View
-        style={
-          orientation === 'PORTRAIT'
-            ? styles.containerPortrait
-            : styles.containerLandscape
-        }>
+      <View style={styles.containerPortrait}>
         <ScrollView
           showsVerticalScrollIndicator={false}
           onScroll={(event) =>
@@ -116,19 +105,18 @@ export const Albums = ({navigation}) => {
 
 const styles = StyleSheet.create({
   containerPortrait: {
-    paddingVertical: 25,
     paddingLeft: 25,
     paddingRight: 30,
     height: '92%',
     backgroundColor: '#fff',
   },
-  containerLandscape: {
-    paddingVertical: 25,
-    paddingLeft: 25,
-    paddingRight: 30,
-    height: '80%',
-    backgroundColor: '#fff',
-  },
+  // containerLandscape: {
+  //   paddingVertical: 25,
+  //   paddingLeft: 25,
+  //   paddingRight: 30,
+  //   height: '80%',
+  //   backgroundColor: '#fff',
+  // },
   albumImageWrap: {
     width: 200,
     height: 200,
@@ -139,7 +127,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   albumWrap: {
-    marginBottom: 31,
+    paddingVertical: 20,
     flexDirection: 'row',
     justifyContent: 'space-between',
   },

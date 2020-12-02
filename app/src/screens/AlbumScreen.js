@@ -11,7 +11,6 @@ import {
   Platform,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
-import Orientation from 'react-native-orientation';
 
 import {isAlbumDataLoading, openAlbumScreen} from '../store/actions/albums';
 import store from '../store';
@@ -39,7 +38,6 @@ export const AlbumScreen = ({navigation, route}) => {
   const isAlbumLoading = useSelector((state) => state.albums.isAlbumLoading);
   const songsCount = useSelector((state) => state.albums.songsCount);
   const curAlbumId = useSelector((state) => state.player.curAlbumId);
-  const orientation = useSelector((state) => state.general.orientation);
 
   useEffect(() => {
     if (albumImageProps !== statement.albumImage) {
@@ -54,7 +52,6 @@ export const AlbumScreen = ({navigation, route}) => {
     } else {
       dispatch(isAlbumDataLoading(false));
     }
-    Orientation.unlockAllOrientations();
   }, [albumImageProps, albumIdProps, albumDescProps]);
 
   if (!isAlbumLoading) {
@@ -80,11 +77,7 @@ export const AlbumScreen = ({navigation, route}) => {
                 })
           }
           scrollEventThrottle={16}
-          style={
-            orientation === 'PORTRAIT'
-              ? styles.containerPortrait
-              : styles.containerLandscape
-          }>
+          style={styles.containerPortrait}>
           <ImageBackground
             source={require('../../../images/blur/drawable-mdpi/layer_1.png')}
             style={styles.backgroundImage}>
@@ -157,13 +150,13 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   containerPortrait: {
-    height: Platform.OS === 'android' ? phoneHeight - 260 : '90%',
+    height: Platform.OS === 'android' ? phoneHeight - 250 : '90%',
     backgroundColor: '#fff',
   },
-  containerLandscape: {
-    height: '76%',
-    backgroundColor: '#fff',
-  },
+  // containerLandscape: {
+  //   height: '76%',
+  //   backgroundColor: '#fff',
+  // },
   albumWrap: {
     padding: 25,
     flexDirection: 'row',

@@ -1,13 +1,14 @@
 import {call, put, select, takeEvery} from 'redux-saga/effects';
 import Api from '../api';
 import {albumsIds, allTracksData} from '../store/selectors';
-import {allSongsData} from '../store/actions/albums';
+import {allSongsData, isAlbumDataLoading} from '../store/actions/albums';
 import {takeAllSongsData, putAllSongsData} from '../utils/utils';
 import {FETCH_ALL_SONGS_DATA} from '../store/types';
 
 function* fetchAllSongs() {
   try {
     console.log('fetchAllSongs called');
+    yield put(isAlbumDataLoading(true));
     const ids = yield select(albumsIds);
 
     let data = yield call(takeAllSongsData);
@@ -29,6 +30,7 @@ function* fetchAllSongs() {
     let needUpdate = yield select(allTracksData);
     console.log('needUpdate ? ', needUpdate);
     needUpdate.toString() !== '' ? null : yield put(allSongsData(data));
+    yield put(isAlbumDataLoading(false));
   } catch (e) {
     console.log(e);
   }

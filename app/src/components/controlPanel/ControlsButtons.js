@@ -21,7 +21,6 @@ export const handlePlayPause = async () => {
 };
 
 export const handlePreviousTrack = async () => {
-  console.log('audio loaded? -', state.audioLoaded);
   if (state.audioLoaded) {
     let {trackId} = state;
     if (JSON.parse(trackId) - 1 >= state.firstTrackId) {
@@ -29,19 +28,18 @@ export const handlePreviousTrack = async () => {
       state = {
         ...state,
         trackId,
-        currentTime: 0,
-        formattedCurrentTime: '00:00',
-        pressed: false,
+        audioLoaded: false,
       };
 
+      dispatch(handlePrevNext(trackId));
       TrackPlayer.skipToPrevious().then(() => {
-        state = {
-          ...state,
-          audioLoaded: true,
-          isPlaying: true,
-        };
-
-        dispatch(handlePrevNext(trackId));
+        setTimeout(() => {
+          state = {
+            ...state,
+            audioLoaded: true,
+            isPlaying: true,
+          };
+        }, 250);
       });
     } else {
       TrackPlayer.seekTo(0);
@@ -69,20 +67,18 @@ export const handleNextTrack = async () => {
         state = {
           ...state,
           trackId,
-          currentTime: 0,
-          formattedCurrentTime: '00:00',
-          pressed: false,
         };
 
+        // setTimeout(() => {
         TrackPlayer.skipToNext().then(() => {
           state = {
             ...state,
             audioLoaded: true,
             isPlaying: true,
           };
-          console.log('trackId from handleNext - ', trackId);
           dispatch(handlePrevNext(trackId));
         });
+        // }, 500);
       } else {
         TrackPlayer.stop();
         dispatch(needMoveToNextAlbum(true));
@@ -91,10 +87,7 @@ export const handleNextTrack = async () => {
 
         state = {
           ...state,
-          currentTime: 0,
           audioLoaded: false,
-          formattedCurrentTime: '00:00',
-          pressed: false,
         };
         dispatch(handlePrevNext(trackId));
         moveNextAlbum();

@@ -22,8 +22,8 @@ import {
   removeLastSearches,
   takeLastSearches,
 } from '../utils/utils';
-import Orientation from 'react-native-orientation';
 import {hidePlayer} from '../store/actions/player';
+import store from '../store';
 
 export const SearchScreen = () => {
   const [search, setSearch] = useState('');

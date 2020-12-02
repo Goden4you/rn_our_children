@@ -103,7 +103,7 @@ export const handlePrevNext = (trackId) => {
     formattedCurrentTime: '00:00',
     trackId,
     pressed: false,
-    audioLoaded: true,
+    // audioLoaded: true,
     isPlaying: true,
   };
 };

@@ -197,6 +197,7 @@ async function loadAudio(currentTrack, firstStart) {
         needUpdate2: true,
       };
       dispatch(loadTrack(pressed, state.isPlaying));
+      console.log('load track dispatched');
     }
   } catch (e) {
     Alert.alert(

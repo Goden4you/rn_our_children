@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   ScrollView,
@@ -14,94 +14,107 @@ import {
 import {fetchAllSongsData} from '../store/actions/albums';
 import {onTrackPressed} from '../utils/utils';
 import {GoToSettings} from '../navigation/goSettings';
-import Orientation from 'react-native-orientation';
+
+let state = {
+  allData: [],
+  curAlbumId: 0,
+  albumsPhotos: [],
+  albumsTitles: [],
+  albumsDesc: [],
+};
+let dispatch;
+
+const SongsList = () => {
+  console.log('songs list updated');
+  let prevAlbumId = 0;
+  let firstAlbumId = 0;
+  if (state.allData.toString() !== '' && state.albumsPhotos) {
+    return (
+      <ScrollView style={styles.scrollWrap} scrollEventThrottle={16}>
+        {state.allData.map((allTracks) => {
+          return allTracks.map((track) => {
+            if (prevAlbumId !== track.albumId) {
+              if (prevAlbumId === 0) {
+                firstAlbumId = track.albumId;
+              }
+              prevAlbumId = track.albumId;
+            }
+            return (
+              <TouchableOpacity
+                style={styles.wrapper}
+                key={track.id}
+                onPress={() => {
+                  let desc = state.albumsDesc[track.albumId - firstAlbumId];
+                  desc = desc.toString().substring(0, 2);
+                  desc = parseInt(desc, 10);
+                  onTrackPressed({
+                    trackId: track.songFileId,
+                    albumIdProps: track.albumId,
+                    curAlbumId: state.curAlbumId,
+                    albumImage:
+                      state.albumsPhotos[track.albumId - firstAlbumId],
+                    songsCount: desc,
+                    dispatch,
+                  });
+                }}>
+                <Image
+                  source={{
+                    uri: state.albumsPhotos[track.albumId - firstAlbumId],
+                  }}
+                  style={styles.photo}
+                />
+                <View style={styles.songInfoWrap}>
+                  <Text style={styles.songTitle}>{track.title}</Text>
+                  <View style={styles.songInfo}>
+                    <Text style={styles.songAuthor}>
+                      {track.author +
+                        ' | ' +
+                        state.albumsTitles[track.albumId - firstAlbumId]}
+                    </Text>
+                  </View>
+                </View>
+                <View>
+                  <Text style={styles.songDuration}>{track.duration}</Text>
+                </View>
+              </TouchableOpacity>
+            );
+          });
+        })}
+      </ScrollView>
+    );
+  } else {
+    return (
+      <View style={styles.loading}>
+        <Text>Пожалуйста, подождите...</Text>
+      </View>
+    );
+  }
+};
 
 export const AllSongsList = () => {
-  const dispatch = useDispatch();
-  Orientation.unlockAllOrientations();
+  dispatch = useDispatch();
 
-  const allData = useSelector((state) => state.albums.allData);
-  const curAlbumId = useSelector((state) => state.player.curAlbumId);
-  const orientation = useSelector((state) => state.general.orientation);
+  const allData = useSelector((statem) => statem.albums.allData);
+  const curAlbumId = useSelector((statem) => statem.player.curAlbumId);
   const {albumsPhotos, albumsTitles, albumsDesc} = useSelector(
-    (state) => state.albums.allAlbums,
+    (statem) => statem.albums.allAlbums,
   );
+
+  state = {
+    ...state,
+    allData,
+    curAlbumId,
+    albumsPhotos,
+    albumsTitles,
+    albumsDesc,
+  };
 
   useEffect(() => {
     dispatch(fetchAllSongsData());
-  }, [dispatch]);
-
-  const SongsList = () => {
-    console.log('songs list updated');
-    let prevAlbumId = 0;
-    let firstAlbumId = 0;
-    if (allData.toString() !== '' && albumsPhotos) {
-      return (
-        <ScrollView style={styles.scrollWrap}>
-          {allData.map((allTracks) => {
-            return allTracks.map((track) => {
-              if (prevAlbumId !== track.albumId) {
-                if (prevAlbumId === 0) {
-                  firstAlbumId = track.albumId;
-                }
-                prevAlbumId = track.albumId;
-              }
-              return (
-                <TouchableOpacity
-                  style={styles.wrapper}
-                  key={track.id}
-                  onPress={() => {
-                    let desc = albumsDesc[track.albumId - firstAlbumId];
-                    desc = desc.toString().substring(0, 2);
-                    desc = parseInt(desc, 10);
-                    onTrackPressed({
-                      trackId: track.songFileId,
-                      albumIdProps: track.albumId,
-                      curAlbumId,
-                      albumImage: albumsPhotos[track.albumId - firstAlbumId],
-                      songsCount: desc,
-                      dispatch,
-                    });
-                  }}>
-                  <Image
-                    source={{uri: albumsPhotos[track.albumId - firstAlbumId]}}
-                    style={styles.photo}
-                  />
-                  <View style={styles.songInfoWrap}>
-                    <Text style={styles.songTitle}>{track.title}</Text>
-                    <View style={styles.songInfo}>
-                      <Text style={styles.songAuthor}>
-                        {track.author +
-                          ' | ' +
-                          albumsTitles[track.albumId - firstAlbumId]}
-                      </Text>
-                    </View>
-                  </View>
-                  <View>
-                    <Text style={styles.songDuration}>{track.duration}</Text>
-                  </View>
-                </TouchableOpacity>
-              );
-            });
-          })}
-        </ScrollView>
-      );
-    } else {
-      return (
-        <View style={styles.loading}>
-          <Text>Пожалуйста, подождите...</Text>
-        </View>
-      );
-    }
-  };
+  }, []);
 
   return (
-    <View
-      style={
-        orientation === 'PORTRAIT'
-          ? styles.mainWrapPortrait
-          : styles.mainWrapLandscape
-      }>
+    <View style={styles.mainWrapPortrait}>
       <View style={styles.header}>
         <Text style={styles.headerText}>Все песни</Text>
         <GoToSettings />
@@ -118,10 +131,10 @@ const styles = StyleSheet.create({
     width: '100%',
     height: Platform.OS === 'android' ? phoneHeight - 180 : '92%',
   },
-  mainWrapLandscape: {
-    width: '100%',
-    height: '83%',
-  },
+  // mainWrapLandscape: {
+  //   width: '100%',
+  //   height: '83%',
+  // },
   header: {
     backgroundColor: 'rgb(109,207,246)',
     height: 80,
