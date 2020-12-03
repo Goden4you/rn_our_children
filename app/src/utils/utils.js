@@ -62,10 +62,19 @@ export const takeAlbumsData = async () => {
 export const takeCurAlbumData = async (id) => {
   let path = fs.dirs.CacheDir + '/cur_album_data/' + id;
   let res = await fs.exists(path);
+
+  let path2 = fs.dirs.CacheDir + '/cur_album_data/';
+  let res2 = await fs.exists(path2);
+
+  if (!res2) {
+    fs.mkdir(path2);
+  }
+
   if (!res) {
+    console.log('returned with undefined');
     return;
   }
-  let data = await fs.readFile(path);
+  let data = await fs.readFile(path, 'utf8');
   return data;
 };
 
@@ -76,6 +85,7 @@ export const takeAllSongsData = async () => {
       : fs.dirs.CacheDir + '/all_songs_data';
   let res = await fs.exists(path);
   if (!res) {
+    console.log('returned with undefined');
     return;
   }
   let data = await fs.readFile(path);
@@ -143,15 +153,17 @@ export const putAlbumsPhotos = async (photos) => {
   );
 };
 
-export const putCurAlbumData = async (data, id) => {
-  await fs.writeFile(
-    fs.dirs.CacheDir + '/cur_album_data/' + id,
-    JSON.stringify(data),
+export const putCurAlbumData = async (props) => {
+  console.log('id to write - ', [props[1]]);
+  await fs.createFile(
+    fs.dirs.CacheDir + '/cur_album_data/' + props[1],
+    JSON.stringify(props[0]),
+    'utf8',
   );
 };
 
 export const putAllSongsData = async (data) => {
-  await fs.writeFile(
+  await fs.createFile(
     Platform.OS === 'android'
       ? fs.dirs.CacheDir + '/all_songs_data/'
       : fs.dirs.CacheDir + '/all_songs_data',
@@ -201,4 +213,26 @@ export const onOrientationChanged = (dispatch) => {
     }
     dispatch(orientationChanged(orien));
   });
+};
+
+export const putLoadedSize = async (size) => {
+  await fs.writeFile(
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/loaded_size/'
+      : fs.dirs.CacheDir + '/loaded_size',
+    JSON.stringify(size),
+  );
+};
+
+export const takeLoadedSize = async () => {
+  let path =
+    Platform.OS === 'android'
+      ? fs.dirs.CacheDir + '/loaded_size/'
+      : fs.dirs.CacheDir + '/loaded_size';
+  let res = await fs.exists(path);
+  if (!res) {
+    return 0;
+  }
+  let size = await fs.readFile(path);
+  return size;
 };

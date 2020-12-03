@@ -1,4 +1,4 @@
-import React, {useEffect, useReducer, useState} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -23,7 +23,6 @@ import {
   takeLastSearches,
 } from '../utils/utils';
 import {hidePlayer} from '../store/actions/player';
-import store from '../store';
 
 export const SearchScreen = () => {
   const [search, setSearch] = useState('');
@@ -36,6 +35,7 @@ export const SearchScreen = () => {
     (state) => state.albums.allAlbums,
   );
   const curAlbumId = useSelector((state) => state.player.curAlbumId);
+  const hidden = useSelector((state) => state.player.hidden);
 
   const takeInputs = async () => {
     let response = await takeLastSearches();
@@ -124,7 +124,7 @@ export const SearchScreen = () => {
     let index = -1;
     let firstAlbumId = 0;
     return searchRes.toString() !== '' ? (
-      <ScrollView style={styles.scrollWrap}>
+      <ScrollView style={hidden ? styles.hidden : styles.scrollWrap}>
         {searchRes[0].map((tracksData) => {
           return tracksData.map((track) => {
             if (prevAlbumId !== track.albumId) {
@@ -334,6 +334,10 @@ const styles = StyleSheet.create({
   },
   scrollWrap: {
     height: phoneHeight - 290,
+    backgroundColor: '#fff',
+  },
+  hidden: {
+    height: '100%',
     backgroundColor: '#fff',
   },
   hlStyle: {

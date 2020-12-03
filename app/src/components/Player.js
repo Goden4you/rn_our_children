@@ -10,7 +10,6 @@ import {
   Linking,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
-import AsyncStorage from '@react-native-community/async-storage';
 import SplashScreen from 'react-native-splash-screen';
 import RNFetchBlob from 'rn-fetch-blob';
 
@@ -32,7 +31,7 @@ import {
 } from '../store/actions/player';
 import {albumChanged} from '../store/actions/albums';
 import store from '../store';
-import {makeLoadedTracksDir} from '../utils/utils';
+import {makeLoadedTracksDir, takeLoadedSize} from '../utils/utils';
 
 var dispatch;
 var state = {
@@ -295,10 +294,16 @@ function isAlbumImageChanged(move) {
   dispatch(albumChanged(false));
   if (move) {
     dispatch(needMoveToNextAlbum(false));
-    setTimeout(() => {
-      console.log('loadAudio called from album changed');
-      loadAudio(true, false);
-    }, 1000);
+    let interval = setInterval(() => {
+      if (
+        !state.isAlbumLoading &&
+        state.trackId >= state.firstTrackId &&
+        state.trackId <= state.lastTrackId
+      ) {
+        clearInterval(interval);
+        loadAudio(true, false);
+      }
+    }, 250);
   }
 }
 
@@ -313,8 +318,9 @@ const componentUnmounted = async () => {
 const componentMounted = async () => {
   setupPlayer();
   makeLoadedTracksDir();
-  let size = await AsyncStorage.getItem('loaded_size');
+  let size = await takeLoadedSize();
   size = JSON.parse(size);
+  console.log('size -', size);
   dispatch(updateLoadedSize(size));
   state = {
     ...state,

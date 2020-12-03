@@ -2,10 +2,10 @@ import React, {useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Modal} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
-import AsyncStorage from '@react-native-community/async-storage';
 import {updateLoadedSize} from '../store/actions/player';
 import {Back} from '../navigation/goBack';
 import store from '../store';
+import {putLoadedSize} from '../utils/utils';
 
 var statement = {
   loadedMusic: 0,
@@ -34,8 +34,9 @@ export const AppSettings = () => {
   useEffect(() => {
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
+    console.log('size from appSettings -', loadedSize);
     return async function cleanup() {
-      await AsyncStorage.setItem('loaded_size', JSON.stringify(loadedSize));
+      putLoadedSize(loadedSize);
     };
   });
 
