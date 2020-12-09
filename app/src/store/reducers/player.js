@@ -12,6 +12,7 @@ import {
   MOVE_TO_NEXT_ALBUM,
   UPDATE_ALBUM_ID_AND_DESC,
   HIDE_PLAYER,
+  UPDATE_AUDIO_LOADED,
 } from '../types';
 
 const initialState = {
@@ -71,9 +72,11 @@ export const playerReducer = (state = initialState, action) => {
         formattedCurrentTime: action.formattedCurrentTime,
         trackId: action.trackId,
         pressed: action.pressed,
-        // audioLoaded: action.audioLoaded,
+        audioLoaded: action.audioLoaded,
         isPlaying: action.isPlaying,
       });
+    case UPDATE_AUDIO_LOADED:
+      return (state = {...state, audioLoaded: action.audioLoaded});
     case QUEUE_ENDED:
       return (state = {...state, queueEnded: action.queueEnded});
     case UPDATE_PRESSED:

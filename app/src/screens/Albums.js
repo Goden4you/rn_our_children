@@ -11,7 +11,6 @@ import {useDispatch, useSelector} from 'react-redux';
 import SplashScreen from 'react-native-splash-screen';
 import {isAlbumDataLoading} from '../store/actions/albums';
 import Orientation from 'react-native-orientation';
-import {onOrientationChanged} from '../utils/utils';
 
 var osyaSrc = [
   require('../../../images/osya/1/osya1.png'),
@@ -30,7 +29,7 @@ export const Albums = ({navigation}) => {
   useEffect(() => {
     SplashScreen.hide();
     Orientation.lockToPortrait();
-  }, [dispatch]);
+  }, []);
 
   if (allAlbums.albumsPhotos) {
     return (
@@ -110,13 +109,6 @@ const styles = StyleSheet.create({
     height: '92%',
     backgroundColor: '#fff',
   },
-  // containerLandscape: {
-  //   paddingVertical: 25,
-  //   paddingLeft: 25,
-  //   paddingRight: 30,
-  //   height: '80%',
-  //   backgroundColor: '#fff',
-  // },
   albumImageWrap: {
     width: 200,
     height: 200,

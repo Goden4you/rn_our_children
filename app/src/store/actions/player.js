@@ -13,6 +13,7 @@ import {
   MOVE_TO_NEXT_ALBUM,
   UPDATE_ALBUM_ID_AND_DESC,
   HIDE_PLAYER,
+  UPDATE_AUDIO_LOADED,
 } from '../types';
 
 export const loadTrack = (pressed, isPlaying) => {
@@ -103,8 +104,15 @@ export const handlePrevNext = (trackId) => {
     formattedCurrentTime: '00:00',
     trackId,
     pressed: false,
-    // audioLoaded: true,
+    audioLoaded: false,
     isPlaying: true,
+  };
+};
+
+export const updateAudioLoaded = () => {
+  return {
+    type: UPDATE_AUDIO_LOADED,
+    audioLoaded: true,
   };
 };
 

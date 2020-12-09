@@ -28,10 +28,12 @@ import {
   isQueueEnded,
   updatePressed,
   needMoveToNextAlbum,
+  updateAudioLoaded,
 } from '../store/actions/player';
 import {albumChanged} from '../store/actions/albums';
 import store from '../store';
 import {makeLoadedTracksDir, takeLoadedSize} from '../utils/utils';
+import {stat} from 'react-native-fs';
 
 var dispatch;
 var state = {
@@ -108,6 +110,9 @@ async function setupPlayer() {
           }
         }, 500);
       }
+      setTimeout(() => {
+        dispatch(updateAudioLoaded());
+      }, 800);
       checkForLoad();
     } catch (e) {
       console.log(e);
@@ -147,15 +152,15 @@ async function loadAudio(currentTrack, firstStart) {
       console.log('lastTrackId - ', lastTrackId);
       for (let i = firstTrackId; i <= lastTrackId; i++) {
         var path =
-          RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/' + i + '.mp3';
-
+          RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + i + '.mp3';
         const res = await RNFetchBlob.fs.exists(path);
         if (res) {
           console.log('read from cache');
-          await RNFetchBlob.fs.readFile(path).then((uri) => {
+          await RNFetchBlob.fs.readFile(path).then(() => {
+            path = 'file://' + path;
             track[j] = {
               id: i.toString(),
-              url: uri,
+              url: path,
               artist: tracksAuthors[i - firstTrackId].toString(),
               title: tracksTitles[i - firstTrackId].toString(),
             };
@@ -222,17 +227,20 @@ async function checkForLoad() {
   try {
     let {trackId, loadedMusicSize} = state;
     var path =
-      RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/' + trackId + '.mp3';
+      RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + trackId + '.mp3';
     await RNFetchBlob.fs.exists(path).then(async (exist) => {
+      console.log('exists ? -', exist);
       if (!exist) {
+        RNFetchBlob.config({
+          path: path,
+        }).fetch('GET', API_PATH + trackId);
         await fetch(API_PATH + trackId).then((data) => {
           let fileSize = data.headers.get('Content-Length');
           let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
-          console.log('total size 1-', totalSize);
           dispatch(updateLoadedSize(totalSize));
           state = {...state, loadedMusicSize: totalSize};
         });
-        await RNFetchBlob.fs.writeFile(path, API_PATH + trackId);
+        // RNFetchBlob.fs.writeFile(path, API_PATH + trackId);
       }
     });
   } catch (e) {
@@ -267,24 +275,20 @@ function isPressed() {
         TrackPlayer.STATE_PAUSED
       ) {
         clearInterval(interval);
-        console.log('skipped from isPressed');
         TrackPlayer.play();
         state = {
           ...state,
           isPlaying: true,
           pressed: false,
         };
-        console.log('set isPlaying from isPressed');
       }
     }, 250);
   }
   dispatch(updatePressed(false));
   dispatch(isTrackPlaying(true));
-  checkForLoad();
 }
 
 function isAlbumImageChanged(move) {
-  console.log('isAlbumImageChanged called');
   state = {
     ...state,
     audioLoaded: false,

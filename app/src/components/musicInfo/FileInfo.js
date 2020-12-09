@@ -3,7 +3,8 @@ import {View, Text, StyleSheet, Dimensions} from 'react-native';
 import {useSelector} from 'react-redux';
 
 export const FileInfo = () => {
-  const {minimazed, trackId} = useSelector((state) => state.player);
+  const minimazed = useSelector((state) => state.player.minimazed);
+  const trackId = useSelector((state) => state.player.trackId);
   const {tracksTitles, tracksAuthors, firstTrackId} = useSelector(
     (state) => state.albums.currentAlbum,
   );

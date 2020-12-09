@@ -69,7 +69,6 @@ export const handleNextTrack = async () => {
           trackId,
         };
 
-        // setTimeout(() => {
         TrackPlayer.skipToNext().then(() => {
           state = {
             ...state,
@@ -78,7 +77,6 @@ export const handleNextTrack = async () => {
           };
           dispatch(handlePrevNext(trackId));
         });
-        // }, 500);
       } else {
         TrackPlayer.stop();
         dispatch(needMoveToNextAlbum(true));

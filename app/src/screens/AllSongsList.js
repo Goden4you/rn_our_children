@@ -129,12 +129,8 @@ let phoneHeight = Dimensions.get('screen').height;
 const styles = StyleSheet.create({
   mainWrapPortrait: {
     width: '100%',
-    height: Platform.OS === 'android' ? phoneHeight - 180 : '92%',
+    height: Platform.OS === 'android' ? phoneHeight - 170 : '92%',
   },
-  // mainWrapLandscape: {
-  //   width: '100%',
-  //   height: '83%',
-  // },
   header: {
     backgroundColor: 'rgb(109,207,246)',
     height: 80,

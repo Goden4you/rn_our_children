@@ -6,11 +6,14 @@ import {useSelector, useDispatch} from 'react-redux';
 import {isMinimazed} from '../../store/actions/player';
 
 export const MinimazedPlayer = () => {
-  const {currentAlbumImage} = useSelector((state) => state.albums);
-  const {trackPlayerInit, minimazed, hidden} = useSelector(
-    (state) => state.player,
+  const currentAlbumImage = useSelector(
+    (state) => state.albums.currentAlbumImage,
   );
+  const trackPlayerInit = useSelector((state) => state.player.trackPlayerInit);
+  const minimazed = useSelector((state) => state.player.minimazed);
+  const hidden = useSelector((state) => state.player.hidden);
   const dispatch = useDispatch();
+
   return minimazed ? (
     <View style={hidden ? styles.hidden : styles.containerMinimazed}>
       <TouchableOpacity

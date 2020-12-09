@@ -15,14 +15,16 @@ var dispatch;
 
 async function deleteLoadedMusic() {
   if (statement.loadedMusic !== 0) {
-    RNFetchBlob.fs.unlink(RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/');
+    RNFetchBlob.fs.unlink(RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/');
     dispatch(updateLoadedSize(0));
   }
 }
 
 export const AppSettings = () => {
-  const {loadedSize} = useSelector((state) => state.player);
-  const {settingsVisibility} = useSelector((state) => state.albums);
+  const loadedSize = useSelector((state) => state.player.loadedSize);
+  const settingsVisibility = useSelector(
+    (state) => state.albums.settingsVisibility,
+  );
   let size = (loadedSize / 1000000).toFixed(2);
   statement = {
     ...statement,
@@ -34,11 +36,10 @@ export const AppSettings = () => {
   useEffect(() => {
     const unsubscribe = store.subscribe(() => store.getState());
     unsubscribe();
-    console.log('size from appSettings -', loadedSize);
     return async function cleanup() {
       putLoadedSize(loadedSize);
     };
-  });
+  }, [loadedSize]);
 
   return (
     <Modal

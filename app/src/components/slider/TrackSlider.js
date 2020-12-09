@@ -57,9 +57,12 @@ setInterval(() => {
 }, 1000);
 
 export const TrackSlider = () => {
-  const {trackPlayerInit, trackId, audioLoaded, currentTime} = useSelector(
-    (statement) => statement.player,
+  const trackPlayerInit = useSelector(
+    (statement) => statement.player.trackPlayerInit,
   );
+  const trackId = useSelector((statement) => statement.player.trackId);
+  const audioLoaded = useSelector((statement) => statement.player.audioLoaded);
+  const currentTime = useSelector((statement) => statement.player.currentTime);
 
   const {tracksDurationMillis, firstTrackId, tracksDuration} = useSelector(
     (statement) => statement.albums.currentAlbum,
