@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -28,124 +28,17 @@ import {hidePlayer} from '../store/actions/player';
 let state = {
   search: '',
   searchRes: [],
-  inputs: [],
-  allData: [],
-  albumsTitles: [],
-  albumsIds: [],
-  albumsPhotos: [],
   albumsDesc: [],
   curAlbumId: 0,
   hidden: false,
 };
 let dispatch;
 
-const takeInputs = async () => {
-  let response = await takeLastSearches();
-
-  if (response) {
-    state = {
-      ...state,
-      inputs: JSON.parse(response),
-    };
-  }
-};
-
-if (state.inputs.toString() === '') {
-  takeInputs();
-}
-
-const updateSearch = (value) => {
-  // console.log('allData -', allData !== '');
-  if (state.allData.toString() !== '') {
-    const albumsCount = 7;
-    let res = [];
-    let photos = [];
-    let titles = [];
-    let j = 0;
-
-    for (let i = 0; i < albumsCount; i++) {
-      let trackData = state.allData[i].filter(
-        ({title, author}) =>
-          title
-            .toLowerCase()
-            .includes(value.toLowerCase().replace(/ё/g, 'е')) ||
-          author.toLowerCase().includes(value.toLowerCase()),
-      );
-      if (trackData.toString() !== '') {
-        res[j] = trackData;
-        let index = state.albumsIds.indexOf(trackData[0].albumId);
-        titles[i] = state.albumsTitles[index];
-        photos[i] = state.albumsPhotos[index];
-        j++;
-      }
-    }
-    photos = photos.filter((x) => {
-      return x !== undefined;
-    });
-    titles = titles.filter((x) => {
-      return x !== undefined;
-    });
-    state = {
-      ...state,
-      search: value,
-    };
-    value !== ''
-      ? (state = {
-          ...state,
-          searchRes: [res, titles, photos],
-        })
-      : (state = {
-          ...state,
-          searchRes: [],
-        });
-  } else {
-    Alert.alert(
-      'Данные загружаются',
-      'Пожалуйста, подождите...',
-      [
-        {
-          text: 'Ок',
-        },
-      ],
-      {cancelable: false},
-    );
-    state = {
-      ...state,
-      search: '',
-    };
-    dispatch(fetchAllSongsData());
-  }
-};
-
-const ResOrLast = () => {
-  return state.search !== '' ? (
-    <View style={styles.resSearch}>
-      <Text style={styles.resOrLast}>Результаты</Text>
-    </View>
-  ) : (
-    <View style={styles.lastSearch}>
-      <Text style={styles.resOrLast}>Недавние</Text>
-      <Button
-        title="Очистить"
-        buttonStyle={styles.btn}
-        titleStyle={styles.btnTitle}
-        onPress={() => {
-          removeLastSearches();
-          state = {
-            ...state,
-            inputs: [],
-          };
-        }}
-      />
-    </View>
-  );
-};
-
 const SearchTracks = () => {
   let prevAlbumId = 0;
   let index = -1;
   let firstAlbumId = 0;
-  return state.searchRes.toString() !== '' ? (
+  return (
     <ScrollView style={state.hidden ? styles.hidden : styles.scrollWrap}>
       {state.searchRes[0].map((tracksData) => {
         return tracksData.map((track) => {
@@ -201,41 +94,15 @@ const SearchTracks = () => {
         });
       })}
     </ScrollView>
-  ) : (
-    <ScrollView style={styles.scrollWrap}>
-      {state.inputs.toString() !== ''
-        ? state.inputs.map((input) => {
-            return (
-              <TouchableOpacity
-                style={styles.wrapper}
-                onPress={() => updateSearch(input)}
-                key={state.inputs.indexOf(input)}>
-                <Text style={styles.lastSearchText}>{input}</Text>
-              </TouchableOpacity>
-            );
-          })
-        : null}
-    </ScrollView>
   );
-};
-
-const saveLastInput = (value) => {
-  if (value !== '') {
-    let length = state.inputs.length;
-    let allInputs = state.inputs;
-    allInputs[length] = value;
-    let uniqInputs = allInputs.filter((item, pos) => {
-      return allInputs.indexOf(item) === pos;
-    });
-    state = {
-      ...state,
-      inputs: uniqInputs,
-    };
-  }
 };
 
 export const SearchScreen = () => {
   dispatch = useDispatch();
+
+  const [search, setSearch] = useState('');
+  const [searchRes, setSearchRes] = useState([]);
+  const [inputs, setInputs] = useState([]);
 
   const allData = useSelector((statement) => statement.albums.allData);
   const {albumsTitles, albumsIds, albumsPhotos, albumsDesc} = useSelector(
@@ -246,10 +113,6 @@ export const SearchScreen = () => {
 
   state = {
     ...state,
-    allData,
-    albumsTitles,
-    albumsIds,
-    albumsPhotos,
     albumsDesc,
     curAlbumId,
     hidden,
@@ -269,6 +132,121 @@ export const SearchScreen = () => {
     };
   }, []);
 
+  const updateSearch = (value) => {
+    // console.log('allData -', allData !== '');
+    if (allData.toString() !== '') {
+      const albumsCount = 7;
+      let res = [];
+      let photos = [];
+      let titles = [];
+      let j = 0;
+
+      for (let i = 0; i < albumsCount; i++) {
+        let trackData = allData[i].filter(
+          ({title, author}) =>
+            title
+              .toLowerCase()
+              .includes(value.toLowerCase().replace(/ё/g, 'е')) ||
+            author.toLowerCase().includes(value.toLowerCase()),
+        );
+        if (trackData.toString() !== '') {
+          res[j] = trackData;
+          let index = albumsIds.indexOf(trackData[0].albumId);
+          titles[i] = albumsTitles[index];
+          photos[i] = albumsPhotos[index];
+          j++;
+        }
+      }
+      photos = photos.filter((x) => {
+        return x !== undefined;
+      });
+      titles = titles.filter((x) => {
+        return x !== undefined;
+      });
+
+      state = {
+        ...state,
+        search: value,
+      };
+      setSearch(value);
+      if (value !== '') {
+        setSearchRes([res, titles, photos]);
+        state = {
+          ...state,
+          searchRes: [res, titles, photos],
+        };
+      } else {
+        setSearchRes([]);
+        state = {
+          ...state,
+          searchRes: [],
+        };
+      }
+    } else {
+      Alert.alert(
+        'Данные загружаются',
+        'Пожалуйста, подождите...',
+        [
+          {
+            text: 'Ок',
+          },
+        ],
+        {cancelable: false},
+      );
+      setSearch('');
+      state = {
+        ...state,
+        search: '',
+      };
+      dispatch(fetchAllSongsData());
+    }
+  };
+
+  const takeInputs = async () => {
+    let response = await takeLastSearches();
+
+    if (response) {
+      setInputs(JSON.parse(response));
+    }
+  };
+
+  if (inputs.toString() === '') {
+    takeInputs();
+  }
+
+  const ResOrLast = () => {
+    return search !== '' ? (
+      <View style={styles.resSearch}>
+        <Text style={styles.resOrLast}>Результаты</Text>
+      </View>
+    ) : (
+      <View style={styles.lastSearch}>
+        <Text style={styles.resOrLast}>Недавние</Text>
+        <Button
+          title="Очистить"
+          buttonStyle={styles.btn}
+          titleStyle={styles.btnTitle}
+          onPress={() => {
+            removeLastSearches();
+            setInputs([]);
+          }}
+        />
+      </View>
+    );
+  };
+
+  const saveLastInput = (value) => {
+    if (value !== '') {
+      let length = inputs.length;
+      let allInputs = inputs;
+      allInputs[length] = value;
+      let uniqInputs = allInputs.filter((item, pos) => {
+        return allInputs.indexOf(item) === pos;
+      });
+      setInputs(uniqInputs);
+    }
+  };
+
   return (
     <View style={styles.mainWrap}>
       <View style={styles.header}>
@@ -281,11 +259,13 @@ export const SearchScreen = () => {
         cancelButtonProps={{color: '#f47928'}}
         placeholder="Название"
         onChangeText={(value) => updateSearch(value)}
-        value={state.search}
+        value={search}
         containerStyle={styles.searchWrap}
         inputContainerStyle={styles.input}
         onClear={() => {
-          putLastSearches(state.inputs);
+          putLastSearches(inputs);
+          setSearchRes([]);
+          setSearch('');
           state = {
             ...state,
             search: '',
@@ -293,11 +273,28 @@ export const SearchScreen = () => {
           };
         }}
         onBlur={() => {
-          saveLastInput(state.search);
+          saveLastInput(search);
         }}
       />
       <ResOrLast />
-      <SearchTracks />
+      {searchRes.toString() !== '' ? (
+        <SearchTracks />
+      ) : (
+        <ScrollView style={styles.scrollWrap}>
+          {inputs.toString() !== ''
+            ? inputs.map((input) => {
+                return (
+                  <TouchableOpacity
+                    style={styles.wrapper}
+                    onPress={() => updateSearch(input)}
+                    key={inputs.indexOf(input)}>
+                    <Text style={styles.lastSearchText}>{input}</Text>
+                  </TouchableOpacity>
+                );
+              })
+            : null}
+        </ScrollView>
+      )}
     </View>
   );
 };
