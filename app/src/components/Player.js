@@ -33,7 +33,6 @@ import {
 import {albumChanged} from '../store/actions/albums';
 import store from '../store';
 import {makeLoadedTracksDir, takeLoadedSize} from '../utils/utils';
-import {stat} from 'react-native-fs';
 
 var dispatch;
 var state = {
@@ -62,6 +61,8 @@ async function setupPlayer() {
     compactCapabilities: [
       TrackPlayer.CAPABILITY_PLAY,
       TrackPlayer.CAPABILITY_PAUSE,
+      TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+      TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
     ],
   });
 
@@ -122,6 +123,20 @@ async function setupPlayer() {
   Linking.addEventListener('url', (data) => {
     if (data.url === 'trackplayer://notification.click') {
       Linking.openURL(data.url);
+    }
+  });
+
+  AppState.addEventListener('change', async (res) => {
+    if (AppState.currentState === 'active') {
+      if (state.audioLoaded) {
+        await TrackPlayer.getCurrentTrack().then((id) => {
+          state = {
+            ...state,
+            trackId: parseInt(id, 10),
+          };
+          dispatch(updateTrackId(parseInt(id, 10)));
+        });
+      }
     }
   });
   SplashScreen.hide();
@@ -391,20 +406,6 @@ export const Player = () => {
         isPressed();
       }
     }, 250);
-
-    AppState.addEventListener('change', async (res) => {
-      if (AppState.currentState === 'active') {
-        if (state.audioLoaded) {
-          await TrackPlayer.getCurrentTrack().then((id) => {
-            state = {
-              ...state,
-              trackId: id,
-            };
-            dispatch(updateTrackId(id));
-          });
-        }
-      }
-    });
 
     return function cleanup() {
       componentUnmounted();
