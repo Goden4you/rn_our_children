@@ -33,7 +33,7 @@ static void InitializeFlipper(UIApplication *application) {
 
   RCTBridge *bridge = [[RCTBridge alloc] initWithDelegate:self launchOptions:launchOptions];
   RCTRootView *rootView = [[RCTRootView alloc] initWithBridge:bridge
-                                                   moduleName:@"our_children"
+                                                   moduleName:@"OurChildren"
                                             initialProperties:nil];
   for (NSString* family in [UIFont familyNames])
   {

@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.our_children"
+        applicationId "ru.ocs.nashim_detyam"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

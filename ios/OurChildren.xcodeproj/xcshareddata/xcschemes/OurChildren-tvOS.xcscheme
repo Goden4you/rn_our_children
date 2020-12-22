@@ -14,10 +14,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "our_children.app"
-               BlueprintName = "our_children"
-               ReferencedContainer = "container:our_children.xcodeproj">
+               BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
+               BuildableName = "OurChildren-tvOS.app"
+               BlueprintName = "OurChildren-tvOS"
+               ReferencedContainer = "container:OurChildren.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -32,16 +32,16 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "our_childrenTests.xctest"
-               BlueprintName = "our_childrenTests"
-               ReferencedContainer = "container:our_children.xcodeproj">
+               BlueprintIdentifier = "2D02E48F1E0B4A5D006451C7"
+               BuildableName = "OurChildren-tvOSTests.xctest"
+               BlueprintName = "OurChildren-tvOSTests"
+               ReferencedContainer = "container:OurChildren.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction
-      buildConfiguration = "Release"
+      buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
@@ -54,10 +54,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "our_children.app"
-            BlueprintName = "our_children"
-            ReferencedContainer = "container:our_children.xcodeproj">
+            BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
+            BuildableName = "OurChildren-tvOS.app"
+            BlueprintName = "OurChildren-tvOS"
+            ReferencedContainer = "container:OurChildren.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -71,10 +71,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "our_children.app"
-            BlueprintName = "our_children"
-            ReferencedContainer = "container:our_children.xcodeproj">
+            BlueprintIdentifier = "2D02E47A1E0B4A5D006451C7"
+            BuildableName = "OurChildren-tvOS.app"
+            BlueprintName = "OurChildren-tvOS"
+            ReferencedContainer = "container:OurChildren.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

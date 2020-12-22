@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-  package="com.our_children">
+  package="ru.ocs.nashim_detyam">
 
     <uses-permission android:name="android.permission.INTERNET" />
 

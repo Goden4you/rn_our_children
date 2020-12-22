@@ -1,4 +1,4 @@
-package com.our_children;
+package ru.ocs.nashim_detyam;
 
 import org.devio.rn.splashscreen.SplashScreen;
 import android.os.Bundle;
@@ -29,6 +29,6 @@ public class MainActivity extends ReactActivity {
    */
   @Override
   protected String getMainComponentName() {
-    return "our_children";
+    return "OurChildren";
   }
 }
