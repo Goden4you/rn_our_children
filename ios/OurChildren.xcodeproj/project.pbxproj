@@ -738,8 +738,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = T337LVYNR4;
+				DEVELOPMENT_TEAM = 2SH4TBH25W;
 				ENABLE_BITCODE = NO;
 				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = arm64;
 				INFOPLIST_FILE = OurChildren/Info.plist;
@@ -754,8 +756,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = ru.ocs.nashim_detyam;
 				PRODUCT_NAME = OurChildren;
+				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc ru.ocs.nashim_detyam";
 				SWIFT_OBJC_BRIDGING_HEADER = "OurChildren-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -770,8 +773,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_IDENTITY = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = T337LVYNR4;
+				DEVELOPMENT_TEAM = 2SH4TBH25W;
 				INFOPLIST_FILE = OurChildren/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -784,8 +789,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
+				PRODUCT_BUNDLE_IDENTIFIER = ru.ocs.nashim_detyam;
 				PRODUCT_NAME = OurChildren;
+				PROVISIONING_PROFILE_SPECIFIER = "match AdHoc ru.ocs.nashim_detyam";
 				SWIFT_OBJC_BRIDGING_HEADER = "OurChildren-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";

@@ -1,4 +1,4 @@
-package com.our_children;
+package ru.ocs.nashim_detyam;
 
 import android.content.Intent;
 import android.os.Bundle;

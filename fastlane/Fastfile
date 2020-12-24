@@ -13,23 +13,127 @@
 # Uncomment the line if you want fastlane to automatically update itself
 # update_fastlane
 
+fastlane_version "2.162.0"
 default_platform(:android)
 
-platform :android do
-  desc "Submit a new Beta Build to Appcenter"
-  lane :beta do
-    current_version = appcenter_fetch_version_number
-    new_build_number = current_version["build_number"].to_i + 1
+platform :ios do
 
-    gradle(task: 'clean', project_dir: 'android/')
-    gradle(task: 'assemble', build_type: 'release', project_dir: 'android/')
+  desc 'Increment build number and set the version to package.json version.'
+  private_lane :increment_version do
+    package = load_json(json_path: "./package.json")
+
+    increment_version_number(
+      xcodeproj: './ios/' + package['name'].upcase + '.xcodeproj',
+      version_number: package['version']
+    )
+  end
+
+  desc "Update adhoc device list"
+  private_lane :update_devices do
+
+    appcenter_fetch_devices(
+      app_name: ENV["APPCENTER_IOS_DEV_APP_NAME"],
+      destinations: '*',
+    )
+
+    register_devices(devices_file: "./devices.txt", team_id: "2SH4TBH25W")
+  end
+
+  desc "Get ios certificates for build environment"
+  private_lane :get_right_certs do |options|
+    type = (options[:release] ? "enterprise" : "adhoc")
+    app_identifier = (options[:release] ? ENV["APPLICATION_PROD_IDENTIFIER"] : ENV["APPLICATION_DEV_IDENTIFIER"])
+    team_id = (options[:release] ? "TWUK8GM22T" : "2SH4TBH25W")
+    git_branch = (options[:release] ? "enterprise" : "master")
+
+    sync_code_signing(
+      type: type,
+      app_identifier: app_identifier,
+      team_id: team_id,
+      git_branch: git_branch,
+      force_for_new_devices: (options[:release] ? false : true)
+    )
+  end
+
+  lane :beta do
+    update_devices
+    get_right_certs(release: false)
+
+    begin
+      version = appcenter_fetch_version_number(app_name: ENV["APPCENTER_IOS_DEV_APP_NAME"])
+      new_build_number = version["build_number"].to_i + 1
+    rescue => error
+      new_build_number = 1
+    end
+
+    increment_build_number(
+      xcodeproj: "./ios/OurChildren.xcodeproj",
+      build_number: new_build_number
+    )
+
+    increment_version
+
+    cocoapods(
+      repo_update: true,
+      podfile: "./ios/Podfile"
+    )
+
+    unlock_keychain(
+      path: ENV["KEYCHAIN_PATH"],
+      password: ENV["KEYCHAIN_PASSWORD"]
+    )
+
+    build_ios_app(
+      silent: true,
+      clean: true,
+      skip_profile_detection: true,
+      export_options: {
+        method: "ad-hoc",
+        provisioningProfiles: {
+          "ru.ocs.nashim_detyam" => "match AdHoc ru.ocs.nashim_detyam",
+        }
+      }
+    )
 
     appcenter_upload(
-      app_name: ENV["APPCENTER_APP_NAME"],
-      apk: ENV["RESULT_DEV_APK"]
+      app_name: ENV["APPCENTER_IOS_DEV_APP_NAME"],
+      file: ENV["RESULT_IPA"]
     )
-  
-    # sh "your_script.sh"
-    # You can also use other beta testing services here
+
+  end
+end
+
+platform :android do
+
+  desc 'Set versionName from package.json version.'
+  private_lane :increment_version do
+
+    package = load_json(json_path: "./package.json")
+
+    increment_version_name(
+      gradle_file_path: "./android/app/build.gradle",
+      version_name: package['version']
+    )
+  end
+
+  desc "Submit a new Beta Build to Appcenter"
+  lane :beta do
+    current_version = appcenter_fetch_version_number(app_name: ENV['APPCENTER_ANDROID_DEV_APP_NAME'])
+    new_build_number = current_version["build_number"].to_i + 1
+
+    increment_version_code(
+      gradle_file_path: "./android/app/build.gradle",
+      version_code: new_build_number,
+    )
+
+    increment_version
+
+    gradle(task: 'clean', project_dir: 'android/')
+    gradle(task: 'app:assemble', build_type: 'release', project_dir: 'android/')
+
+    appcenter_upload(
+      app_name: ENV["APPCENTER_ANDROID_DEV_APP_NAME"],
+      apk: ENV["GRADLE_APK_OUTPUT_PATH"],
+    )
   end
 end
