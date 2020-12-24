@@ -1,0 +1,6 @@
+
+git_url("git@gitlab.ocs.ru:mobile/ios-certificates.git")
+storage_mode("git")
+type("development")
+username("ios-dev@ocs.ru")
+app_identifier(["ru.ocs.nashim_detyam", "ru.ocs.nashim_detyam.enterprise"])
