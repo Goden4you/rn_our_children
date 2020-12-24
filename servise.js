@@ -1,17 +1,18 @@
 import TrackPlayer from 'react-native-track-player';
 import {
   handleNextTrack,
+  handlePlayPause,
   handlePreviousTrack,
 } from './app/src/components/controlPanel/ControlsButtons';
 
 module.exports = async function () {
   TrackPlayer.addEventListener('remote-play', () => {
     console.log('remote-play');
-    TrackPlayer.play();
+    handlePlayPause();
   });
   TrackPlayer.addEventListener('remote-pause', () => {
     console.log('remote-pause');
-    TrackPlayer.pause();
+    handlePlayPause();
   });
   TrackPlayer.addEventListener('remote-previous', () => {
     console.log('remote-previos');

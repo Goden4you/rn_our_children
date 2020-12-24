@@ -169,8 +169,9 @@ async function loadAudio(currentTrack, firstStart) {
         var path =
           RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + i + '.mp3';
         const res = await RNFetchBlob.fs.exists(path);
+        const dur = state.tracksDurationMillis[i - firstTrackId] / 1000;
+        const image = state.albumImage;
         if (res) {
-          console.log('read from cache');
           await RNFetchBlob.fs.readFile(path).then(() => {
             path = 'file://' + path;
             track[j] = {
@@ -178,6 +179,8 @@ async function loadAudio(currentTrack, firstStart) {
               url: path,
               artist: tracksAuthors[i - firstTrackId].toString(),
               title: tracksTitles[i - firstTrackId].toString(),
+              duration: dur,
+              artwork: image,
             };
           });
         } else {
@@ -186,6 +189,8 @@ async function loadAudio(currentTrack, firstStart) {
             url: 'https://childrensproject.ocs.ru/api/v1/files/' + i,
             artist: tracksAuthors[i - firstTrackId].toString(),
             title: tracksTitles[i - firstTrackId].toString(),
+            duration: dur,
+            artwork: image,
           };
         }
         j++;
@@ -354,11 +359,11 @@ export const Player = () => {
   const {
     tracksTitles,
     tracksAuthors,
-    tracksDuration,
     tracksDurationMillis,
     firstTrackId,
     lastTrackId,
   } = useSelector((statement) => statement.albums.currentAlbum);
+  const {albumsPhotos} = useSelector((statement) => statement.albums.allAlbums);
   const currentAlbumImage = useSelector(
     (statement) => statement.albums.currentAlbumImage,
   );
@@ -379,8 +384,8 @@ export const Player = () => {
     ...state,
     tracksTitles,
     tracksAuthors,
-    tracksDuration,
     tracksDurationMillis,
+    albumsPhotos,
     firstTrackId,
     lastTrackId,
     trackId,
