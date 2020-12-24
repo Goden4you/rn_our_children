@@ -10,7 +10,7 @@ let fs = RNFetchBlob.fs;
 
 export const calcSongsDesc = (data) => {
   let albumsDesc = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i <= 7; i++) {
     if (data[i].songsCount % 10 === 2) {
       albumsDesc[i] = data[i].songsCount + ' песни';
     } else if (data[i].songsCount % 10 === 4) {
@@ -24,7 +24,7 @@ export const calcSongsDesc = (data) => {
 
 export const songsDescToInt = (desc) => {
   let songsCount = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i <= 7; i++) {
     songsCount[i] = desc[i].toString().substring(0, 2);
     songsCount[i] = parseInt(songsCount[i], 10);
   }
@@ -66,12 +66,11 @@ export const takeCurAlbumData = async (id) => {
   let path2 = fs.dirs.CacheDir + '/cur_album_data/';
   let res2 = await fs.exists(path2);
 
-  if (!res2) {
+  if (!res2 && !res) {
     fs.mkdir(path2);
   }
 
   if (!res) {
-    console.log('returned with undefined');
     return;
   }
   let data = await fs.readFile(path, 'utf8');

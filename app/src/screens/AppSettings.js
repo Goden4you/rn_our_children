@@ -87,10 +87,11 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',
-    height: 80,
+    height: '12%',
+    padding: 10,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   headerText: {
     fontSize: 22,

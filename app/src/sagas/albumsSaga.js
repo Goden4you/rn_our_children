@@ -24,7 +24,7 @@ export function* fetchAlbumsData() {
     } else {
       data = JSON.parse(data);
     }
-    for (let i = 0; i < 7; i++) {
+    for (let i = 0; i <= 7; i++) {
       titles[i] = data[i].title;
       ids[i] = data[i].id;
     }
@@ -34,7 +34,7 @@ export function* fetchAlbumsData() {
     if (!photos) {
       photos = [];
       var j = 0;
-      for (let i = ids[0]; i <= ids[6]; i++) {
+      for (let i = ids[0]; i <= ids[7]; i++) {
         const response2 = yield call(Api.getListOfAlbumsSongs, i);
 
         let photoId = response2.data[0].artworkFileId;
@@ -49,7 +49,7 @@ export function* fetchAlbumsData() {
 
     yield put(albumsActions.loadAlbums(photos, titles, desc, ids));
 
-    yield call(fetchFirstLastTrack, data[6].songsCount);
+    yield call(fetchFirstLastTrack, data[7].songsCount);
     console.log('saga ended');
   } catch (e) {
     console.log(e);
@@ -62,7 +62,7 @@ function* fetchFirstLastTrack(songsCount) {
   const response1 = yield call(Api.getListOfAlbumsSongs, ids[0]);
   const firstTrack = response1.data[0].songFileId;
 
-  const response2 = yield call(Api.getListOfAlbumsSongs, ids[6]);
+  const response2 = yield call(Api.getListOfAlbumsSongs, ids[7]);
   const lastTrack = response2.data[songsCount - 1].songFileId;
 
   yield put(albumsActions.firstLastTrackId(firstTrack, lastTrack));

@@ -257,6 +257,8 @@ export const SearchScreen = () => {
         platform={Platform.OS}
         showCancel={true}
         cancelButtonProps={{color: '#f47928'}}
+        clearIcon={Platform.OS === 'android' ? true : false}
+        searchIcon={Platform.OS === 'android' ? true : false}
         placeholder="Название"
         onChangeText={(value) => updateSearch(value)}
         value={search}
@@ -332,10 +334,11 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',
-    height: 80,
+    height: '12%',
+    padding: 10,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    alignItems: 'center',
+    alignItems: 'flex-end',
   },
   headerText: {
     fontSize: 22,
@@ -391,7 +394,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   scrollWrap: {
-    height: phoneHeight - 290,
+    height: Platform.OS === 'android' ? phoneHeight - 290 : '68%',
     backgroundColor: '#fff',
   },
   hidden: {

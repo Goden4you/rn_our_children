@@ -23,11 +23,13 @@ function AlbumsStackScreens() {
     <MainStack.Navigator
       screenOptions={{
         headerStyle: {
-          backgroundColor: '#f47928',
-          height: 80,
+          backgroundColor: 'rgb(109,207,246)',
+          height: 100,
         },
         headerTitleStyle: {
+          fontWeight: 'bold',
           color: '#fff',
+          fontSize: 22,
         },
         headerTitleAlign: 'center',
         gestureEnabled: true,
@@ -40,12 +42,8 @@ function AlbumsStackScreens() {
         component={Albums}
         options={({navigation}) => ({
           headerTitle: 'Альбомы',
-          headerStyle: {
-            backgroundColor: 'rgb(109,207,246)',
-            height: 80,
-          },
           headerRightContainerStyle: {
-            paddingBottom: 5,
+            paddingBottom: 15,
           },
           headerRight: () => <GoToSettings navigation={navigation} />,
           headerLeft: null,
@@ -57,10 +55,6 @@ function AlbumsStackScreens() {
         component={AlbumScreen}
         options={({navigation}) => ({
           headerTitle: '',
-          headerStyle: {
-            backgroundColor: 'rgb(109,207,246)',
-            height: 80,
-          },
           headerLeftContainerStyle: {
             paddingBottom: 5,
           },

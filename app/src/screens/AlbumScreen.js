@@ -150,7 +150,7 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
   containerPortrait: {
-    height: Platform.OS === 'android' ? phoneHeight - 250 : '90%',
+    height: Platform.OS === 'android' ? phoneHeight - 250 : '92%',
     backgroundColor: '#fff',
   },
   // containerLandscape: {
