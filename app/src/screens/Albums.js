@@ -15,6 +15,7 @@ import {Dimensions} from 'react-native';
 
 var osyaSrc = [
   require('../../../images/osya/1/osya1.png'),
+  require('../../../images/osya/1/osya1.png'),
   require('../../../images/osya/2/osya2.png'),
   require('../../../images/osya/3/osya3.png'),
   require('../../../images/osya/4/osya4.png'),

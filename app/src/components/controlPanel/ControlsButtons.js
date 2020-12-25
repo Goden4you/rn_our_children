@@ -80,7 +80,7 @@ export const handleNextTrack = async () => {
       } else {
         TrackPlayer.stop();
         dispatch(needMoveToNextAlbum(true));
-        console.log('move to next album prop true set');
+        console.log('move to next album prop set to true');
         trackId = parseInt(trackId, 10) + 2;
 
         state = {
@@ -121,14 +121,9 @@ export const ControlsButtons = () => {
     }, 500);
   }, []);
 
-  const {
-    audioLoaded,
-    isPlaying,
-    trackId,
-    queueEnded,
-    curAlbumId,
-    curAlbumDesc,
-  } = useSelector((statement) => statement.player);
+  const {audioLoaded, isPlaying, trackId, queueEnded, curAlbumId} = useSelector(
+    (statement) => statement.player,
+  );
   const {firstTrackId, lastTrackId, albumImage} = useSelector(
     (statement) => statement.albums.currentAlbum,
   );
@@ -147,7 +142,6 @@ export const ControlsButtons = () => {
     veryLastTrackId,
     queueEnded,
     curAlbumId,
-    curAlbumDesc,
     allAlbumsIds: allAlbums.albumsIds,
     albumsPhotos: allAlbums.albumsPhotos,
     allAlbumsDesc: allAlbums.albumsDesc,

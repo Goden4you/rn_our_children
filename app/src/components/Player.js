@@ -92,7 +92,6 @@ async function setupPlayer() {
           ...state,
           trackId: parseInt(id, 10),
         };
-        console.log('trackId from listener - ', parseInt(id, 10));
         dispatch(updateTrackId(parseInt(id, 10)));
 
         let interval = setInterval(async () => {
@@ -161,13 +160,12 @@ async function loadAudio(currentTrack, firstStart) {
       console.log('loadAudio started', trackId);
       let j = 0;
       var track = [];
-      console.log('firstTrackId - ', firstTrackId);
-      console.log('lastTrackId - ', lastTrackId);
       for (let i = firstTrackId; i <= lastTrackId; i++) {
         var path =
           RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + i + '.mp3';
         const res = await RNFetchBlob.fs.exists(path);
         const dur = state.tracksDurationMillis[i - firstTrackId] / 1000;
+        console.log('dur in loadAudio -', dur);
         const image = state.albumImage;
         if (res) {
           await RNFetchBlob.fs.readFile(path).then(() => {
@@ -177,7 +175,7 @@ async function loadAudio(currentTrack, firstStart) {
               url: path,
               artist: tracksAuthors[i - firstTrackId].toString(),
               title: tracksTitles[i - firstTrackId].toString(),
-              duration: dur,
+              duration: Math.round(dur),
               artwork: image,
             };
           });
@@ -187,7 +185,7 @@ async function loadAudio(currentTrack, firstStart) {
             url: 'https://childrensproject.ocs.ru/api/v1/files/' + i,
             artist: tracksAuthors[i - firstTrackId].toString(),
             title: tracksTitles[i - firstTrackId].toString(),
-            duration: dur,
+            duration: Math.round(dur),
             artwork: image,
           };
         }
@@ -219,7 +217,6 @@ async function loadAudio(currentTrack, firstStart) {
         needUpdate2: true,
       };
       dispatch(loadTrack(pressed, state.isPlaying));
-      console.log('load track dispatched');
     }
   } catch (e) {
     Alert.alert(
@@ -247,7 +244,6 @@ async function checkForLoad() {
     var path =
       RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + trackId + '.mp3';
     await RNFetchBlob.fs.exists(path).then(async (exist) => {
-      console.log('exists ? -', exist);
       if (!exist) {
         RNFetchBlob.config({
           path: path,
@@ -258,7 +254,6 @@ async function checkForLoad() {
           dispatch(updateLoadedSize(totalSize));
           state = {...state, loadedMusicSize: totalSize};
         });
-        // RNFetchBlob.fs.writeFile(path, API_PATH + trackId);
       }
     });
   } catch (e) {
@@ -274,7 +269,6 @@ function isPressed() {
   };
 
   if (!state.audioLoaded) {
-    console.log('loadAudio called from isPressed');
     let interval = setInterval(() => {
       if (
         !state.isAlbumLoading &&
@@ -342,13 +336,11 @@ const componentMounted = async () => {
   makeLoadedTracksDir();
   let size = await takeLoadedSize();
   size = JSON.parse(size);
-  console.log('size -', size);
   dispatch(updateLoadedSize(size));
   state = {
     ...state,
     loadedMusicSize: size,
   };
-  console.log(state);
 };
 
 export const Player = () => {

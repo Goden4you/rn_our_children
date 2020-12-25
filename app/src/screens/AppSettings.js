@@ -1,12 +1,18 @@
 import React, {useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, Modal} from 'react-native';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Modal,
+  Dimensions,
+} from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
 import {updateLoadedSize} from '../store/actions/player';
 import {Back} from '../navigation/goBack';
 import store from '../store';
 import {putLoadedSize} from '../utils/utils';
-import {Dimensions} from 'react-native';
 
 var statement = {
   loadedMusic: 0,
@@ -16,7 +22,7 @@ var dispatch;
 
 async function deleteLoadedMusic() {
   if (statement.loadedMusic !== 0) {
-    RNFetchBlob.fs.unlink(RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/');
+    RNFetchBlob.fs.unlink(RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/');
     dispatch(updateLoadedSize(0));
   }
 }
