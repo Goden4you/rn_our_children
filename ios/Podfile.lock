@@ -1,6 +1,6 @@
 PODS:
   - boost-for-react-native (1.63.0)
-  - CocoaAsyncSocket (7.6.4)
+  - CocoaAsyncSocket (7.6.5)
   - CocoaLibEvent (1.0.0)
   - DoubleConversion (1.1.6)
   - FBLazyVector (0.63.2)
@@ -306,8 +306,6 @@ PODS:
     - React-jsi (= 0.63.2)
   - rn-fetch-blob (0.12.0):
     - React-Core
-  - RNCAsyncStorage (1.11.0):
-    - React
   - RNCMaskedView (0.1.10):
     - React
   - RNFS (2.16.6):
@@ -376,7 +374,6 @@ DEPENDENCIES:
   - React-RCTVibration (from `../node_modules/react-native/Libraries/Vibration`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - rn-fetch-blob (from `../node_modules/rn-fetch-blob`)
-  - "RNCAsyncStorage (from `../node_modules/@react-native-community/async-storage`)"
   - "RNCMaskedView (from `../node_modules/@react-native-community/masked-view`)"
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
@@ -461,8 +458,6 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   rn-fetch-blob:
     :path: "../node_modules/rn-fetch-blob"
-  RNCAsyncStorage:
-    :path: "../node_modules/@react-native-community/async-storage"
   RNCMaskedView:
     :path: "../node_modules/@react-native-community/masked-view"
   RNFS:
@@ -480,7 +475,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   boost-for-react-native: 39c7adb57c4e60d6c5479dd8623128eb5b3f0f2c
-  CocoaAsyncSocket: 694058e7c0ed05a9e217d1b3c7ded962f4180845
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   CocoaLibEvent: 2fab71b8bd46dd33ddb959f7928ec5909f838e3f
   DoubleConversion: cde416483dac037923206447da6e1454df403714
   FBLazyVector: 3ef4a7f62e7db01092f9d517d2ebc0d0677c4a37
@@ -505,10 +500,10 @@ SPEC CHECKSUMS:
   React-jsi: 54245e1d5f4b690dec614a73a3795964eeef13a8
   React-jsiexecutor: 8ca588cc921e70590820ce72b8789b02c67cce38
   React-jsinspector: b14e62ebe7a66e9231e9581279909f2fc3db6606
-  react-native-orientation: f1caf84d65f1a4fd4511a18f2b924e634ad7a628
-  react-native-safe-area-context: 344b969c45af3d8464d36e8dea264942992ef033
+  react-native-orientation: d4a97266b06ec8d45d74e626656a730ebbebbb6f
+  react-native-safe-area-context: 4c3249e4840225c61fcd215b136af0a737bccb79
   react-native-splash-screen: 200d11d188e2e78cea3ad319964f6142b6384865
-  react-native-track-player: 28b96dd6404dea3eee80e67b74507679235a8dfb
+  react-native-track-player: 84552605df7d90e199ff8b5deceddff58d658523
   React-RCTActionSheet: 910163b6b09685a35c4ebbc52b66d1bfbbe39fc5
   React-RCTAnimation: 9a883bbe1e9d2e158d4fb53765ed64c8dc2200c6
   React-RCTBlob: 39cf0ece1927996c4466510e25d2105f67010e13
@@ -520,8 +515,7 @@ SPEC CHECKSUMS:
   React-RCTVibration: 4d2e726957f4087449739b595f107c0d4b6c2d2d
   ReactCommon: a0a1edbebcac5e91338371b72ffc66aa822792ce
   rn-fetch-blob: f065bb7ab7fb48dd002629f8bdcb0336602d3cba
-  RNCAsyncStorage: d059c3ee71738c39834a627476322a5a8cd5bf36
-  RNCMaskedView: 5a8ec07677aa885546a0d98da336457e2bea557f
+  RNCMaskedView: f5c7d14d6847b7b44853f7acb6284c1da30a3459
   RNFS: 2bd9eb49dc82fa9676382f0585b992c424cd59df
   RNGestureHandler: b6b359bb800ae399a9c8b27032bdbf7c18f08a08
   RNReanimated: c2bb7438b57a3d987bb2e4e6e4bca94787e30b02
@@ -530,6 +524,6 @@ SPEC CHECKSUMS:
   Yoga: 7740b94929bbacbddda59bf115b5317e9a161598
   YogaKit: f782866e155069a2cca2517aafea43200b01fd5a
 
-PODFILE CHECKSUM: 43b18e76f56187b023e70fad10ccae306fdbb3da
+PODFILE CHECKSUM: 9e1c5fd46abde006693ae2ac99a319efee8a2b7f
 
 COCOAPODS: 1.9.3
