@@ -13,6 +13,8 @@ import {updateLoadedSize} from '../store/actions/player';
 import {Back} from '../navigation/goBack';
 import store from '../store';
 import {putLoadedSize} from '../utils/utils';
+import {handleNextTrack} from '../components/controlPanel/ControlsButtons';
+import {Platform} from 'react-native';
 
 var statement = {
   loadedMusic: 0,
@@ -22,8 +24,14 @@ var dispatch;
 
 async function deleteLoadedMusic() {
   if (statement.loadedMusic !== 0) {
-    RNFetchBlob.fs.unlink(RNFetchBlob.fs.dirs.CacheDir + '/loaded_tracks/');
-    dispatch(updateLoadedSize(0));
+    const documentDir = RNFetchBlob.fs.dirs.DocumentDir;
+    RNFetchBlob.fs.unlink(
+      Platform.OS === 'android'
+        ? documentDir + '/loaded_tracks/'
+        : documentDir + '/loaded_tracks',
+    );
+    dispatch(updateLoadedSize(0, true));
+    handleNextTrack();
   }
 }
 

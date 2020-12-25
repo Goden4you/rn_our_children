@@ -121,14 +121,14 @@ export const makeCurAlbumDirectory = async (id) => {
 export const makeLoadedTracksDir = async () => {
   const res = await fs.exists(
     Platform.OS === 'android'
-      ? fs.dirs.CacheDir + '/loaded_tracks/'
-      : fs.dirs.CacheDir + '/loaded_tracks',
+      ? fs.dirs.DocumentDir + '/loaded_tracks/'
+      : fs.dirs.DocumentDir + '/loaded_tracks',
   );
   if (!res) {
     await fs.mkdir(
       Platform.OS === 'android'
-        ? fs.dirs.CacheDir + '/loaded_tracks/'
-        : fs.dirs.CacheDir + '/loaded_tracks',
+        ? fs.dirs.DocumentDir + '/loaded_tracks/'
+        : fs.dirs.DocumentDir + '/loaded_tracks',
     );
   }
 };

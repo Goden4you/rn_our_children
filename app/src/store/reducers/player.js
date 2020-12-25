@@ -24,6 +24,7 @@ const initialState = {
   formattedCurrentTime: '00:00',
   currentTime: 0,
   loadedSize: 0,
+  deleteMusicPressed: false,
   pressed: false,
   queueEnded: false,
   moveToNextAlbum: false,
@@ -56,7 +57,11 @@ export const playerReducer = (state = initialState, action) => {
         trackPlayerInit: action.trackPlayerInit,
       });
     case UPDATE_LOADED_SIZE:
-      return (state = {...state, loadedSize: action.size});
+      return (state = {
+        ...state,
+        loadedSize: action.size,
+        deleteMusicPressed: action.deleteMusicPressed,
+      });
     case IS_TRACK_PLAYING:
       return (state = {...state, isPlaying: action.isPlaying});
     case IS_MINIMAZED:

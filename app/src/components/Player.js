@@ -44,6 +44,7 @@ var state = {
   needUpdate2: false,
   albumImage: null,
   isPlaying: false,
+  deleteMusicPressed: false,
 };
 
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
@@ -165,7 +166,6 @@ async function loadAudio(currentTrack, firstStart) {
           RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + i + '.mp3';
         const res = await RNFetchBlob.fs.exists(path);
         const dur = state.tracksDurationMillis[i - firstTrackId] / 1000;
-        console.log('dur in loadAudio -', dur);
         const image = state.albumImage;
         if (res) {
           await RNFetchBlob.fs.readFile(path).then(() => {
@@ -240,8 +240,12 @@ async function loadAudio(currentTrack, firstStart) {
 
 async function checkForLoad() {
   try {
-    let {trackId, loadedMusicSize} = state;
-    var path =
+    let {trackId, loadedMusicSize, deleteMusicPressed} = state;
+    if (deleteMusicPressed) {
+      console.log('loadedMusicSize now 0');
+      loadedMusicSize = 0;
+    }
+    const path =
       RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + trackId + '.mp3';
     await RNFetchBlob.fs.exists(path).then(async (exist) => {
       if (!exist) {
@@ -369,6 +373,9 @@ export const Player = () => {
     (statement) => statement.player.moveToNextAlbum,
   );
   const pressed = useSelector((statement) => statement.player.pressed);
+  const deleteMusicPressed = useSelector(
+    (statement) => statement.player.deleteMusicPressed,
+  );
 
   state = {
     ...state,
@@ -384,6 +391,7 @@ export const Player = () => {
     isAlbumChanged,
     moveToNextAlbum,
     pressed,
+    deleteMusicPressed,
     isAlbumLoading,
   };
 

@@ -40,10 +40,15 @@ export const updateTrackId = (id) => {
   };
 };
 
-export const updateLoadedSize = (size) => {
+export const updateLoadedSize = (size, pressed) => {
+  let deleteMusicPressed = false;
+  if (pressed === true) {
+    deleteMusicPressed = true;
+  }
   return {
     type: UPDATE_LOADED_SIZE,
     size,
+    deleteMusicPressed,
   };
 };
 
