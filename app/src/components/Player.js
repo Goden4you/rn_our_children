@@ -96,15 +96,13 @@ async function setupPlayer() {
         dispatch(updateTrackId(parseInt(id, 10)));
 
         let interval = setInterval(async () => {
-          if (
-            (await TrackPlayer.getState()) === TrackPlayer.STATE_READY &&
-            state.isPlaying
-          ) {
+          const playerState = await TrackPlayer.getState();
+          if (playerState === TrackPlayer.STATE_READY && state.isPlaying) {
             clearInterval(interval);
             TrackPlayer.play();
           } else if (
-            (await TrackPlayer.getState()) === TrackPlayer.STATE_PLAYING ||
-            TrackPlayer.STATE_PAUSED
+            playerState === TrackPlayer.STATE_PLAYING ||
+            playerState === TrackPlayer.STATE_PAUSED
           ) {
             clearInterval(interval);
             TrackPlayer.play();

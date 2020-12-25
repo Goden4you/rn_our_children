@@ -6,6 +6,7 @@ import {updateLoadedSize} from '../store/actions/player';
 import {Back} from '../navigation/goBack';
 import store from '../store';
 import {putLoadedSize} from '../utils/utils';
+import {Dimensions} from 'react-native';
 
 var statement = {
   loadedMusic: 0,
@@ -79,6 +80,9 @@ export const AppSettings = () => {
   );
 };
 
+const phoneHeight = Dimensions.get('window').height;
+console.log('phoneHeight - ', phoneHeight);
+
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',
@@ -87,17 +91,18 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',
-    height: '12%',
-    padding: 10,
+    height: phoneHeight < 800 ? 80 : 100,
+    paddingLeft: 0,
+    paddingBottom: phoneHeight < 800 ? 0 : 20,
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    alignItems: 'flex-end',
+    alignItems: phoneHeight < 800 ? 'center' : 'flex-end',
   },
   headerText: {
     fontSize: 22,
     color: '#fff',
     fontWeight: 'bold',
-    marginLeft: '17%',
+    marginLeft: '20%',
   },
   info: {
     flexDirection: 'row',

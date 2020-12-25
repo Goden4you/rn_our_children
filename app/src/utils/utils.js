@@ -84,7 +84,6 @@ export const takeAllSongsData = async () => {
       : fs.dirs.CacheDir + '/all_songs_data';
   let res = await fs.exists(path);
   if (!res) {
-    console.log('returned with undefined');
     return;
   }
   let data = await fs.readFile(path);

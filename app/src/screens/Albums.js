@@ -11,6 +11,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import SplashScreen from 'react-native-splash-screen';
 import {isAlbumDataLoading} from '../store/actions/albums';
 import Orientation from 'react-native-orientation';
+import {Dimensions} from 'react-native';
 
 var osyaSrc = [
   require('../../../images/osya/1/osya1.png'),
@@ -41,13 +42,13 @@ export const Albums = ({navigation}) => {
               ? navigation.setOptions({
                   headerStyle: {
                     backgroundColor: 'rgb(244,121,40)',
-                    height: 80,
+                    height: phoneHeight < 800 ? 80 : 100,
                   },
                 })
               : navigation.setOptions({
                   headerStyle: {
                     backgroundColor: 'rgb(109,207,246)',
-                    height: 80,
+                    height: phoneHeight < 800 ? 80 : 100,
                   },
                 })
           }
@@ -102,11 +103,13 @@ export const Albums = ({navigation}) => {
   }
 };
 
+const phoneHeight = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
   containerPortrait: {
     paddingLeft: 25,
     paddingRight: 30,
-    height: '92%',
+    height: phoneHeight < 800 ? phoneHeight - 180 : phoneHeight - 230,
     backgroundColor: '#fff',
   },
   albumImageWrap: {

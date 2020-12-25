@@ -6,6 +6,7 @@ import {Player} from './app/src/components/Player';
 import {Provider} from 'react-redux';
 import store from './app/src/store';
 import {AppSettings} from './app/src/screens/AppSettings';
+import {Dimensions} from 'react-native';
 
 function App() {
   return (
@@ -21,6 +22,8 @@ function App() {
   );
 }
 
+const height = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
   container: {
     width: '100%',
@@ -30,7 +33,7 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: '#000',
     position: 'absolute',
-    bottom: '9%',
+    bottom: height < 800 ? 45 : 80,
     zIndex: 9999,
   },
 });

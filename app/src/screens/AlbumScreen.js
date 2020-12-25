@@ -8,7 +8,6 @@ import {
   StyleSheet,
   ImageBackground,
   Dimensions,
-  Platform,
 } from 'react-native';
 import {useDispatch, useSelector} from 'react-redux';
 
@@ -64,14 +63,14 @@ export const AlbumScreen = ({navigation, route}) => {
               ? navigation.setOptions({
                   headerStyle: {
                     backgroundColor: 'rgb(244,121,40)',
-                    height: 80,
+                    height: phoneHeight < 800 ? 80 : 100,
                   },
                   headerTitle: `${albumTitleProps}`,
                 })
               : navigation.setOptions({
                   headerStyle: {
                     backgroundColor: 'rgb(109,207,246)',
-                    height: 80,
+                    height: phoneHeight < 800 ? 80 : 100,
                   },
                   headerTitle: '',
                 })
@@ -143,20 +142,16 @@ export const AlbumScreen = ({navigation, route}) => {
   }
 };
 
-let phoneHeight = Dimensions.get('screen').height;
+const phoneHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   backgroundImage: {
     resizeMode: 'cover',
   },
   containerPortrait: {
-    height: Platform.OS === 'android' ? phoneHeight - 250 : '92%',
+    height: phoneHeight < 800 ? phoneHeight - 180 : phoneHeight - 240,
     backgroundColor: '#fff',
   },
-  // containerLandscape: {
-  //   height: '76%',
-  //   backgroundColor: '#fff',
-  // },
   albumWrap: {
     padding: 25,
     flexDirection: 'row',

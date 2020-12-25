@@ -31,20 +31,21 @@ let state = {
   albumsDesc: [],
   curAlbumId: 0,
   hidden: false,
+  firstAlbumId: 0,
 };
 let dispatch;
 
 const SearchTracks = () => {
   let prevAlbumId = 0;
   let index = -1;
-  let firstAlbumId = 0;
+  let firstAlbumIdInRes = 0;
   return (
     <ScrollView style={state.hidden ? styles.hidden : styles.scrollWrap}>
       {state.searchRes[0].map((tracksData) => {
         return tracksData.map((track) => {
           if (prevAlbumId !== track.albumId) {
             if (prevAlbumId === 0) {
-              firstAlbumId = track.albumId;
+              firstAlbumIdInRes = track.albumId;
             }
             index++;
             prevAlbumId = track.albumId;
@@ -54,14 +55,15 @@ const SearchTracks = () => {
               style={styles.wrapper}
               key={track.id}
               onPress={() => {
-                let desc = state.albumsDesc[track.albumId - firstAlbumId];
+                let desc = state.albumsDesc[track.albumId - state.firstAlbumId];
                 desc = desc.toString().substring(0, 2);
                 desc = parseInt(desc, 10);
                 onTrackPressed({
                   trackId: track.songFileId,
                   albumIdProps: track.albumId,
                   curAlbumId: state.curAlbumId,
-                  albumImage: state.searchRes[2][track.albumId - firstAlbumId],
+                  albumImage:
+                    state.searchRes[2][track.albumId - firstAlbumIdInRes],
                   songsCount: desc,
                   dispatch,
                 });
@@ -116,6 +118,7 @@ export const SearchScreen = () => {
     albumsDesc,
     curAlbumId,
     hidden,
+    firstAlbumId: albumsIds[0],
   };
 
   useEffect(() => {
@@ -133,9 +136,8 @@ export const SearchScreen = () => {
   }, []);
 
   const updateSearch = (value) => {
-    // console.log('allData -', allData !== '');
     if (allData.toString() !== '') {
-      const albumsCount = 7;
+      const albumsCount = 8;
       let res = [];
       let photos = [];
       let titles = [];
@@ -306,7 +308,7 @@ let phoneHeight = Dimensions.get('window').height;
 const styles = StyleSheet.create({
   mainWrap: {
     backgroundColor: '#fff',
-    // height: '95%',
+    height: phoneHeight < 800 ? phoneHeight - 100 : phoneHeight - 140,
   },
   wrapper: {
     paddingVertical: 13,
@@ -334,11 +336,11 @@ const styles = StyleSheet.create({
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',
-    height: '12%',
-    padding: 10,
+    height: phoneHeight < 800 ? 80 : 100,
+    padding: 20,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    alignItems: 'flex-end',
+    alignItems: phoneHeight < 800 ? 'center' : 'flex-end',
   },
   headerText: {
     fontSize: 22,

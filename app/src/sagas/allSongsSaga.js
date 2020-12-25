@@ -16,7 +16,7 @@ function* fetchAllSongs() {
 
     if (!data) {
       data = [];
-      for (let i = ids[0]; i <= ids[6]; i++) {
+      for (let i = ids[0]; i <= ids[7]; i++) {
         const response = yield call(Api.getListOfAlbumsSongs, i);
         data[index] = response.data;
         index++;
@@ -28,7 +28,6 @@ function* fetchAllSongs() {
     }
 
     let needUpdate = yield select(allTracksData);
-    console.log('needUpdate ? ', needUpdate);
     needUpdate.toString() !== '' ? null : yield put(allSongsData(data));
     yield put(isAlbumDataLoading(false));
   } catch (e) {

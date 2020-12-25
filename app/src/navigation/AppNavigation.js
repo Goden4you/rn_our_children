@@ -14,9 +14,11 @@ import {AlbumScreen} from '../screens/AlbumScreen';
 import {AllSongsList} from '../screens/AllSongsList';
 import {SearchScreen} from '../screens/SearchScreen';
 import {Image, StyleSheet} from 'react-native';
+import {Dimensions} from 'react-native';
 
 const MainStack = createStackNavigator();
 const TabStack = createBottomTabNavigator();
+const phoneHeight = Dimensions.get('window').height;
 
 function AlbumsStackScreens() {
   return (
@@ -24,12 +26,13 @@ function AlbumsStackScreens() {
       screenOptions={{
         headerStyle: {
           backgroundColor: 'rgb(109,207,246)',
-          height: 100,
+          height: phoneHeight < 800 ? 80 : 100,
         },
         headerTitleStyle: {
           fontWeight: 'bold',
           color: '#fff',
           fontSize: 22,
+          paddingBottom: phoneHeight < 800 ? 0 : 15,
         },
         headerTitleAlign: 'center',
         gestureEnabled: true,
@@ -43,7 +46,8 @@ function AlbumsStackScreens() {
         options={({navigation}) => ({
           headerTitle: 'Альбомы',
           headerRightContainerStyle: {
-            paddingBottom: 15,
+            paddingBottom: phoneHeight < 800 ? 0 : 15,
+            paddingRight: 20,
           },
           headerRight: () => <GoToSettings navigation={navigation} />,
           headerLeft: null,
@@ -56,10 +60,11 @@ function AlbumsStackScreens() {
         options={({navigation}) => ({
           headerTitle: '',
           headerLeftContainerStyle: {
-            paddingBottom: 5,
+            paddingBottom: phoneHeight < 800 ? 0 : 15,
           },
           headerRightContainerStyle: {
-            paddingBottom: 5,
+            paddingBottom: phoneHeight < 800 ? 0 : 15,
+            paddingRight: 20,
           },
           headerLeft: () => <Back navigation={navigation} isFromAlbum={true} />,
           headerRight: () => <GoToSettings navigation={navigation} />,

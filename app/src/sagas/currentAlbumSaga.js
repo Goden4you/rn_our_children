@@ -39,6 +39,7 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       let tracksDuration = [];
       let tracksIds = [];
       let tracksDurationMillis = [];
+      console.log('songsCount - ', songsCount);
       for (let i = 0; i < songsCount; i++) {
         tracksTitles[i] = data[i].title;
         tracksAuthors[i] = data[i].author;

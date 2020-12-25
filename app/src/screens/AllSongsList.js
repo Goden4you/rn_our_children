@@ -8,7 +8,6 @@ import {
   TouchableOpacity,
   Image,
   Dimensions,
-  Platform,
 } from 'react-native';
 
 import {fetchAllSongsData} from '../store/actions/albums';
@@ -124,26 +123,26 @@ export const AllSongsList = () => {
   );
 };
 
-let phoneHeight = Dimensions.get('screen').height;
+const phoneHeight = Dimensions.get('window').height;
 
 const styles = StyleSheet.create({
   mainWrapPortrait: {
     width: '100%',
-    height: Platform.OS === 'android' ? phoneHeight - 170 : '92%',
+    height: phoneHeight < 800 ? phoneHeight - 100 : phoneHeight - 140,
   },
   header: {
     backgroundColor: 'rgb(109,207,246)',
-    height: '13%',
-    padding: 10,
+    height: phoneHeight < 800 ? 80 : 100,
+    padding: 20,
     flexDirection: 'row',
     justifyContent: 'flex-end',
-    alignItems: 'flex-end',
+    alignItems: phoneHeight < 800 ? 'center' : 'flex-end',
   },
   headerText: {
     fontSize: 22,
     color: '#fff',
     fontWeight: 'bold',
-    marginRight: '22%',
+    marginRight: '20%',
   },
   wrapper: {
     paddingVertical: 13,
