@@ -95,41 +95,15 @@ export const handleNextTrack = async () => {
 };
 
 function moveNextAlbum() {
-  let albumId = state.curAlbumId;
-  let albumDesc = state.curAlbumDesc;
   let albumsIds = state.allAlbumsIds;
-
-  switch (albumId) {
-    case parseInt(albumsIds[0], 10):
-      albumId = albumsIds[1];
-      break;
-    case parseInt(albumsIds[1], 10):
-      albumDesc += 3;
-      albumId = albumsIds[2];
-      break;
-    case parseInt(albumsIds[2], 10):
-      albumDesc += 2;
-      albumId = albumsIds[3];
-      break;
-    case parseInt(albumsIds[3], 10):
-      albumDesc -= 4;
-      albumId = albumsIds[4];
-      break;
-    case parseInt(albumsIds[4], 10):
-      albumId = albumsIds[5];
-      break;
-    case parseInt(albumsIds[5], 10):
-      albumDesc += 4;
-      albumId = albumsIds[6];
-      break;
-    case parseInt(albumsIds[6], 10):
-      return;
-    default:
-      break;
-  }
+  let firstAlbumId = albumsIds[0];
+  let albumId = albumsIds[state.curAlbumId - firstAlbumId + 1];
+  let albumDesc = state.allAlbumsDesc[albumId - firstAlbumId];
+  albumDesc = albumDesc.toString().substring(0, 2);
+  albumDesc = parseInt(albumDesc, 10);
   state = {
     ...state,
-    albumImage: state.albumsPhotos[albumId - parseInt(albumsIds[0], 10)],
+    albumImage: state.albumsPhotos[albumId - firstAlbumId],
   };
   dispatch(updateAlbumImage(state.albumImage));
   dispatch(albumChanged(true, albumDesc, albumId));
@@ -176,6 +150,7 @@ export const ControlsButtons = () => {
     curAlbumDesc,
     allAlbumsIds: allAlbums.albumsIds,
     albumsPhotos: allAlbums.albumsPhotos,
+    allAlbumsDesc: allAlbums.albumsDesc,
   };
   return (
     <View style={styles.controls}>
