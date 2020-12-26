@@ -196,6 +196,7 @@ async function loadAudio(currentTrack, firstStart) {
               title: tracksTitles[i - firstTrackId].toString(),
               duration: Math.round(dur),
               artwork: image,
+              pitchAlgorithm: TrackPlayer.PITCH_ALGORITHM_MUSIC,
             };
           });
         } else {
@@ -206,6 +207,7 @@ async function loadAudio(currentTrack, firstStart) {
             title: tracksTitles[i - firstTrackId].toString(),
             duration: Math.round(dur),
             artwork: image,
+            pitchAlgorithm: TrackPlayer.PITCH_ALGORITHM_MUSIC,
           };
         }
         j++;
