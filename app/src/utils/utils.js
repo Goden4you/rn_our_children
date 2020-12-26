@@ -143,7 +143,7 @@ export const putAlbumsData = async (data) => {
 };
 
 export const putAlbumsPhotos = async (photos) => {
-  await fs.writeFile(
+  await fs.createFile(
     Platform.OS === 'android'
       ? fs.dirs.CacheDir + '/albums_photos/'
       : fs.dirs.CacheDir + '/albums_photos',

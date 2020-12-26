@@ -8,6 +8,7 @@ import {
   Alert,
   AppState,
   Linking,
+  Platform,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
 import SplashScreen from 'react-native-splash-screen';
@@ -51,21 +52,36 @@ const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
 async function setupPlayer() {
   TrackPlayer.setupPlayer();
-  TrackPlayer.updateOptions({
+  const androidCapabilities = {
     capabilities: [
       TrackPlayer.CAPABILITY_PLAY,
       TrackPlayer.CAPABILITY_PAUSE,
       TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
       TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
       TrackPlayer.CAPABILITY_SKIP,
+      TrackPlayer.CAPABILITY_SEEK_TO,
     ],
     compactCapabilities: [
       TrackPlayer.CAPABILITY_PLAY,
       TrackPlayer.CAPABILITY_PAUSE,
       TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
       TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+      TrackPlayer.CAPABILITY_SEEK_TO,
     ],
-  });
+  };
+  const iphoneCapabilities = {
+    capabilities: [
+      TrackPlayer.CAPABILITY_PLAY,
+      TrackPlayer.CAPABILITY_PAUSE,
+      TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
+      TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
+      TrackPlayer.CAPABILITY_SKIP,
+      TrackPlayer.CAPABILITY_SEEK_TO,
+    ],
+  };
+  TrackPlayer.updateOptions(
+    Platform.OS === 'android' ? androidCapabilities : iphoneCapabilities,
+  );
 
   TrackPlayer.addEventListener('playback-queue-ended', () => {
     if (state.isPlaying && state.needUpdate2) {
