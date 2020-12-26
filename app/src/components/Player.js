@@ -51,7 +51,10 @@ var state = {
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
 async function setupPlayer() {
-  TrackPlayer.setupPlayer();
+  TrackPlayer.setupPlayer({
+    waitForBuffer: true,
+    iosCategoryMode: 'spokenAudio',
+  });
   const androidCapabilities = {
     capabilities: [
       TrackPlayer.CAPABILITY_PLAY,
@@ -68,6 +71,7 @@ async function setupPlayer() {
       TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
       TrackPlayer.CAPABILITY_SEEK_TO,
     ],
+    stopWithApp: false,
   };
   const iphoneCapabilities = {
     capabilities: [
@@ -78,6 +82,7 @@ async function setupPlayer() {
       TrackPlayer.CAPABILITY_SKIP,
       TrackPlayer.CAPABILITY_SEEK_TO,
     ],
+    stopWithApp: false,
   };
   TrackPlayer.updateOptions(
     Platform.OS === 'android' ? androidCapabilities : iphoneCapabilities,
@@ -111,19 +116,16 @@ async function setupPlayer() {
         };
         dispatch(updateTrackId(parseInt(id, 10)));
 
-        let interval = setInterval(async () => {
+        console.log('duration - ', await TrackPlayer.getDuration());
+
+        let started = false;
+        while (!started) {
           const playerState = await TrackPlayer.getState();
           if (playerState === TrackPlayer.STATE_READY && state.isPlaying) {
-            clearInterval(interval);
             TrackPlayer.play();
-          } else if (
-            playerState === TrackPlayer.STATE_PLAYING ||
-            playerState === TrackPlayer.STATE_PAUSED
-          ) {
-            clearInterval(interval);
-            TrackPlayer.play();
+            started = true;
           }
-        }, 500);
+        }
       }
       setTimeout(() => {
         dispatch(updateAudioLoaded());
@@ -183,6 +185,7 @@ async function loadAudio(currentTrack, firstStart) {
         const res = await RNFetchBlob.fs.exists(path);
         const dur = state.tracksDurationMillis[i - firstTrackId] / 1000;
         const image = state.albumImage;
+        console.log('dur from loadAudio -', dur);
         if (res) {
           await RNFetchBlob.fs.readFile(path).then(() => {
             path = 'file://' + path;

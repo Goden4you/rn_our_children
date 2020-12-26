@@ -14,14 +14,18 @@ var dispatch;
 export const handleTrackPosition = async (value) => {
   try {
     if (state.audioLoaded) {
-      TrackPlayer.seekTo(value).then(() => {
+      const buffPosition = await TrackPlayer.getBufferedPosition();
+      console.log('buffered position - ', buffPosition);
+
+      if (buffPosition >= value) {
+        TrackPlayer.seekTo(value);
         state = {
           ...state,
           currentTime: value,
         };
 
         dispatch(updateTime(value));
-      });
+      }
     }
   } catch (e) {
     console.log('Error from handleTrackPosition()', e);
