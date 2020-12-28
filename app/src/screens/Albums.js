@@ -72,6 +72,7 @@ export const Albums = ({navigation}) => {
                   <Image
                     source={{
                       uri: allAlbums.albumsPhotos[index],
+                      cache: 'force-cache',
                     }}
                     style={styles.albumImage}
                   />

@@ -4,7 +4,6 @@ import {
   handlePlayPause,
   handlePreviousTrack,
 } from './app/src/components/controlPanel/ControlsButtons';
-import {handleTrackPosition} from './app/src/components/slider/TrackSlider';
 
 module.exports = async function () {
   TrackPlayer.addEventListener('remote-play', () => {
@@ -22,9 +21,5 @@ module.exports = async function () {
   TrackPlayer.addEventListener('remote-next', () => {
     console.log('remote-next');
     handleNextTrack();
-  });
-  TrackPlayer.addEventListener('remote-seek', () => {
-    console.log('remote-seek');
-    handleTrackPosition();
   });
 };

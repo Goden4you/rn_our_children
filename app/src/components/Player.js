@@ -34,6 +34,7 @@ import {
 import {albumChanged} from '../store/actions/albums';
 import store from '../store';
 import {makeLoadedTracksDir, takeLoadedSize} from '../utils/utils';
+import {Dimensions} from 'react-native';
 
 var dispatch;
 var state = {
@@ -51,10 +52,7 @@ var state = {
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
 async function setupPlayer() {
-  TrackPlayer.setupPlayer({
-    waitForBuffer: true,
-    iosCategoryMode: 'spokenAudio',
-  });
+  TrackPlayer.setupPlayer();
   const androidCapabilities = {
     capabilities: [
       TrackPlayer.CAPABILITY_PLAY,
@@ -70,6 +68,7 @@ async function setupPlayer() {
       TrackPlayer.CAPABILITY_SKIP_TO_NEXT,
       TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
       TrackPlayer.CAPABILITY_SEEK_TO,
+      TrackPlayer.CAPABILITY_SET_RATING,
     ],
     stopWithApp: false,
   };
@@ -81,6 +80,7 @@ async function setupPlayer() {
       TrackPlayer.CAPABILITY_SKIP_TO_PREVIOUS,
       TrackPlayer.CAPABILITY_SKIP,
       TrackPlayer.CAPABILITY_SEEK_TO,
+      TrackPlayer.CAPABILITY_SET_RATING,
     ],
     stopWithApp: false,
   };
@@ -103,12 +103,14 @@ async function setupPlayer() {
 
   TrackPlayer.addEventListener('playback-track-changed', async () => {
     try {
+      console.log('playback track changed called');
       if (
         state.isPlaying &&
         !state.isQueueEnded &&
         !state.pressed &&
         state.audioLoaded
       ) {
+        console.log('listener working');
         let id = await TrackPlayer.getCurrentTrack();
         state = {
           ...state,
@@ -116,19 +118,24 @@ async function setupPlayer() {
         };
         dispatch(updateTrackId(parseInt(id, 10)));
 
-        console.log('duration - ', await TrackPlayer.getDuration());
-
-        let started = false;
-        while (!started) {
+        // let started = false;
+        let interval = setInterval(async () => {
           const playerState = await TrackPlayer.getState();
           if (playerState === TrackPlayer.STATE_READY && state.isPlaying) {
+            clearInterval(interval);
             TrackPlayer.play();
-            started = true;
+          } else if (
+            playerState === TrackPlayer.STATE_PLAYING ||
+            playerState === TrackPlayer.STATE_PAUSED
+          ) {
+            clearInterval(interval);
+            TrackPlayer.play();
           }
-        }
+        }, 500);
       }
       setTimeout(() => {
         dispatch(updateAudioLoaded());
+        console.log('update audio loaded from listener');
       }, 800);
       checkForLoad();
     } catch (e) {
@@ -179,35 +186,33 @@ async function loadAudio(currentTrack, firstStart) {
       console.log('loadAudio started', trackId);
       let j = 0;
       var track = [];
+      var path;
       for (let i = firstTrackId; i <= lastTrackId; i++) {
-        var path =
-          RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + i + '.mp3';
+        path = RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + i + '.mp3';
         const res = await RNFetchBlob.fs.exists(path);
         const dur = state.tracksDurationMillis[i - firstTrackId] / 1000;
         const image = state.albumImage;
-        console.log('dur from loadAudio -', dur);
         if (res) {
-          await RNFetchBlob.fs.readFile(path).then(() => {
-            path = 'file://' + path;
-            track[j] = {
-              id: i.toString(),
-              url: path,
-              artist: tracksAuthors[i - firstTrackId].toString(),
-              title: tracksTitles[i - firstTrackId].toString(),
-              duration: Math.round(dur),
-              artwork: image,
-              pitchAlgorithm: TrackPlayer.PITCH_ALGORITHM_MUSIC,
-            };
-          });
+          console.log('read track from cache');
+          // await RNFetchBlob.fs.readFile(path).then(() => {
+          path = 'file://' + path;
+          track[j] = {
+            id: i.toString(),
+            url: path,
+            artist: tracksAuthors[i - firstTrackId].toString(),
+            title: tracksTitles[i - firstTrackId].toString(),
+            duration: dur,
+            artwork: image,
+          };
+          // });
         } else {
           track[j] = {
             id: i.toString(),
             url: 'https://childrensproject.ocs.ru/api/v1/files/' + i,
             artist: tracksAuthors[i - firstTrackId].toString(),
             title: tracksTitles[i - firstTrackId].toString(),
-            duration: Math.round(dur),
+            duration: dur,
             artwork: image,
-            pitchAlgorithm: TrackPlayer.PITCH_ALGORITHM_MUSIC,
           };
         }
         j++;
@@ -273,6 +278,7 @@ async function checkForLoad() {
         RNFetchBlob.config({
           path: path,
         }).fetch('GET', API_PATH + trackId);
+
         await fetch(API_PATH + trackId).then((data) => {
           let fileSize = data.headers.get('Content-Length');
           let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
@@ -478,6 +484,8 @@ export const Player = () => {
   );
 };
 
+const phoneHeight = Dimensions.get('window').height;
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -489,7 +497,7 @@ const styles = StyleSheet.create({
   },
   albumCover: {
     width: '80%',
-    height: '80%',
+    height: phoneHeight < 800 ? '80%' : '60%',
   },
   closeBtn: {paddingBottom: 30},
   imgBtnWrap: {
