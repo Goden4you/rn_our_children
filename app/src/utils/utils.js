@@ -1,3 +1,7 @@
+import React from 'react';
+import {Alert} from 'react-native';
+import {Dimensions} from 'react-native';
+import {View, Text, StyleSheet} from 'react-native';
 import {Platform} from 'react-native';
 import Orientation from 'react-native-orientation';
 import RNFetchBlob from 'rn-fetch-blob';
@@ -233,4 +237,17 @@ export const takeLoadedSize = async () => {
   }
   let size = await fs.readFile(path);
   return size;
+};
+
+export const countOfLoadedTracks = ({loadedNum}) => {
+  Alert.alert(
+    'Загрузка данных...',
+    'Кол-во загруженных песен: ' + loadedNum,
+    [
+      {
+        text: 'Ок',
+      },
+    ],
+    {cancelable: true},
+  );
 };

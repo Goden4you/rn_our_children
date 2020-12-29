@@ -14,6 +14,8 @@ import {
   UPDATE_ALBUM_ID_AND_DESC,
   HIDE_PLAYER,
   UPDATE_AUDIO_LOADED,
+  IS_TRACKS_LOADING,
+  UPDATE_LOADED_TRACKS_COUNT,
 } from '../types';
 
 export const loadTrack = (pressed, isPlaying) => {
@@ -114,10 +116,10 @@ export const handlePrevNext = (trackId) => {
   };
 };
 
-export const updateAudioLoaded = () => {
+export const updateAudioLoaded = (bool) => {
   return {
     type: UPDATE_AUDIO_LOADED,
-    audioLoaded: true,
+    audioLoaded: bool,
   };
 };
 
@@ -132,5 +134,19 @@ export const needMoveToNextAlbum = (bool) => {
   return {
     type: MOVE_TO_NEXT_ALBUM,
     payload: bool,
+  };
+};
+
+export const isTracksLoading = (bool) => {
+  return {
+    type: IS_TRACKS_LOADING,
+    isTracksLoading: bool,
+  };
+};
+
+export const updateLoadedTracksCount = (count) => {
+  return {
+    type: UPDATE_LOADED_TRACKS_COUNT,
+    count,
   };
 };

@@ -13,6 +13,8 @@ import {
   UPDATE_ALBUM_ID_AND_DESC,
   HIDE_PLAYER,
   UPDATE_AUDIO_LOADED,
+  IS_TRACKS_LOADING,
+  UPDATE_LOADED_TRACKS_COUNT,
 } from '../types';
 
 const initialState = {
@@ -31,6 +33,8 @@ const initialState = {
   curAlbumId: 0,
   curAlbumDesc: null,
   hidden: false,
+  isTracksLoading: false,
+  loadedTracksCount: 0,
 };
 
 export const playerReducer = (state = initialState, action) => {
@@ -88,6 +92,13 @@ export const playerReducer = (state = initialState, action) => {
       return (state = {...state, pressed: action.pressed});
     case MOVE_TO_NEXT_ALBUM:
       return (state = {...state, moveToNextAlbum: action.payload});
+    case IS_TRACKS_LOADING:
+      return (state = {...state, isTracksLoading: action.isTracksLoading});
+    case UPDATE_LOADED_TRACKS_COUNT:
+      return (state = {
+        ...state,
+        loadedTracksCount: action.count,
+      });
     default:
       return state;
   }

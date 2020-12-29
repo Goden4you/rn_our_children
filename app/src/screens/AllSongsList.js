@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 
 import {fetchAllSongsData} from '../store/actions/albums';
-import {onTrackPressed} from '../utils/utils';
+import {countOfLoadedTracks, onTrackPressed} from '../utils/utils';
 import {GoToSettings} from '../navigation/goSettings';
 
 let state = {
@@ -46,15 +46,17 @@ const SongsList = () => {
                   let desc = state.albumsDesc[track.albumId - firstAlbumId];
                   desc = desc.toString().substring(0, 2);
                   desc = parseInt(desc, 10);
-                  onTrackPressed({
-                    trackId: track.songFileId,
-                    albumIdProps: track.albumId,
-                    curAlbumId: state.curAlbumId,
-                    albumImage:
-                      state.albumsPhotos[track.albumId - firstAlbumId],
-                    songsCount: desc,
-                    dispatch,
-                  });
+                  state.isTracksLoading
+                    ? countOfLoadedTracks({loadedNum: state.loadedTracksCount})
+                    : onTrackPressed({
+                        trackId: track.songFileId,
+                        albumIdProps: track.albumId,
+                        curAlbumId: state.curAlbumId,
+                        albumImage:
+                          state.albumsPhotos[track.albumId - firstAlbumId],
+                        songsCount: desc,
+                        dispatch,
+                      });
                 }}>
                 <Image
                   source={{
@@ -98,6 +100,12 @@ export const AllSongsList = () => {
   const {albumsPhotos, albumsTitles, albumsDesc} = useSelector(
     (statem) => statem.albums.allAlbums,
   );
+  const isTracksLoading = useSelector(
+    (statem) => statem.player.isTracksLoading,
+  );
+  const loadedTracksCount = useSelector(
+    (statem) => statem.player.loadedTracksCount,
+  );
 
   state = {
     ...state,
@@ -106,6 +114,8 @@ export const AllSongsList = () => {
     albumsPhotos,
     albumsTitles,
     albumsDesc,
+    isTracksLoading,
+    loadedTracksCount,
   };
 
   useEffect(() => {

@@ -18,6 +18,7 @@ import Highlighter from 'react-native-highlight-words';
 import {GoToSettings} from '../navigation/goSettings';
 import {fetchAllSongsData} from '../store/actions/albums';
 import {
+  countOfLoadedTracks,
   onTrackPressed,
   putLastSearches,
   removeLastSearches,
@@ -58,15 +59,17 @@ const SearchTracks = () => {
                 let desc = state.albumsDesc[track.albumId - state.firstAlbumId];
                 desc = desc.toString().substring(0, 2);
                 desc = parseInt(desc, 10);
-                onTrackPressed({
-                  trackId: track.songFileId,
-                  albumIdProps: track.albumId,
-                  curAlbumId: state.curAlbumId,
-                  albumImage:
-                    state.searchRes[2][track.albumId - firstAlbumIdInRes],
-                  songsCount: desc,
-                  dispatch,
-                });
+                state.isTracksLoading
+                  ? countOfLoadedTracks({loadedNum: state.loadedTracksCount})
+                  : onTrackPressed({
+                      trackId: track.songFileId,
+                      albumIdProps: track.albumId,
+                      curAlbumId: state.curAlbumId,
+                      albumImage:
+                        state.searchRes[2][track.albumId - firstAlbumIdInRes],
+                      songsCount: desc,
+                      dispatch,
+                    });
               }}>
               <Image
                 source={{uri: state.searchRes[2][index]}}
@@ -112,6 +115,12 @@ export const SearchScreen = () => {
   );
   const curAlbumId = useSelector((statement) => statement.player.curAlbumId);
   const hidden = useSelector((statement) => statement.player.hidden);
+  const isTracksLoading = useSelector(
+    (statem) => statem.player.isTracksLoading,
+  );
+  const loadedTracksCount = useSelector(
+    (statem) => statem.player.loadedTracksCount,
+  );
 
   state = {
     ...state,
@@ -119,6 +128,8 @@ export const SearchScreen = () => {
     curAlbumId,
     hidden,
     firstAlbumId: albumsIds[0],
+    isTracksLoading,
+    loadedTracksCount,
   };
 
   useEffect(() => {

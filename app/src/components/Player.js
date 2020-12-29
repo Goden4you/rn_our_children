@@ -30,6 +30,8 @@ import {
   updatePressed,
   needMoveToNextAlbum,
   updateAudioLoaded,
+  isTracksLoading,
+  updateLoadedTracksCount,
 } from '../store/actions/player';
 import {albumChanged} from '../store/actions/albums';
 import store from '../store';
@@ -47,6 +49,10 @@ var state = {
   albumImage: null,
   isPlaying: false,
   deleteMusicPressed: false,
+  tracks: [],
+  indexForTrack: 0,
+  isTracksLoading: false,
+  isAlertVisible: false,
 };
 
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
@@ -134,10 +140,9 @@ async function setupPlayer() {
         }, 500);
       }
       setTimeout(() => {
-        dispatch(updateAudioLoaded());
+        dispatch(updateAudioLoaded(true));
         console.log('update audio loaded from listener');
       }, 800);
-      checkForLoad();
     } catch (e) {
       console.log(e);
     }
@@ -171,60 +176,27 @@ async function setupPlayer() {
   };
 }
 
-async function loadAudio(currentTrack, firstStart) {
+const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
   const {
-    trackId,
-    pressed,
     tracksAuthors,
     tracksTitles,
     firstTrackId,
     lastTrackId,
+    indexForTrack,
+    tracks,
+    pressed,
   } = state;
 
   try {
-    if (trackId !== 0 && trackId !== undefined && trackId !== null) {
-      console.log('loadAudio started', trackId);
-      let j = 0;
-      var track = [];
-      var path;
-      for (let i = firstTrackId; i <= lastTrackId; i++) {
-        path = RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + i + '.mp3';
-        const res = await RNFetchBlob.fs.exists(path);
-        const dur = state.tracksDurationMillis[i - firstTrackId] / 1000;
-        const image = state.albumImage;
-        if (res) {
-          console.log('read track from cache');
-          // await RNFetchBlob.fs.readFile(path).then(() => {
-          path = 'file://' + path;
-          track[j] = {
-            id: i.toString(),
-            url: path,
-            artist: tracksAuthors[i - firstTrackId].toString(),
-            title: tracksTitles[i - firstTrackId].toString(),
-            duration: dur,
-            artwork: image,
-          };
-          // });
-        } else {
-          track[j] = {
-            id: i.toString(),
-            url: 'https://childrensproject.ocs.ru/api/v1/files/' + i,
-            artist: tracksAuthors[i - firstTrackId].toString(),
-            title: tracksTitles[i - firstTrackId].toString(),
-            duration: dur,
-            artwork: image,
-          };
-        }
-        j++;
-      }
-
-      TrackPlayer.add(track);
+    if (trackId > lastTrackId) {
+      console.log('tracks added');
+      TrackPlayer.add(tracks);
 
       if (currentTrack) {
-        TrackPlayer.skip(trackId.toString());
-        TrackPlayer.updateMetadataForTrack(trackId.toString(), {
-          artist: tracksAuthors[trackId - firstTrackId].toString(),
-          title: tracksTitles[trackId - firstTrackId].toString(),
+        TrackPlayer.skip(state.trackId.toString());
+        TrackPlayer.updateMetadataForTrack(state.trackId.toString(), {
+          artist: tracksAuthors[state.trackId - firstTrackId].toString(),
+          title: tracksTitles[state.trackId - firstTrackId].toString(),
         });
         if (!firstStart) {
           TrackPlayer.play();
@@ -237,12 +209,71 @@ async function loadAudio(currentTrack, firstStart) {
 
       state = {
         ...state,
+        tracks: [],
+        indexForTrack: 0,
         audioLoaded: true,
         isPlaying: !firstStart,
         isQueueEnded: false,
         needUpdate2: true,
+        isTracksLoading: false,
+        isAlertVisible: false,
       };
+      dispatch(isTracksLoading(false));
+      dispatch(updateLoadedTracksCount(0));
+
       dispatch(loadTrack(pressed, state.isPlaying));
+      return;
+    }
+    let path =
+      RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + trackId + '.mp3';
+    const exist = await RNFetchBlob.fs.exists(path);
+    console.log('exist -', exist);
+    if (!exist) {
+      RNFetchBlob.config({
+        path: path,
+      })
+        .fetch('GET', API_PATH + trackId)
+        .then(() => {
+          console.log('track', trackId, 'fetched');
+          const dur = state.tracksDurationMillis[trackId - firstTrackId] / 1000;
+          const image = state.albumImage;
+          tracks[indexForTrack] = {
+            id: trackId.toString(),
+            url: 'file://' + path,
+            artist: tracksAuthors[trackId - firstTrackId].toString(),
+            title: tracksTitles[trackId - firstTrackId].toString(),
+            duration: dur,
+            artwork: image,
+          };
+          state = {
+            ...state,
+            tracks,
+            indexForTrack: indexForTrack + 1,
+          };
+          dispatch(updateLoadedTracksCount(state.indexForTrack));
+          addTracksToQueue({trackId: trackId + 1, currentTrack, firstStart});
+        });
+      fetchTrackSize({trackId});
+    } else {
+      const dur = state.tracksDurationMillis[trackId - firstTrackId] / 1000;
+      const image = state.albumImage;
+      tracks[indexForTrack] = {
+        id: trackId.toString(),
+        url: 'file://' + path,
+        artist: tracksAuthors[trackId - firstTrackId].toString(),
+        title: tracksTitles[trackId - firstTrackId].toString(),
+        duration: dur,
+        artwork: image,
+      };
+      state = {
+        ...state,
+        tracks,
+        indexForTrack: indexForTrack + 1,
+      };
+      addTracksToQueue({trackId: trackId + 1, currentTrack, firstStart});
+      dispatch(updateLoadedTracksCount(state.indexForTrack));
+
+      fetchTrackSize({trackId});
     }
   } catch (e) {
     Alert.alert(
@@ -262,34 +293,37 @@ async function loadAudio(currentTrack, firstStart) {
       trackPlayerInit: false,
     };
   }
+};
+
+async function loadAudio(currentTrack, firstStart) {
+  const {trackId, firstTrackId} = state;
+
+  try {
+    if (trackId !== 0 && trackId !== undefined && trackId !== null) {
+      addTracksToQueue({trackId: firstTrackId, currentTrack, firstStart});
+      dispatch(isTracksLoading(true));
+      state = {
+        ...state,
+        isTracksLoading: true,
+        isAlertVisible: true,
+      };
+      console.log('loadAudio started', trackId);
+    }
+  } catch (_) {}
 }
 
-async function checkForLoad() {
-  try {
-    let {trackId, loadedMusicSize, deleteMusicPressed} = state;
-    if (deleteMusicPressed) {
-      console.log('loadedMusicSize now 0');
-      loadedMusicSize = 0;
-    }
-    const path =
-      RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + trackId + '.mp3';
-    await RNFetchBlob.fs.exists(path).then(async (exist) => {
-      if (!exist) {
-        RNFetchBlob.config({
-          path: path,
-        }).fetch('GET', API_PATH + trackId);
-
-        await fetch(API_PATH + trackId).then((data) => {
-          let fileSize = data.headers.get('Content-Length');
-          let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
-          dispatch(updateLoadedSize(totalSize));
-          state = {...state, loadedMusicSize: totalSize};
-        });
-      }
-    });
-  } catch (e) {
-    console.log(e);
+async function fetchTrackSize({trackId}) {
+  let {loadedMusicSize, deleteMusicPressed} = state;
+  if (deleteMusicPressed) {
+    console.log('loadedMusicSize now 0');
+    loadedMusicSize = 0;
   }
+  await fetch(API_PATH + trackId).then((data) => {
+    let fileSize = data.headers.get('Content-Length');
+    let totalSize = parseInt(fileSize, 10) + loadedMusicSize;
+    dispatch(updateLoadedSize(totalSize));
+    state = {...state, loadedMusicSize: totalSize};
+  });
 }
 
 function isPressed() {
@@ -298,37 +332,43 @@ function isPressed() {
     ...state,
     pressed: true,
   };
-
-  if (!state.audioLoaded) {
-    let interval = setInterval(() => {
-      if (
-        !state.isAlbumLoading &&
-        state.trackId >= state.firstTrackId &&
-        state.trackId <= state.lastTrackId
-      ) {
-        clearInterval(interval);
-        loadAudio(true, false);
-      }
-    }, 250);
-  } else {
-    TrackPlayer.skip(state.trackId.toString());
-    let interval = setInterval(async () => {
-      if (
-        (await TrackPlayer.getState()) === TrackPlayer.STATE_READY ||
-        TrackPlayer.STATE_PAUSED
-      ) {
-        clearInterval(interval);
-        TrackPlayer.play();
-        state = {
-          ...state,
-          isPlaying: true,
-          pressed: false,
-        };
-      }
-    }, 250);
-  }
   dispatch(updatePressed(false));
-  dispatch(isTrackPlaying(true));
+  if (!state.isTracksLoading) {
+    console.log('tracks no longer loading - ', state.isTracksLoading);
+
+    if (!state.audioLoaded) {
+      console.log('start first interval');
+      let interval = setInterval(() => {
+        if (
+          !state.isAlbumLoading &&
+          state.trackId >= state.firstTrackId &&
+          state.trackId <= state.lastTrackId
+        ) {
+          clearInterval(interval);
+          loadAudio(true, false);
+        }
+      }, 250);
+    } else {
+      console.log('start second interval');
+      TrackPlayer.skip(state.trackId.toString());
+      let interval = setInterval(async () => {
+        if (
+          (await TrackPlayer.getState()) === TrackPlayer.STATE_READY ||
+          TrackPlayer.STATE_PAUSED
+        ) {
+          clearInterval(interval);
+          TrackPlayer.play();
+          state = {
+            ...state,
+            isPlaying: true,
+            pressed: false,
+          };
+        }
+      }, 250);
+    }
+    dispatch(updatePressed(false));
+    dispatch(isTrackPlaying(true));
+  }
 }
 
 function isAlbumImageChanged(move) {
@@ -339,6 +379,7 @@ function isAlbumImageChanged(move) {
   };
   TrackPlayer.reset();
   dispatch(albumChanged(false));
+  dispatch(updateAudioLoaded(true));
   if (move) {
     dispatch(needMoveToNextAlbum(false));
     let interval = setInterval(() => {

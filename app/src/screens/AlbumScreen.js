@@ -13,7 +13,7 @@ import {useDispatch, useSelector} from 'react-redux';
 
 import {isAlbumDataLoading, openAlbumScreen} from '../store/actions/albums';
 import store from '../store';
-import {onTrackPressed} from '../utils/utils';
+import {countOfLoadedTracks, onTrackPressed} from '../utils/utils';
 
 var dispatch;
 
@@ -37,6 +37,10 @@ export const AlbumScreen = ({navigation, route}) => {
   const isAlbumLoading = useSelector((state) => state.albums.isAlbumLoading);
   const songsCount = useSelector((state) => state.albums.songsCount);
   const curAlbumId = useSelector((state) => state.player.curAlbumId);
+  const isTracksLoading = useSelector((state) => state.player.isTracksLoading);
+  const loadedTracksCount = useSelector(
+    (state) => state.player.loadedTracksCount,
+  );
 
   useEffect(() => {
     if (albumImageProps !== statement.albumImage) {
@@ -102,15 +106,16 @@ export const AlbumScreen = ({navigation, route}) => {
                     style={styles.wrapper}
                     key={value}
                     onPress={() => {
-                      console.log('from album, ', typeof albumIdProps);
-                      onTrackPressed({
-                        trackId: value,
-                        albumIdProps,
-                        curAlbumId,
-                        albumImage: albumImageProps,
-                        songsCount,
-                        dispatch,
-                      });
+                      isTracksLoading
+                        ? countOfLoadedTracks({loadedNum: loadedTracksCount})
+                        : onTrackPressed({
+                            trackId: value,
+                            albumIdProps,
+                            curAlbumId,
+                            albumImage: albumImageProps,
+                            songsCount,
+                            dispatch,
+                          });
                     }}>
                     <View style={styles.songInfo}>
                       <Text style={styles.songTitle}>

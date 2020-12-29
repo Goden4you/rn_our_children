@@ -14,14 +14,14 @@ var state = {};
 var dispatch;
 
 export const handlePlayPause = async () => {
-  if (state.audioLoaded) {
+  if (state.audioLoaded && !state.isTracksLoading) {
     state.isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
     dispatch(isTrackPlaying(!state.isPlaying));
   }
 };
 
 export const handlePreviousTrack = async () => {
-  if (state.audioLoaded) {
+  if (state.audioLoaded && !state.isTracksLoading) {
     let {trackId} = state;
     if (JSON.parse(trackId) - 1 >= state.firstTrackId) {
       trackId -= 1;
@@ -48,7 +48,7 @@ export const handlePreviousTrack = async () => {
 };
 
 export const handleNextTrack = async () => {
-  if (state.audioLoaded) {
+  if (state.audioLoaded && !state.isTracksLoading) {
     let {trackId, lastTrackId, veryLastTrackId, veryFirstTrackId} = state;
 
     if (trackId === veryLastTrackId) {
@@ -121,9 +121,14 @@ export const ControlsButtons = () => {
     }, 500);
   }, []);
 
-  const {audioLoaded, isPlaying, trackId, queueEnded, curAlbumId} = useSelector(
-    (statement) => statement.player,
-  );
+  const {
+    audioLoaded,
+    isPlaying,
+    trackId,
+    queueEnded,
+    curAlbumId,
+    isTracksLoading,
+  } = useSelector((statement) => statement.player);
   const {firstTrackId, lastTrackId, albumImage} = useSelector(
     (statement) => statement.albums.currentAlbum,
   );
@@ -145,6 +150,7 @@ export const ControlsButtons = () => {
     allAlbumsIds: allAlbums.albumsIds,
     albumsPhotos: allAlbums.albumsPhotos,
     allAlbumsDesc: allAlbums.albumsDesc,
+    isTracksLoading,
   };
   return (
     <View style={styles.controls}>

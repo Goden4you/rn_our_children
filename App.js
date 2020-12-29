@@ -34,7 +34,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     position: 'absolute',
     bottom: height < 800 ? 45 : 80,
-    zIndex: 9999,
+    zIndex: 9998,
   },
 });
 
