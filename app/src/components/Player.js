@@ -162,14 +162,14 @@ async function setupPlayer() {
         });
       }
     }
-    // if (state.isTracksLoading) {
-    //   console.log('lastFetchedTrackId', state.lastFetchedTrackId);
-    //   addTracksToQueue({
-    //     trackId: state.lastFetchedTrackId + 1,
-    //     currentTrack: state.currentTrack,
-    //     firstStart: state.firstStart,
-    //   });
-    // }
+    if (state.isTracksLoading) {
+      console.log('lastFetchedTrackId', state.lastFetchedTrackId);
+      addTracksToQueue({
+        trackId: state.lastFetchedTrackId + 1,
+        currentTrack: state.currentTrack,
+        firstStart: state.firstStart,
+      });
+    }
   });
   SplashScreen.hide();
 
