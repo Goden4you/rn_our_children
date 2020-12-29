@@ -53,6 +53,9 @@ var state = {
   indexForTrack: 0,
   isTracksLoading: false,
   isAlertVisible: false,
+  lastFetchedTrackId: 0,
+  firstStart: false,
+  currentTrack: false,
 };
 
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
@@ -159,6 +162,14 @@ async function setupPlayer() {
         });
       }
     }
+    // if (state.isTracksLoading) {
+    //   console.log('lastFetchedTrackId', state.lastFetchedTrackId);
+    //   addTracksToQueue({
+    //     trackId: state.lastFetchedTrackId + 1,
+    //     currentTrack: state.currentTrack,
+    //     firstStart: state.firstStart,
+    //   });
+    // }
   });
   SplashScreen.hide();
 
@@ -239,6 +250,9 @@ const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
             ...state,
             tracks,
             indexForTrack: indexForTrack + 1,
+            currentTrack,
+            firstStart,
+            lastFetchedTrackId: trackId,
           };
           dispatch(updateLoadedTracksCount(state.indexForTrack));
           addTracksToQueue({trackId: trackId + 1, currentTrack, firstStart});
@@ -259,6 +273,9 @@ const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
         ...state,
         tracks,
         indexForTrack: indexForTrack + 1,
+        currentTrack,
+        firstStart,
+        lastFetchedTrackId: trackId,
       };
       addTracksToQueue({trackId: trackId + 1, currentTrack, firstStart});
       dispatch(updateLoadedTracksCount(state.indexForTrack));
