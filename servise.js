@@ -23,8 +23,4 @@ module.exports = async function () {
     console.log('remote-next');
     handleNextTrack();
   });
-  TrackPlayer.addEventListener('remote-seek', () => {
-    console.log('remote-next');
-    handleTrackPosition();
-  });
 };
