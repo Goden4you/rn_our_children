@@ -9,12 +9,18 @@ import {
 } from 'react-native';
 import {useSelector, useDispatch} from 'react-redux';
 import RNFetchBlob from 'rn-fetch-blob';
-import {updateLoadedSize} from '../store/actions/player';
+import TrackPlayer from 'react-native-track-player';
+import {
+  trackLoadingError,
+  updateAudioLoaded,
+  updateLoadedSize,
+} from '../store/actions/player';
 import {Back} from '../navigation/goBack';
 import store from '../store';
 import {putLoadedSize} from '../utils/utils';
 import {handleNextTrack} from '../components/controlPanel/ControlsButtons';
 import {Platform} from 'react-native';
+import {toggleAlbum} from '../store/actions/albums';
 
 var statement = {
   loadedMusic: 0,
@@ -31,7 +37,10 @@ async function deleteLoadedMusic() {
         : documentDir + '/loaded_tracks',
     );
     dispatch(updateLoadedSize(0, true));
-    handleNextTrack();
+    TrackPlayer.reset();
+    // dispatch(toggleAlbum([], [], [], [], [], 0, 0));
+    // dispatch(trackLoadingError());
+    dispatch(updateAudioLoaded(false));
   }
 }
 

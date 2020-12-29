@@ -3,6 +3,7 @@ import {
   handleNextTrack,
   handlePlayPause,
   handlePreviousTrack,
+  handleTrackPosition,
 } from './app/src/components/controlPanel/ControlsButtons';
 
 module.exports = async function () {
@@ -21,5 +22,9 @@ module.exports = async function () {
   TrackPlayer.addEventListener('remote-next', () => {
     console.log('remote-next');
     handleNextTrack();
+  });
+  TrackPlayer.addEventListener('remote-seek', () => {
+    console.log('remote-next');
+    handleTrackPosition();
   });
 };

@@ -379,7 +379,7 @@ function isAlbumImageChanged(move) {
   };
   TrackPlayer.reset();
   dispatch(albumChanged(false));
-  dispatch(updateAudioLoaded(true));
+  dispatch(updateAudioLoaded(false));
   if (move) {
     dispatch(needMoveToNextAlbum(false));
     let interval = setInterval(() => {
@@ -441,6 +441,8 @@ export const Player = () => {
     (statement) => statement.player.moveToNextAlbum,
   );
   const pressed = useSelector((statement) => statement.player.pressed);
+  const audioLoaded = useSelector((statement) => statement.player.audioLoaded);
+  console.log('audio loaded -', audioLoaded);
   const deleteMusicPressed = useSelector(
     (statement) => statement.player.deleteMusicPressed,
   );
@@ -461,6 +463,7 @@ export const Player = () => {
     pressed,
     deleteMusicPressed,
     isAlbumLoading,
+    audioLoaded,
   };
 
   useEffect(() => {

@@ -59,6 +59,7 @@ export const playerReducer = (state = initialState, action) => {
         ...state,
         isPlaying: action.isPlaying,
         trackPlayerInit: action.trackPlayerInit,
+        audioLoaded: action.audioLoaded,
       });
     case UPDATE_LOADED_SIZE:
       return (state = {

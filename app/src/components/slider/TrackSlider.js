@@ -11,7 +11,7 @@ var state = {
 };
 var dispatch;
 
-const handleTrackPosition = async (value) => {
+export const handleTrackPosition = async (value) => {
   try {
     if (state.audioLoaded) {
       TrackPlayer.seekTo(value);

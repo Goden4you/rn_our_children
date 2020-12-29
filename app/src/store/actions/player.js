@@ -87,6 +87,7 @@ export const trackLoadingError = () => {
     type: TRACK_LOADING_ERROR,
     isPlaying: false,
     trackPlayerInit: false,
+    audioLoaded: false,
   };
 };
 
