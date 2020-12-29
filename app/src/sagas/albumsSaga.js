@@ -50,10 +50,7 @@ export function* fetchAlbumsData() {
     yield put(albumsActions.loadAlbums(photos, titles, desc, ids));
 
     yield call(fetchFirstLastTrack, data[7].songsCount);
-    console.log('saga ended');
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (_) {}
 }
 
 function* fetchFirstLastTrack(songsCount) {

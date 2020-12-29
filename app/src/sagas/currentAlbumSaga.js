@@ -19,7 +19,6 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       if (!currentAlbum) {
         yield put(albumsActions.isAlbumDataLoading(true));
       }
-      console.log('fetch cur album called');
 
       const songsCount = yield select(albumSongsCount);
       const albumId = yield select(openedAlbumId);
@@ -39,7 +38,6 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       let tracksDuration = [];
       let tracksIds = [];
       let tracksDurationMillis = [];
-      console.log('songsCount - ', songsCount);
       for (let i = 0; i < songsCount; i++) {
         tracksTitles[i] = data[i].title;
         tracksAuthors[i] = data[i].author;
@@ -79,9 +77,7 @@ function* fetchCurrentAlbumSaga(currentAlbum) {
       }
       yield put(albumsActions.isAlbumDataLoading(false));
     }
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (_) {}
 }
 
 export function* watchCurrentAlbum() {

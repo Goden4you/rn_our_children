@@ -24,7 +24,6 @@ let state = {
 let dispatch;
 
 const SongsList = () => {
-  console.log('songs list updated');
   let prevAlbumId = 0;
   let firstAlbumId = 0;
   if (state.allData.toString() !== '' && state.albumsPhotos) {

@@ -7,7 +7,6 @@ import {FETCH_ALL_SONGS_DATA} from '../store/types';
 
 function* fetchAllSongs() {
   try {
-    console.log('fetchAllSongs called');
     yield put(isAlbumDataLoading(true));
     const ids = yield select(albumsIds);
 
@@ -30,9 +29,7 @@ function* fetchAllSongs() {
     let needUpdate = yield select(allTracksData);
     needUpdate.toString() !== '' ? null : yield put(allSongsData(data));
     yield put(isAlbumDataLoading(false));
-  } catch (e) {
-    console.log(e);
-  }
+  } catch (_) {}
 }
 
 export function* watchListScreen() {

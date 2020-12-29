@@ -270,6 +270,7 @@ export const SearchScreen = () => {
         platform={Platform.OS}
         showCancel={true}
         cancelButtonProps={{color: '#f47928'}}
+        cancelButtonTitle="Отмена"
         clearIcon={Platform.OS === 'android' ? true : false}
         searchIcon={Platform.OS === 'android' ? true : false}
         placeholder="Название"
@@ -297,7 +298,7 @@ export const SearchScreen = () => {
       ) : (
         <ScrollView style={styles.scrollWrap}>
           {inputs.toString() !== ''
-            ? inputs.map((input) => {
+            ? inputs.reverse().map((input) => {
                 return (
                   <TouchableOpacity
                     style={styles.wrapper}

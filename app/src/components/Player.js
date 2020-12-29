@@ -107,14 +107,12 @@ async function setupPlayer() {
 
   TrackPlayer.addEventListener('playback-track-changed', async () => {
     try {
-      console.log('playback track changed called');
       if (
         state.isPlaying &&
         !state.isQueueEnded &&
         !state.pressed &&
         state.audioLoaded
       ) {
-        console.log('listener working');
         let id = await TrackPlayer.getCurrentTrack();
         state = {
           ...state,
@@ -139,11 +137,8 @@ async function setupPlayer() {
       }
       setTimeout(() => {
         dispatch(updateAudioLoaded(true));
-        console.log('update audio loaded from listener');
-      }, 800);
-    } catch (e) {
-      console.log(e);
-    }
+      }, 1500);
+    } catch (_) {}
   });
 
   Linking.addEventListener('url', (data) => {
@@ -187,7 +182,6 @@ const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
 
   try {
     if (trackId > lastTrackId) {
-      console.log('tracks added');
       TrackPlayer.add(tracks);
 
       if (currentTrack) {
@@ -225,14 +219,12 @@ const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
     let path =
       RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + trackId + '.mp3';
     const exist = await RNFetchBlob.fs.exists(path);
-    console.log('exist -', exist);
     if (!exist) {
       RNFetchBlob.config({
         path: path,
       })
         .fetch('GET', API_PATH + trackId)
         .then(() => {
-          console.log('track', trackId, 'fetched');
           const dur = state.tracksDurationMillis[trackId - firstTrackId] / 1000;
           const image = state.albumImage;
           tracks[indexForTrack] = {
@@ -305,7 +297,6 @@ async function loadAudio(currentTrack, firstStart) {
         isTracksLoading: true,
         isAlertVisible: true,
       };
-      console.log('loadAudio started', trackId);
     }
   } catch (_) {}
 }
@@ -313,7 +304,6 @@ async function loadAudio(currentTrack, firstStart) {
 async function fetchTrackSize({trackId}) {
   let {loadedMusicSize, deleteMusicPressed} = state;
   if (deleteMusicPressed) {
-    console.log('loadedMusicSize now 0');
     loadedMusicSize = 0;
   }
   await fetch(API_PATH + trackId).then((data) => {
@@ -325,17 +315,13 @@ async function fetchTrackSize({trackId}) {
 }
 
 function isPressed() {
-  console.log('isPressed called');
   state = {
     ...state,
     pressed: true,
   };
   dispatch(updatePressed(false));
   if (!state.isTracksLoading) {
-    console.log('tracks no longer loading - ', state.isTracksLoading);
-
     if (!state.audioLoaded) {
-      console.log('start first interval');
       let interval = setInterval(() => {
         if (
           !state.isAlbumLoading &&
@@ -347,7 +333,6 @@ function isPressed() {
         }
       }, 250);
     } else {
-      console.log('start second interval');
       TrackPlayer.skip(state.trackId.toString());
       let interval = setInterval(async () => {
         if (
@@ -440,7 +425,6 @@ export const Player = () => {
   );
   const pressed = useSelector((statement) => statement.player.pressed);
   const audioLoaded = useSelector((statement) => statement.player.audioLoaded);
-  console.log('audio loaded -', audioLoaded);
   const deleteMusicPressed = useSelector(
     (statement) => statement.player.deleteMusicPressed,
   );

@@ -96,7 +96,6 @@ export const AppSettings = () => {
 };
 
 const phoneHeight = Dimensions.get('window').height;
-console.log('phoneHeight - ', phoneHeight);
 
 const styles = StyleSheet.create({
   container: {

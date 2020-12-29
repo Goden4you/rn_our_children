@@ -58,7 +58,6 @@ export const AlbumScreen = ({navigation, route}) => {
   }, [albumImageProps, albumIdProps, albumDescProps]);
 
   if (!isAlbumLoading) {
-    console.log('album screen updated');
     return (
       <View>
         <ScrollView

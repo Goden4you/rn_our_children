@@ -153,12 +153,15 @@ export const putAlbumsPhotos = async (photos) => {
 };
 
 export const putCurAlbumData = async (props) => {
-  console.log('id to write - ', [props[1]]);
-  await fs.createFile(
-    fs.dirs.CacheDir + '/cur_album_data/' + props[1],
-    JSON.stringify(props[0]),
-    'utf8',
-  );
+  let path = fs.dirs.CacheDir + '/cur_album_data/' + props[1];
+  let exist = await fs.exists(path);
+  if (!exist) {
+    await fs.createFile(
+      fs.dirs.CacheDir + '/cur_album_data/' + props[1],
+      JSON.stringify(props[0]),
+      'utf8',
+    );
+  }
 };
 
 export const putAllSongsData = async (data) => {
@@ -188,8 +191,8 @@ export const onTrackPressed = ({
   dispatch,
 }) => {
   if (albumIdProps !== curAlbumId) {
-    dispatch(albumChanged(true, songsCount, albumIdProps));
     dispatch(updateAlbumImage(albumImage));
+    dispatch(albumChanged(true, songsCount, albumIdProps));
   }
 
   dispatch(updatePressed(true));
