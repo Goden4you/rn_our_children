@@ -30,13 +30,20 @@ platform :ios do
 
   desc "Update adhoc device list"
   private_lane :update_devices do
-
     appcenter_fetch_devices(
       app_name: ENV["APPCENTER_IOS_DEV_APP_NAME"],
       destinations: '*',
     )
 
     register_devices(devices_file: "./devices.txt", team_id: "2SH4TBH25W")
+  end
+
+  desc "Unlock keychain"
+  private_lane :unlock_key do
+    unlock_keychain(
+      path: ENV["KEYCHAIN_PATH"],
+      password: ENV["KEYCHAIN_PASSWORD"]
+    )
   end
 
   desc "Get ios certificates for build environment"
@@ -55,6 +62,7 @@ platform :ios do
     )
   end
 
+  desc "Submit a new Beta Build to Appcenter"
   lane :beta do
     update_devices
     get_right_certs(release: false)
@@ -78,10 +86,7 @@ platform :ios do
       podfile: "./ios/Podfile"
     )
 
-    unlock_keychain(
-      path: ENV["KEYCHAIN_PATH"],
-      password: ENV["KEYCHAIN_PASSWORD"]
-    )
+    unlock_key
 
     build_ios_app(
       silent: true,
@@ -98,6 +103,44 @@ platform :ios do
     appcenter_upload(
       app_name: ENV["APPCENTER_IOS_DEV_APP_NAME"],
       file: ENV["RESULT_IPA"]
+      destinations: '*',
+      notify_testers: true, 
+    )
+
+  end
+
+  desc "Submit a new Release Build to Appcenter"
+  lane :release do
+    get_right_certs(release: true)
+
+    increment_version
+
+    cocoapods(
+      repo_update: true,
+      podfile: "./ios/Podfile"
+    )
+
+    unlock_key
+
+    build_ios_app(
+      silent: true,
+      clean: true,
+      skip_profile_detection: true,
+      configuration: "Enterprise",
+      export_options: {
+        method: "enterprise",
+        provisioningProfiles: {
+          "ru.ocs.nashim_detyam.enterprise" => "match InHouse ru.ocs.nashim_detyam.enterprise",
+        }
+      }
+    )
+
+    appcenter_upload(
+      app_name: ENV["APPCENTER_IOS_PROD_APP_NAME"],
+      file: ENV["RESULT_IPA"]
+      destinations: '*',
+      notify_testers: true, 
+      mandatory_update: true,
     )
 
   end
@@ -134,6 +177,8 @@ platform :android do
     appcenter_upload(
       app_name: ENV["APPCENTER_ANDROID_DEV_APP_NAME"],
       apk: ENV["GRADLE_APK_OUTPUT_PATH"],
+      destinations: '*',
+      notify_testers: true, 
     )
   end
 end

@@ -8,6 +8,7 @@
     - bundle install
     - fastlane install_plugins --verbose
   cache:
+    key: ${CI_COMMIT_REF_SLUG}
     paths:
       - .gradle/wrapper
       - .gradle/caches
@@ -16,6 +17,7 @@
     - bundle install
     - fastlane install_plugins --verbose
   cache:
+    key: ${CI_COMMIT_REF_SLUG}
     paths:
       - ./node_modules
 
@@ -44,4 +46,17 @@ deploy:ios:beta:
   tags:
     - mac-shell
   when: manual
+
+deploy:ios:release:
+  stage: deploy
+  extends: .ios
+  script:
+    - npm ci
+    - bundle exec fastlane ios release
+  tags:
+    - mac-shell
+  only:
+    - tags
+  when: manual
+
 
