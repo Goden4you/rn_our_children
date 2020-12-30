@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     height: phoneHeight < 800 ? 80 : 100,
     paddingLeft: 0,
     paddingBottom: phoneHeight < 800 ? 0 : 20,
+    paddingTop: phoneHeight < 800 ? 20 : 0,
     flexDirection: 'row',
     justifyContent: 'flex-start',
     alignItems: phoneHeight < 800 ? 'center' : 'flex-end',

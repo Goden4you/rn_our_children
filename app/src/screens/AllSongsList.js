@@ -142,7 +142,9 @@ const styles = StyleSheet.create({
   header: {
     backgroundColor: 'rgb(109,207,246)',
     height: phoneHeight < 800 ? 80 : 100,
-    padding: 20,
+    paddingRight: 20,
+    paddingBottom: phoneHeight < 800 ? 0 : 20,
+    paddingTop: phoneHeight < 800 ? 20 : 0,
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: phoneHeight < 800 ? 'center' : 'flex-end',
