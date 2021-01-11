@@ -137,7 +137,7 @@ platform :ios do
 
     appcenter_upload(
       app_name: ENV["APPCENTER_IOS_PROD_APP_NAME"],
-      file: ENV["RESULT_IPA"]
+      file: ENV["RESULT_IPA"],
       destinations: '*',
       notify_testers: true, 
       mandatory_update: true,
