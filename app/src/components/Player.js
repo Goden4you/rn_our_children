@@ -62,7 +62,7 @@ var state = {
 const API_PATH = 'https://childrensproject.ocs.ru/api/v1/files/';
 
 async function setupPlayer() {
-  TrackPlayer.setupPlayer();
+  await TrackPlayer.setupPlayer();
   const androidCapabilities = {
     capabilities: [
       TrackPlayer.CAPABILITY_PLAY,
@@ -92,11 +92,11 @@ async function setupPlayer() {
     ],
     stopWithApp: false,
   };
-  TrackPlayer.updateOptions(
+  await TrackPlayer.updateOptions(
     Platform.OS === 'android' ? androidCapabilities : iphoneCapabilities,
   );
 
-  TrackPlayer.addEventListener('playback-queue-ended', () => {
+  TrackPlayer.addEventListener('playback-queue-ended', async () => {
     if (state.isPlaying && state.needUpdate2) {
       state = {
         ...state,
@@ -104,7 +104,7 @@ async function setupPlayer() {
         isQueueEnded: true,
         needUpdate2: false,
       };
-      TrackPlayer.reset();
+      await TrackPlayer.reset();
       dispatch(isQueueEnded(true));
     }
   });
@@ -139,13 +139,13 @@ async function setupPlayer() {
           const playerState = await TrackPlayer.getState();
           if (playerState === TrackPlayer.STATE_READY && state.isPlaying) {
             clearInterval(interval);
-            TrackPlayer.play();
+            await TrackPlayer.play();
           } else if (
             playerState === TrackPlayer.STATE_PLAYING ||
             playerState === TrackPlayer.STATE_PAUSED
           ) {
             clearInterval(interval);
-            TrackPlayer.play();
+            await TrackPlayer.play();
           }
         }, 500);
       }
@@ -204,16 +204,16 @@ const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
 
   try {
     if (trackId > lastTrackId) {
-      TrackPlayer.add(tracks);
+      await TrackPlayer.add(tracks);
 
       if (currentTrack) {
-        TrackPlayer.skip(state.trackId.toString());
-        TrackPlayer.updateMetadataForTrack(state.trackId.toString(), {
+        await TrackPlayer.skip(state.trackId.toString());
+        await TrackPlayer.updateMetadataForTrack(state.trackId.toString(), {
           artist: tracksAuthors[state.trackId - firstTrackId].toString(),
           title: tracksTitles[state.trackId - firstTrackId].toString(),
         });
         if (!firstStart) {
-          TrackPlayer.play();
+          await TrackPlayer.play();
         }
         state = {
           ...state,
@@ -277,7 +277,7 @@ const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
         url: 'https://childrensproject.ocs.ru/api/v1/files/' + trackId,
         artist: tracksAuthors[trackId - firstTrackId].toString(),
         title: tracksTitles[trackId - firstTrackId].toString(),
-        duration: 180,
+        duration: dur,
         artwork: image,
       };
       state = {
@@ -342,7 +342,7 @@ async function fetchTrackSize({trackId}) {
   });
 }
 
-function isPressed() {
+async function isPressed() {
   state = {
     ...state,
     pressed: true,
@@ -361,14 +361,14 @@ function isPressed() {
         }
       }, 250);
     } else {
-      TrackPlayer.skip(state.trackId.toString());
+      await TrackPlayer.skip(state.trackId.toString());
       let interval = setInterval(async () => {
         if (
           (await TrackPlayer.getState()) === TrackPlayer.STATE_READY ||
           TrackPlayer.STATE_PAUSED
         ) {
           clearInterval(interval);
-          TrackPlayer.play();
+          await TrackPlayer.play();
           state = {
             ...state,
             isPlaying: true,
@@ -382,13 +382,13 @@ function isPressed() {
   }
 }
 
-function isAlbumImageChanged(move) {
+async function isAlbumImageChanged(move) {
   state = {
     ...state,
     audioLoaded: false,
     needUpdate2: false,
   };
-  TrackPlayer.reset();
+  await TrackPlayer.reset();
   dispatch(albumChanged(false));
   dispatch(updateAudioLoaded(false));
   if (move) {
@@ -408,8 +408,8 @@ function isAlbumImageChanged(move) {
 
 const componentUnmounted = async () => {
   state = {};
-  TrackPlayer.stop();
-  TrackPlayer.destroy();
+  await TrackPlayer.stop();
+  await TrackPlayer.destroy();
   AppState.removeEventListener('change');
   Linking.removeEventListener('url');
 };

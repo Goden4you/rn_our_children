@@ -15,7 +15,7 @@ var dispatch;
 
 export const handlePlayPause = async () => {
   if (state.audioLoaded && !state.isTracksLoading) {
-    state.isPlaying ? TrackPlayer.pause() : TrackPlayer.play();
+    state.isPlaying ? await TrackPlayer.pause() : await TrackPlayer.play();
     dispatch(isTrackPlaying(!state.isPlaying));
   }
 };
@@ -32,7 +32,7 @@ export const handlePreviousTrack = async () => {
       };
 
       dispatch(handlePrevNext(trackId));
-      TrackPlayer.skipToPrevious().then(() => {
+      await TrackPlayer.skipToPrevious().then(() => {
         setTimeout(() => {
           state = {
             ...state,
@@ -42,7 +42,7 @@ export const handlePreviousTrack = async () => {
         }, 250);
       });
     } else {
-      TrackPlayer.seekTo(0);
+      await TrackPlayer.seekTo(0);
     }
   }
 };
@@ -52,7 +52,7 @@ export const handleNextTrack = async () => {
     let {trackId, lastTrackId, veryLastTrackId, veryFirstTrackId} = state;
 
     if (trackId === veryLastTrackId) {
-      TrackPlayer.pause();
+      await TrackPlayer.pause();
       state = {
         ...state,
         isPlaying: false,
@@ -69,7 +69,7 @@ export const handleNextTrack = async () => {
           trackId,
         };
 
-        TrackPlayer.skipToNext().then(() => {
+        await TrackPlayer.skipToNext().then(() => {
           state = {
             ...state,
             audioLoaded: true,
@@ -78,7 +78,7 @@ export const handleNextTrack = async () => {
           dispatch(handlePrevNext(trackId));
         });
       } else {
-        TrackPlayer.stop();
+        await TrackPlayer.stop();
         dispatch(needMoveToNextAlbum(true));
         console.log('move to next album prop set to true');
         trackId = parseInt(trackId, 10) + 2;
