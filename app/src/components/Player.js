@@ -277,7 +277,7 @@ const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
         url: 'https://childrensproject.ocs.ru/api/v1/files/' + trackId,
         artist: tracksAuthors[trackId - firstTrackId].toString(),
         title: tracksTitles[trackId - firstTrackId].toString(),
-        duration: dur,
+        duration: Math.round(dur),
         artwork: image,
       };
       state = {
