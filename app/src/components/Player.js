@@ -11,6 +11,7 @@ import {
   Platform,
 } from 'react-native';
 import TrackPlayer from 'react-native-track-player';
+import MusicControl from 'react-native-music-control';
 import SplashScreen from 'react-native-splash-screen';
 import RNFetchBlob from 'rn-fetch-blob';
 
@@ -116,12 +117,22 @@ async function setupPlayer() {
         !state.pressed &&
         state.audioLoaded
       ) {
+        const {tracksTitles, tracksAuthors, albumImage, firstTrackId} = state;
         let id = await TrackPlayer.getCurrentTrack();
         state = {
           ...state,
           trackId: parseInt(id, 10),
         };
+        id = state.trackId;
+        const dur = state.tracksDurationMillis[id - firstTrackId] / 1000;
         dispatch(updateTrackId(parseInt(id, 10)));
+
+        MusicControl.setNowPlaying({
+          title: tracksTitles[id - firstTrackId].toString(),
+          artist: tracksAuthors[id - firstTrackId].toString(),
+          artwork: albumImage,
+          duration: dur,
+        });
 
         // let started = false;
         let interval = setInterval(async () => {
@@ -230,40 +241,40 @@ const addTracksToQueue = async ({trackId, currentTrack, firstStart}) => {
     let path =
       RNFetchBlob.fs.dirs.DocumentDir + '/loaded_tracks/' + trackId + '.mp3';
     const exist = await RNFetchBlob.fs.exists(path);
-    if (!exist) {
-      RNFetchBlob.config({
-        path: path,
-      })
-        .fetch('GET', API_PATH + trackId)
-        .then(() => {
-          const dur = state.tracksDurationMillis[trackId - firstTrackId] / 1000;
-          const image = state.albumImage;
-          tracks[indexForTrack] = {
-            id: trackId.toString(),
-            url: 'file://' + path,
-            artist: tracksAuthors[trackId - firstTrackId].toString(),
-            title: tracksTitles[trackId - firstTrackId].toString(),
-            duration: dur,
-            artwork: image,
-          };
-          state = {
-            ...state,
-            tracks,
-            indexForTrack: indexForTrack + 1,
-            currentTrack,
-            firstStart,
-            lastFetchedTrackId: trackId,
-          };
-          dispatch(updateLoadedTracksCount(state.indexForTrack));
-          addTracksToQueue({trackId: trackId + 1, currentTrack, firstStart});
-        });
+    if (exist) {
+      // RNFetchBlob.config({
+      //   path: path,
+      // })
+      //   .fetch('GET', API_PATH + trackId)
+      //   .then(() => {
+      const dur = state.tracksDurationMillis[trackId - firstTrackId] / 1000;
+      const image = state.albumImage;
+      tracks[indexForTrack] = {
+        id: trackId.toString(),
+        url: 'file://' + path,
+        artist: tracksAuthors[trackId - firstTrackId].toString(),
+        title: tracksTitles[trackId - firstTrackId].toString(),
+        duration: dur,
+        artwork: image,
+      };
+      state = {
+        ...state,
+        tracks,
+        indexForTrack: indexForTrack + 1,
+        currentTrack,
+        firstStart,
+        lastFetchedTrackId: trackId,
+      };
+      dispatch(updateLoadedTracksCount(state.indexForTrack));
+      addTracksToQueue({trackId: trackId + 1, currentTrack, firstStart});
+      // });
       fetchTrackSize({trackId});
     } else {
       const dur = state.tracksDurationMillis[trackId - firstTrackId] / 1000;
       const image = state.albumImage;
       tracks[indexForTrack] = {
         id: trackId.toString(),
-        url: 'file://' + path,
+        url: 'https://childrensproject.ocs.ru/api/v1/files/' + trackId,
         artist: tracksAuthors[trackId - firstTrackId].toString(),
         title: tracksTitles[trackId - firstTrackId].toString(),
         duration: dur,
